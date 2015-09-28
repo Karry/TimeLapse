@@ -61,6 +61,8 @@ namespace timelapse {
 
   TimeLapseAssembly::~TimeLapseAssembly() {
     if (_blackHole != NULL) {
+      _verboseOutput.flush();
+      _verboseOutput.setDevice(NULL);
       delete _blackHole;
       _blackHole = NULL;
     }
@@ -99,7 +101,7 @@ namespace timelapse {
     parser.addVersionOption();
 
     parser.addPositionalArgument("source(s)",
-      QCoreApplication::translate("main", "Source images (directories are not supported yet)."));
+      QCoreApplication::translate("main", "Source images (images or directories with images)."));
 
     QCommandLineOption outputOption(QStringList() << "o" << "output",
       QCoreApplication::translate("main", "Output video file (default is timelapse.mkv)."),

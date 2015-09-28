@@ -128,7 +128,7 @@ namespace timelapse {
     parser.addOption(lengthOption);
 
     QCommandLineOption bitrateOption(QStringList() << "bitrate",
-      QCoreApplication::translate("main", QString("Output video bitrate. Default %1.").arg(_bitrate))
+      QCoreApplication::translate("main", "Output video bitrate. Default %1.").arg(_bitrate),
       QCoreApplication::translate("main", "bitrate"));
     parser.addOption(bitrateOption);
 
@@ -331,7 +331,7 @@ namespace timelapse {
       << "-r" << QString("%1").arg(_fps)
       << "-s" << QString("%1x%2").arg(_width).arg(_height)
       << "-i" << (_tempDir->path() + QDir::separator() + QString("%0") + QString("%1d.jpeg").arg(FRAME_FILE_LEADING_ZEROS))
-      << "-b:v" << QString("%1").arg(_bitrate)
+      << "-b:v" << _bitrate
       << "-c:v" << _codec
       << "-y" // Overwrite output files without asking
       << _output.filePath();

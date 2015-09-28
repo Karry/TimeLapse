@@ -27,6 +27,7 @@ namespace timelapse {
   }
 
   BlackHoleDevice::BlackHoleDevice(const BlackHoleDevice& orig) {
+    open(WriteOnly);
   }
 
   BlackHoleDevice::~BlackHoleDevice() {

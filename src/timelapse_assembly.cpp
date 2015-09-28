@@ -122,8 +122,8 @@ namespace timelapse {
     parser.addOption(fpsOption);
 
     QCommandLineOption lengthOption(QStringList() << "length",
-      QCoreApplication::translate("main", "Output video length (in second). \n"
-      "If this option is not defined, then length will be count from number of inputs images / fps."),
+      QCoreApplication::translate("main", "Output video length (in seconds). \n"
+      "If this option is not defined, then length will be computed from number of inputs images / fps."),
       QCoreApplication::translate("main", "length"));
     parser.addOption(lengthOption);
 
@@ -131,6 +131,11 @@ namespace timelapse {
       QCoreApplication::translate("main", "Output video bitrate. Default %1.").arg(_bitrate),
       QCoreApplication::translate("main", "bitrate"));
     parser.addOption(bitrateOption);
+
+    QCommandLineOption codecOption(QStringList() << "codec",
+      QCoreApplication::translate("main", "Output video codec. Default %1.").arg(_codec),
+      QCoreApplication::translate("main", "codec"));
+    parser.addOption(codecOption);
 
     QCommandLineOption noStrictIntervalOption(QStringList() << "no-strict-interval",
       QCoreApplication::translate("main", "Don't map input images to output video frames with strict interval.\n"
@@ -240,6 +245,8 @@ namespace timelapse {
     }
     if (parser.isSet(bitrateOption))
       _bitrate = parser.value(bitrateOption);
+    if (parser.isSet(codecOption))
+      _codec = parser.value(codecOption);
 
     _noStrictInterval = parser.isSet(noStrictIntervalOption);
 
@@ -323,7 +330,20 @@ namespace timelapse {
   void TimeLapseAssembly::assemblyVideo() {
     _verboseOutput << "Assembling video..." << endl;
 
+    QString cmd = "avconv";
     QProcess avconv;
+    avconv.setProcessChannelMode(QProcess::MergedChannels);
+    avconv.start("avconv", QStringList() << "-version");
+    if (!avconv.waitForFinished()) {
+      _verboseOutput << "avconv exited with error, try to use ffmpeg" << endl;
+      QProcess ffmpeg;
+      ffmpeg.setProcessChannelMode(QProcess::MergedChannels);
+      ffmpeg.start("ffmpeg", QStringList() << "-version");
+      if (!ffmpeg.waitForFinished()) {
+        _err << "Both commands (avconv, ffmpeg) fails! Try to use ffmpeg.";
+      }
+      cmd = "ffmpeg";
+    }
 
     // avconv -f image2 -r $fps -s $res -i morphed/%06d.jpg -b:v $bitrate -c:v libx264  video.mkv
     QStringList args = QStringList()
@@ -333,17 +353,19 @@ namespace timelapse {
       << "-i" << (_tempDir->path() + QDir::separator() + QString("%0") + QString("%1d.jpeg").arg(FRAME_FILE_LEADING_ZEROS))
       << "-b:v" << _bitrate
       << "-c:v" << _codec
-      << "-y" // Overwrite output files without asking
+      << "-y" // Overwrite output file without asking
       << _output.filePath();
 
-    _verboseOutput << "avconv arguments: " << args.join(' ') << endl;
-    avconv.start("avconv", args);
-    if (!avconv.waitForFinished(-1)) {
-      _err << "avconv failed:" << avconv.errorString() << endl;
+    _verboseOutput << cmd << " arguments: " << args.join(' ') << endl;
+    QProcess proc;
+    proc.setProcessChannelMode(QProcess::MergedChannels);
+    proc.start(cmd, args);
+    if (!proc.waitForFinished(-1 /* no timeout */)) {
+      _err << cmd << " failed:" << proc.errorString() << endl;
       exit(-2);
       return;
     }
-    _verboseOutput << "avconv output:\n" << avconv.readAll();
+    _verboseOutput << cmd << " output:\n" << proc.readAll();
 
     emit videoAssembled();
   }

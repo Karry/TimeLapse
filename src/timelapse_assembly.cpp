@@ -129,7 +129,7 @@ namespace timelapse {
       QCoreApplication::translate("main", "length"));
     parser.addOption(lengthOption);
 
-    QCommandLineOption bitrateOption(QStringList() << "bitrate",
+    QCommandLineOption bitrateOption(QStringList() << "b" << "bitrate",
       QCoreApplication::translate("main", "Output video bitrate. Default %1.").arg(_bitrate),
       QCoreApplication::translate("main", "bitrate"));
     parser.addOption(bitrateOption);
@@ -140,11 +140,14 @@ namespace timelapse {
     parser.addOption(codecOption);
 
     QCommandLineOption noStrictIntervalOption(QStringList() << "no-strict-interval",
-      QCoreApplication::translate("main", "Don't map input images to output video frames with strict interval.\n"
-      "It is usefull when time interval between images is not fixed.\n"
-      "Input image to output video frame mapping will be computed from image\n"
-      "timestamp (EXIF metadata will be used)."));
+      QCoreApplication::translate("main", "Don't map input images to output video frames with strict interval. "
+      "Input image to output video frame mapping will be computed from image "
+      "timestamp (EXIF metadata will be used or file modification time)."));
     parser.addOption(noStrictIntervalOption);
+
+    QCommandLineOption blendFramesOption(QStringList() << "blend-frames",
+      QCoreApplication::translate("main", "Blend frame transition."));
+    parser.addOption(blendFramesOption);
 
     QCommandLineOption verboseOption(QStringList() << "V" << "verbose",
       QCoreApplication::translate("main", "Verbose output."));
@@ -255,6 +258,11 @@ namespace timelapse {
     _noStrictInterval = parser.isSet(noStrictIntervalOption);
     if (_noStrictInterval && _length < 0) {
       _err << "Video length is not setup, ignore \"no-strict-interval\"." << endl;
+    }
+
+    _blendFrames = parser.isSet(blendFramesOption);
+    if (_blendFrames && _length < 0) {
+      _err << "Video length is not setup, ignore \"blend-frame\" option." << endl;
     }
 
     if (parser.isSet(tmpOption))

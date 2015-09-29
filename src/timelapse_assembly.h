@@ -50,7 +50,9 @@ namespace timelapse {
     virtual ~TimeLapseAssembly();
     //QString getApplicationVersion();
     void verbose(QString &s);
-    void blendFrameTransition(int f1, Magick::Image *i1, int f2, Magick::Image *i2);
+    void blendFrameTransition(int f1, const Magick::Image *i1, int f2, const Magick::Image *i2);
+    Magick::Image cropAndResize(int f, const Magick::Image &i);
+    void writeFrame(int f, const Magick::Image &i);
     QString leadingZeros(int i, int leadingZeros);
 
   public slots:
@@ -110,7 +112,7 @@ namespace timelapse {
      */
     bool _noStrictInterval;
     bool _blendFrames;
-    
+
     QLocale _frameNumberLocale;
 
   };

@@ -213,7 +213,7 @@ namespace timelapse {
     for (QString inputArg : inputArgs) {
       QFileInfo i(inputArg);
       if (i.isFile() || i.isSymLink()) {
-        _verboseOutput << "File input: " << inputArg << endl;
+        _verboseOutput << "Input file: " << inputArg << endl;
         _inputs.append(InputImageInfo(i));
       } else if (i.isDir()) {
         _verboseOutput << "Dive into directory: " << inputArg << endl;
@@ -223,7 +223,7 @@ namespace timelapse {
         _verboseOutput << "...found " << l.size() << " entries" << endl;
         for (QFileInfo i2 : l) {
           if (i2.isFile() || i2.isSymLink()) {
-            _verboseOutput << "File input: " << i2.filePath() << endl;
+            _verboseOutput << "Input file: " << i2.filePath() << endl;
             _inputs.append(InputImageInfo(i2));
           } else {
             die << (QString("Can't find input ") + i2.filePath());
@@ -233,6 +233,8 @@ namespace timelapse {
         die << (QString("Can't find input ") + inputArg);
       }
     }
+    if (_inputs.empty())
+      die << "No input images found!";
 
     bool ok = false;
     if (parser.isSet(widthOption)) {
@@ -451,24 +453,44 @@ namespace timelapse {
     return s.prepend(QString(leadingZeros - s.length(), '0'));
   }
 
-  void TimeLapseAssembly::blendFrameTransition(int f1, Magick::Image *i1, int f2, Magick::Image *i2) {
-    if (_blendFrames) {
+  Magick::Image TimeLapseAssembly::cropAndResize(int f, const Magick::Image &i) {
+    Magick::Image copy = i;
+    Magick::Geometry g(_width, _height);
+    g.aspect(true);
+    copy.resize(g);
+    return copy;
+  }
+
+  void TimeLapseAssembly::writeFrame(int f, const Magick::Image &i) {
+    QString framePath = _tempDir->path() + QDir::separator()
+      + leadingZeros(f, FRAME_FILE_LEADING_ZEROS) + QString(".jpeg");
+
+    _verboseOutput << "Write frame " << framePath << endl;
+    if (!_dryRun) {
+      cropAndResize(f, i).write(framePath.toStdString());
+    }
+
+  }
+
+  void TimeLapseAssembly::blendFrameTransition(int f1, const Magick::Image * i1, int f2, const Magick::Image *i2) {
+    if (_blendFrames && i2 != NULL) {
       _verboseOutput << "Blending images for frames " << f1 << " ... " << f2 << endl;
-      // TODO
-      _err << "Blending frames is not implemented yet." << endl;
-      exit(-2);
-      return;
+      for (int f = f1; f < f2; f++) {
+        Magick::Image blended = *i1;
+
+        double opacity = 1.0 - ((double) (f - f1) / ((double) (f2 - f1)));
+        if (f - f1 > 0) { // for 100 % transparency, we don't have to composite
+          Magick::Image secondLayer = *i2;
+          _verboseOutput << "Blend with next image with " << (opacity * 100) << " % transparency" << endl;
+          secondLayer.opacity(((double) QuantumRange) * opacity);
+          blended.composite(secondLayer, 0, 0, Magick::DissolveCompositeOp);
+        }
+        writeFrame(f, blended);
+      }
     } else {
       _verboseOutput << "Duplicate image for frames " << f1 << " ... " << f2 << endl;
       for (int f = f1; f < f2; f++) {
-
-        QString framePath = _tempDir->path() + QDir::separator()
-          + leadingZeros(f, FRAME_FILE_LEADING_ZEROS) + QString(".jpeg");
-
-        _verboseOutput << "Write frame " << framePath << endl;
-        if (!_dryRun) {
-          i1->write(framePath.toStdString());
-        }
+        writeFrame(f, *i1);
       }
     }
   }
@@ -481,11 +503,6 @@ namespace timelapse {
     for (InputImageInfo input : _inputs) {
       _verboseOutput << "Loading " << input.file.filePath() << endl;
       Magick::Image * inputImage = new Magick::Image(input.file.filePath().toStdString());
-
-      Magick::Geometry g(_width, _height);
-      g.aspect(true);
-      inputImage->resize(g);
-      //inputImage->scale(Magick::Geometry(_width, _height));
 
       if (prevImage != NULL) {
         blendFrameTransition(prevFrame, prevImage, input.frame, inputImage);

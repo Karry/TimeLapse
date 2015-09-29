@@ -8,6 +8,7 @@ Currently, only timelapse_assembly tool is available.
 ## Build
 
 This project is written in C++ with usage of QT framework and ImageMagic. 
+I invest effort to create tools multiplatform, but I tested it on Ubuntu Linux only.
 It uses avconv or ffmpeg to build final videos.
 
 #### Ubuntu
@@ -68,7 +69,9 @@ Arguments:
 
 ## External tools
 
- - timelapse-deflicker https://github.com/cyberang3l/timelapse-deflicker
-   Simple script to deflicker images taken for timelapses 
- - gphoto2 https://github.com/gphoto/gphoto2
-   The gphoto2 commandline tool for accessing and controlling digital cameras. 
+ - *timelapse-deflicker* - 
+    Simple script to deflicker images taken for timelapses 
+    https://github.com/cyberang3l/timelapse-deflicker
+ - *gphoto2* -
+    The gphoto2 commandline tool for accessing and controlling digital cameras. 
+    https://github.com/gphoto/gphoto2

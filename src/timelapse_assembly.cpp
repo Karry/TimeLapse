@@ -408,6 +408,7 @@ namespace timelapse {
 
     inputList = QList<InputImageInfo>();
     int lastFrame = -1;
+    int maxStep = 0;
     for (InputImageInfo input : _inputs) {
       input.frame = (
         ((double) startTimestamp.msecsTo(input.timestamp)) / ((double) realTimeLapsDurationMs)
@@ -416,18 +417,22 @@ namespace timelapse {
       if (input.frame >= _frameCount) // last frame
         input.frame = _frameCount - 1;
 
+      int step = (lastFrame < 0 ? 0 : input.frame - lastFrame);
       _verboseOutput << input.file.fileName() << " " << input.timestamp.toString(Qt::ISODate)
-        << " > frame " << input.frame << " (step " << (lastFrame < 0 ? 0 : input.frame - lastFrame) << ")" << endl;
+        << " > frame " << input.frame << " (step " << step << ")" << endl;
+      if (step > maxStep)
+        maxStep = step;
 
       if (lastFrame >= input.frame) {
         _err << "Skip image " << input.file.fileName() << ", it is too early after previous." << endl
-          << "You can try to increase output length or fps.";
+          << "You can try to increase output length or fps." << endl;
       } else {
         inputList.append(input);
         lastFrame = input.frame;
       }
     }
     _inputs = inputList;
+    _verboseOutput << "Maximum step is " << maxStep << " frames." << endl;
 
     if (_inputs.isEmpty()) {
       _err << "Input list is empty!" << endl;

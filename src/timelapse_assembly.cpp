@@ -47,7 +47,10 @@ namespace timelapse {
   _output("timelapse.mkv"),
   _width(1920), _height(1080),
   _fps(25), _length(-1), _frameCount(-1), _bitrate("40000k"), _codec("libx264"),
-  _noStrictInterval(false), _blendFrames(false) {
+  _noStrictInterval(false), _blendFrames(false),
+  _frameNumberLocale(QLocale::c()) {
+
+    _frameNumberLocale.setNumberOptions(QLocale::OmitGroupSeparator);
 
     setApplicationName("TimeLapse assembly tool");
     setApplicationVersion(VERSION_TIMELAPSE);
@@ -313,13 +316,13 @@ namespace timelapse {
         "(" << _inputs.size() << "). Some images will be skipped!" << endl;
     }
 
-    float frameStep = _frameCount / _inputs.size();
+    double frameStep = ((double) _frameCount) / ((double) _inputs.size());
     if (frameStep <= 0) {
       _err << "Frame step between images is too low!" << endl;
       exit(-1);
       return;
     }
-    float currentFrame = 0;
+    double currentFrame = 0;
     int lastFrame = -1;
     QList<InputImageInfo> inputList;
     for (InputImageInfo input : _inputs) {
@@ -434,6 +437,15 @@ namespace timelapse {
     emit inputsMappedToFrames();
   }
 
+  QString TimeLapseAssembly::leadingZeros(int i, int leadingZeros) {
+    // default locale can include thousand delimiter
+    QString s = _frameNumberLocale.toString(i);
+    if (leadingZeros <= s.length())
+      return s;
+
+    return s.prepend(QString(leadingZeros - s.length(), '0'));
+  }
+
   void TimeLapseAssembly::blendFrameTransition(int f1, Magick::Image *i1, int f2, Magick::Image *i2) {
     if (_blendFrames) {
       _verboseOutput << "Blending images for frames " << f1 << " ... " << f2 << endl;
@@ -444,8 +456,10 @@ namespace timelapse {
     } else {
       _verboseOutput << "Duplicate image for frames " << f1 << " ... " << f2 << endl;
       for (int f = f1; f < f2; f++) {
-        QString framePath = _tempDir->path() + QDir::separator() + QString("%L1.jpeg")
-          .arg((long) f, FRAME_FILE_LEADING_ZEROS, 10, QChar('0'));
+
+        QString framePath = _tempDir->path() + QDir::separator()
+          + leadingZeros(f, FRAME_FILE_LEADING_ZEROS) + QString(".jpeg");
+
         _verboseOutput << "Write frame " << framePath << endl;
         if (!_dryRun) {
           i1->write(framePath.toStdString());
@@ -510,6 +524,7 @@ namespace timelapse {
       << "-b:v" << _bitrate
       << "-c:v" << _codec
       << "-y" // Overwrite output file without asking
+      << "-r" << QString("%1").arg(_fps)
       << _output.filePath();
 
     _verboseOutput << "Executing:" << endl << cmd << " " << args.join(' ') << endl;

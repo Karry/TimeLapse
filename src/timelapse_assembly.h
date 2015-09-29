@@ -50,7 +50,8 @@ namespace timelapse {
     virtual ~TimeLapseAssembly();
     //QString getApplicationVersion();
     void verbose(QString &s);
-    void blendFrameTransition(int f1, Magick::Image *i1, int f2, Magick::Image *i2) ;
+    void blendFrameTransition(int f1, Magick::Image *i1, int f2, Magick::Image *i2);
+    QString leadingZeros(int i, int leadingZeros);
 
   public slots:
     void run();
@@ -81,17 +82,17 @@ namespace timelapse {
     bool _forceOverride;
     QList<InputImageInfo> _inputs;
     QString _tmpBaseDir;
-    
+
     QTemporaryDir *_tempDir;
-      
+
     /* output properties*/
     /* output file name */
     QFileInfo _output;
-    
+
     /* output video dimensions. Default is 1920x1080 */
     int _width;
     int _height;
-    
+
     /* output video fps, default 25 */
     float _fps;
 
@@ -99,7 +100,7 @@ namespace timelapse {
      * if length < 0, then length will be count of inputs images / fps
      */
     float _length;
-    int _frameCount ;
+    int _frameCount;
     QString _bitrate;
     QString _codec;
 
@@ -109,6 +110,8 @@ namespace timelapse {
      */
     bool _noStrictInterval;
     bool _blendFrames;
+    
+    QLocale _frameNumberLocale;
 
   };
 }

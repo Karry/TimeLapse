@@ -49,12 +49,9 @@ Options:
   -b, --bitrate <bitrate>  Output video bitrate. Default 40000k.
   --codec <codec>          Output video codec. Default libx264.
   --no-strict-interval     Don't map input images to output video frames with
-                           strict interval.
-                           It is usefull when time interval between images is
-                           not fixed.
-                           Input image to output video frame mapping will be
-                           computed from image
-                           timestamp (EXIF metadata will be used).
+                           strict interval. Input image to output video frame
+                           mapping will be computed from image timestamp (EXIF
+                           metadata will be used or file modification time).
   --blend-frames           Blend frame transition.
   -V, --verbose            Verbose output.
   -d, --dryrun             Just parse arguments, check inputs and prints

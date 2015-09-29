@@ -54,12 +54,16 @@ namespace timelapse {
 
   public slots:
     void run();
+    void setupOneToOneFrameMapping();
+    void setupFrameMapping();
+    void setupVariableIntervalFrameMapping();
     void prepareFrames();
     void assemblyVideo();
     void cleanup();
 
   signals:
     void startProcessing();
+    void inputsMappedToFrames();
     void framesPrepared();
     void videoAssembled();
     void startAssembly();
@@ -95,6 +99,7 @@ namespace timelapse {
      * if length < 0, then length will be count of inputs images / fps
      */
     float _length;
+    int _frameCount ;
     QString _bitrate;
     QString _codec;
 

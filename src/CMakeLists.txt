@@ -38,9 +38,17 @@ message(STATUS "Qt5Core_INCLUDE_DIRS:     ${Qt5Core_INCLUDE_DIRS}")
 message(STATUS "ImageMagick_INCLUDE_DIRS: ${ImageMagick_INCLUDE_DIRS}")
 message(STATUS "ImageMagick_LIBRARIES:    ${ImageMagick_LIBRARIES}")
 
-qt5_generate_moc(timelapse_assembly.h timelapse_assembly.moc)
-qt5_generate_moc(black_hole_device.h black_hole_device.moc)
-qt5_generate_moc(input_image_info.h input_image_info.moc)
+qt5_generate_moc(timelapse_assembly.h       timelapse_assembly.moc)
+qt5_generate_moc(black_hole_device.h        black_hole_device.moc)
+qt5_generate_moc(input_image_info.h         input_image_info.moc)
+
+qt5_generate_moc(pipeline.h                 pipeline.moc)
+qt5_generate_moc(pipeline_handler.h         pipeline_handler.moc)
+qt5_generate_moc(pipeline_frame_mapping.h   pipeline_frame_mapping.moc)
+qt5_generate_moc(pipeline_frame_prepare.h   pipeline_frame_prepare.moc)
+qt5_generate_moc(pipeline_video_assembly.h  pipeline_video_assembly.moc)
+qt5_generate_moc(pipeline_write_frame.h     pipeline_write_frame.moc)
+qt5_generate_moc(pipeline_resize_frame.h    pipeline_resize_frame.moc)
 
 set(timelapse_assembly_SRCS 
 
@@ -52,6 +60,27 @@ set(timelapse_assembly_SRCS
 
     input_image_info.cpp
     input_image_info.moc
+
+    pipeline_handler.cpp
+    pipeline_handler.moc
+
+    pipeline_frame_mapping.cpp
+    pipeline_frame_mapping.moc
+
+    pipeline_frame_prepare.cpp
+    pipeline_frame_prepare.moc
+
+    pipeline_resize_frame.cpp
+    pipeline_resize_frame.moc
+
+    pipeline_video_assembly.cpp
+    pipeline_video_assembly.moc
+
+    pipeline_write_frame.cpp
+    pipeline_write_frame.moc
+
+    pipeline.cpp
+    pipeline.moc
 )
 
 # QT5_AUTOMOC(${timelapse_assembly_SRCS})

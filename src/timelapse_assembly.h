@@ -24,19 +24,19 @@
 #ifndef TIMELAPSE_ASSEMBLY_H
 #define	TIMELAPSE_ASSEMBLY_H
 
-#include <QFileInfo>
-
 #include <QtCore/QObject>
 #include <QtCore/QDebug>
 #include <QtCore/QTimer>
 #include <QtCore/QTextStream>
 #include <QtCore/QCoreApplication>
+#include <QtCore/QFileInfo>
 #include <QtCore/QTemporaryDir>
 
 #include <Magick++.h>
 
 #include "black_hole_device.h"
 #include "input_image_info.h"
+#include "pipeline.h"
 
 #define FRAME_FILE_LEADING_ZEROS 9
 
@@ -48,7 +48,6 @@ namespace timelapse {
   public:
     TimeLapseAssembly(int &argc, char **argv);
     virtual ~TimeLapseAssembly();
-    //QString getApplicationVersion();
     void verbose(QString &s);
     void blendFrameTransition(int f1, const Magick::Image *i1, int f2, const Magick::Image *i2);
     Magick::Image cropAndResize(int f, const Magick::Image &i);
@@ -57,23 +56,13 @@ namespace timelapse {
 
   public slots:
     void run();
-    void setupOneToOneFrameMapping();
-    void setupFrameMapping();
-    void setupVariableIntervalFrameMapping();
-    void prepareFrames();
-    void assemblyVideo();
     void cleanup();
 
   signals:
-    void startProcessing();
-    void inputsMappedToFrames();
-    void framesPrepared();
-    void videoAssembled();
-    void startAssembly();
     void done();
 
   protected:
-    void parseArguments();
+    QList<InputImageInfo> parseArguments();
 
   protected:
     QTextStream _out;
@@ -113,8 +102,7 @@ namespace timelapse {
     bool _noStrictInterval;
     bool _blendFrames;
 
-    QLocale _frameNumberLocale;
-
+    Pipeline *pipeline;
   };
 }
 #endif	/* TIMELAPSE_ASSEMBLY_H */

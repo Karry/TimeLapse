@@ -17,8 +17,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             
  */
 
-#ifndef TIMELAPSE_ASSEMBLY_H
-#define	TIMELAPSE_ASSEMBLY_H
+#ifndef TIMELAPSE_DEFLICKER_H
+#define	TIMELAPSE_DEFLICKER_H
 
 #include <QtCore/QObject>
 #include <QtCore/QDebug>
@@ -34,18 +34,19 @@
 #include "input_image_info.h"
 #include "pipeline.h"
 
-#define FRAME_FILE_LEADING_ZEROS 9
+using namespace std;
+using namespace timelapse;
 
 namespace timelapse {
 
-  class TimeLapseAssembly : public QCoreApplication {
+  class TimeLapseDeflicker : public QCoreApplication {
     Q_OBJECT
 
   public:
-    TimeLapseAssembly(int &argc, char **argv);
-    virtual ~TimeLapseAssembly();
+    TimeLapseDeflicker(int &argc, char **argv);
+    virtual ~TimeLapseDeflicker();
     void verbose(QString &s);
-    
+
   public slots:
     void run();
     void cleanup(int exitCode = 0);
@@ -58,45 +59,18 @@ namespace timelapse {
     QList<InputImageInfo> parseArguments();
 
   protected:
-    QTextStream _out;
-    QTextStream _err;
-    bool _dryRun;
-    QTextStream _verboseOutput;
-    BlackHoleDevice *_blackHole;
-    bool _forceOverride;
-    QList<InputImageInfo> _inputs;
-    QString _tmpBaseDir;
-
-    QTemporaryDir *_tempDir;
-
-    /* output properties*/
-    /* output file name */
-    QFileInfo _output;
-
-    /* output video dimensions. Default is 1920x1080 */
-    int _width;
-    int _height;
-
-    /* output video fps, default 25 */
-    float _fps;
-
-    /* length of output video in seconds. 
-     * if length < 0, then length will be count of inputs images / fps
-     */
-    float _length;
-    int _frameCount;
-    QString _bitrate;
-    QString _codec;
-
-    /* It is usefull when time interval between images is not fixed.
-     * Input image to output video frame mapping will be computed from image 
-     * timestamp (EXIF metadata will be used).
-     */
-    bool _noStrictInterval;
-    bool _blendFrames;
-
-    Pipeline *pipeline;
+    QTextStream out;
+    QTextStream err;
+    bool dryRun;
+    QTextStream verboseOutput;
+    BlackHoleDevice *blackHole;
+    
+        QList<InputImageInfo> inputs;
+            
+        Pipeline *pipeline;
   };
+
 }
-#endif	/* TIMELAPSE_ASSEMBLY_H */
+
+#endif	/* TIMELAPSE_DEFLICKER_H */
 

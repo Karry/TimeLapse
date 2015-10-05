@@ -14,4 +14,6 @@ install_manifest.txt
 *.moc_parameters
 *.moc
 
+*.so
 /src/timelapse_assembly
+/src/timelapse_deflicker

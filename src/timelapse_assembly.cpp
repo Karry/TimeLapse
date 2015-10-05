@@ -31,6 +31,7 @@
 #include "timelapse_assembly.h"
 #include "timelapse_assembly.moc"
 
+#include "timelapse.h"
 #include "black_hole_device.h"
 
 #include "pipeline.h"
@@ -70,30 +71,6 @@ namespace timelapse {
       _blackHole = NULL;
     }
   }
-
-  class ErrorMessageHelper {
-  public:
-
-    ErrorMessageHelper(QIODevice *errDev, QCommandLineParser *parser) :
-    _coloredTerm(true), _err(errDev), _parser(parser) {
-    }
-
-    void operator<<(const QString &s) {
-      //bold red text\033[0m\n";
-      if (_coloredTerm)
-        _err << "\033[1;31m";
-      _err << endl << "!!! " << s << " !!!";
-      if (_coloredTerm)
-        _err << "\033[0m";
-      _err << endl << endl;
-      _parser->showHelp(-1);
-    }
-
-  protected:
-    bool _coloredTerm; // TODO: determine if terminal is color capable
-    QTextStream _err;
-    QCommandLineParser *_parser;
-  };
 
   QList<InputImageInfo> TimeLapseAssembly::parseArguments() {
     QCommandLineParser parser;

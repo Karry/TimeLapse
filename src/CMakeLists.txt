@@ -39,6 +39,7 @@ message(STATUS "ImageMagick_INCLUDE_DIRS: ${ImageMagick_INCLUDE_DIRS}")
 message(STATUS "ImageMagick_LIBRARIES:    ${ImageMagick_LIBRARIES}")
 
 qt5_generate_moc(timelapse_assembly.h       timelapse_assembly.moc)
+qt5_generate_moc(timelapse_deflicker.h      timelapse_deflicker.moc)
 qt5_generate_moc(black_hole_device.h        black_hole_device.moc)
 qt5_generate_moc(input_image_info.h         input_image_info.moc)
 
@@ -50,11 +51,8 @@ qt5_generate_moc(pipeline_video_assembly.h  pipeline_video_assembly.moc)
 qt5_generate_moc(pipeline_write_frame.h     pipeline_write_frame.moc)
 qt5_generate_moc(pipeline_resize_frame.h    pipeline_resize_frame.moc)
 
-set(timelapse_assembly_SRCS 
+set(timelapse_SRCS 
 
-    timelapse_assembly.cpp
-    timelapse_assembly.moc
-    
     black_hole_device.cpp
     black_hole_device.moc
 
@@ -82,23 +80,48 @@ set(timelapse_assembly_SRCS
     pipeline.cpp
     pipeline.moc
 )
+set(timelapse_assembly_SRCS 
+
+    timelapse_assembly.cpp
+    timelapse_assembly.moc
+)
+set(timelapse_deflicker_SRCS 
+
+    timelapse_deflicker.cpp
+    timelapse_deflicker.moc
+)
 
 # QT5_AUTOMOC(${timelapse_assembly_SRCS})
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 
+ADD_LIBRARY(timelapse SHARED 
+			${timelapse_SRCS}
+			)
+
 add_executable (timelapse_assembly
 				${timelapse_assembly_SRCS}
 )
+add_executable (timelapse_deflicker
+				${timelapse_deflicker_SRCS}
+)
+
 SET_TARGET_PROPERTIES(timelapse_assembly PROPERTIES COMPILE_FLAGS "-g")
+SET_TARGET_PROPERTIES(timelapse_deflicker PROPERTIES COMPILE_FLAGS "-g")
 
 #Link the timelapse_assembly executable to the Qt 5 libraries.
 target_link_libraries(	timelapse_assembly
+      timelapse
+      Qt5::Core 
+      ${ImageMagick_LIBRARIES} # Magick++-6.Q16
+) 
+target_link_libraries(	timelapse_deflicker
+      timelapse
       Qt5::Core 
       ${ImageMagick_LIBRARIES} # Magick++-6.Q16
 ) 
 
-install(TARGETS timelapse_assembly
+install(TARGETS timelapse timelapse_assembly timelapse_deflicker
 		RUNTIME DESTINATION bin COMPONENT applications
 		LIBRARY DESTINATION lib COMPONENT libraries
 		ARCHIVE DESTINATION lib/static COMPONENT libraries

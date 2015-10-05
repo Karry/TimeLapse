@@ -19,12 +19,13 @@ Install build tools and libraries:
 sudo apt-get install cmake build-essential libmagick++-dev qtbase5-dev libav-tools
 ```
 
-compile:
+compile & install:
 
 ```
 cmake . 
 make
 sudo make install
+sudo ldconfig
 ```
 
 ## Tools

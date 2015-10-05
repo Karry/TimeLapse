@@ -190,10 +190,6 @@ namespace timelapse {
     _forceOverride = parser.isSet(forceOption);
     _dryRun = parser.isSet(dryRunOption);
 
-    // check output
-    //if (!parser.isSet(outputOption))
-    //  die << "No output specified";
-
     if (parser.isSet(outputOption))
       _output = QFileInfo(parser.value(outputOption));
     //_err << endl << "output: " << _output.filePath() << endl << endl;
@@ -283,8 +279,12 @@ namespace timelapse {
 
     return _inputs;
   }
-  
-  void TimeLapseAssembly::cleanup() {
+
+  void TimeLapseAssembly::onError(QString msg) {
+    emit cleanup(1);
+  }
+
+  void TimeLapseAssembly::cleanup(int exitCode) {
     if (pipeline != NULL) {
       delete pipeline;
       pipeline = NULL;
@@ -293,7 +293,8 @@ namespace timelapse {
       delete _tempDir;
       _tempDir = NULL;
     }
-    emit done();
+
+    exit(exitCode);
   }
 
   void TimeLapseAssembly::run() {
@@ -301,7 +302,7 @@ namespace timelapse {
     QList<InputImageInfo> inputs = parseArguments();
 
     // build processing pipeline
-    pipeline = new Pipeline(inputs, &_verboseOutput);
+    pipeline = new Pipeline(inputs, &_verboseOutput, &_err);
 
     if (_length < 0) {
       *pipeline << new OneToOneFrameMapping();
@@ -324,7 +325,6 @@ namespace timelapse {
       _output, _width, _height, _fps, _bitrate, _codec);
 
     connect(pipeline, SIGNAL(done()), this, SLOT(cleanup()));
-    connect(this, SIGNAL(done()), this, SLOT(quit()));
 
     // startup pipeline
     emit pipeline->process();

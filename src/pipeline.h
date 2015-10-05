@@ -37,7 +37,7 @@ namespace timelapse {
     Q_OBJECT
 
   public:
-    Pipeline(QList<InputImageInfo> inputs, QTextStream *verboseOutput);
+    Pipeline(QList<InputImageInfo> inputs, QTextStream *verboseOutput, QTextStream *err);
     virtual ~Pipeline();
 
     void operator<<(ImageHandler *handler);
@@ -46,7 +46,10 @@ namespace timelapse {
   public slots:
     void process();
     void handlerFinished();
+    void onError(QString msg);
+    
   signals:
+    void error(QString msg);
     void done();
 
   private:
@@ -54,6 +57,7 @@ namespace timelapse {
 
   private:
     QTextStream *verboseOutput;
+    QTextStream *err;
     QList<PipelineHandler*> elements;
     PipelineSource *src;
     InputHandler *lastInputHandler;

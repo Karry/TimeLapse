@@ -96,7 +96,7 @@ namespace timelapse {
     }
     //inputs = inputList;
     if (emited <= 0) {
-      *err << "No images after mapping!" << endl; // TODO: publish error from pipeline
+      emit error("No images after mapping!"); 
     }
     *verboseOutput << "Sum of frames: " << frameCount << endl;
 
@@ -138,8 +138,7 @@ namespace timelapse {
 
     qint64 realTimeLapsDurationMs = startTimestamp.msecsTo(stopTimestamp);
     if (realTimeLapsDurationMs <= 0) {
-      *err << "All images has equal timestamp!" << endl;
-      //exit(-2);// TODO: propagate error from pipeline
+      emit error("All images has equal timestamp!");
       return;
     }
 
@@ -178,8 +177,7 @@ namespace timelapse {
     *verboseOutput << "Maximum step is " << maxStep << " frames." << endl;
 
     if (emited <= 0) {
-      *err << "Input list is empty!" << endl;
-      //exit(-2); // TODO: propagate error to pipeline
+      emit error( "No images after frame mapping!");
       return;
     }
     emit last();

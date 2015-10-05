@@ -38,6 +38,7 @@ namespace timelapse {
     virtual void onLast();
   signals:
     void last();
+    void error(QString msg);
   };
 
   class InputHandler : public PipelineHandler {

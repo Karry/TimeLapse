@@ -25,8 +25,8 @@
 
 namespace timelapse {
 
-  Pipeline::Pipeline(QList<InputImageInfo> inputs, QTextStream *_verboseOutput) :
-  verboseOutput(_verboseOutput),
+  Pipeline::Pipeline(QList<InputImageInfo> inputs, QTextStream *_verboseOutput, QTextStream *_err) :
+  verboseOutput(_verboseOutput), err(_err),
   elements(), lastInputHandler(NULL), lastImageHandler(NULL) {
 
     lastInputHandler = src = new PipelineSource(inputs);
@@ -47,9 +47,21 @@ namespace timelapse {
       *verboseOutput << "handlerFinished called directly!" << endl;
   }
 
+  void Pipeline::onError(QString msg) {
+    QObject *sender = QObject::sender();
+    if (sender != NULL) {
+      *verboseOutput << "Error in pipeline handler " << sender->metaObject()->className() << ":" << endl;
+    } else {
+      *verboseOutput << "onError slot called directly!" << endl;
+    }
+    *err << msg << endl;
+  }
+
   void Pipeline::append(PipelineHandler *handler) {
     *verboseOutput << "Pipeline append " << handler->metaObject()->className() << "" << endl;
     connect(handler, SIGNAL(last()), this, SLOT(handlerFinished()));
+    connect(handler, SIGNAL(error(QString)), this, SLOT(onError(QString)));
+    connect(handler, SIGNAL(error(QString)), this, SIGNAL(error(QString)));
     elements.append(handler);
   }
 

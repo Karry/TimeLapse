@@ -51,7 +51,7 @@ namespace timelapse {
   void Pipeline::onError(QString msg) {
     QObject *sender = QObject::sender();
     if (sender != NULL) {
-      *verboseOutput << "Error in pipeline handler " << sender->metaObject()->className() << ":" << endl;
+      *verboseOutput << "Error in pipeline handler " << sender->metaObject()->className() << " :" << endl;
     } else {
       *verboseOutput << "onError slot called directly!" << endl;
     }
@@ -69,7 +69,7 @@ namespace timelapse {
   void Pipeline::operator<<(ImageHandler *handler) {
 
     if (lastInputHandler != NULL) {
-      ImageLoader *loader = new ImageLoader();
+      ImageLoader *loader = new ImageLoader(verboseOutput, err);
       connect(lastInputHandler, SIGNAL(input(InputImageInfo)), loader, SLOT(onInput(InputImageInfo)));
       connect(lastInputHandler, SIGNAL(last()), loader, SLOT(onLast()));
       append(loader);

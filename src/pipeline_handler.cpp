@@ -30,6 +30,7 @@
 #include <QtCore/QProcess>
 
 #include <exception>
+#include <ImageMagick-6/Magick++/Exception.h>
 
 #include "pipeline_handler.h"
 #include "pipeline_handler.moc"
@@ -47,11 +48,38 @@ namespace timelapse {
 
   void ImageLoader::onInput(InputImageInfo info, Magick::Image img) {
     // load image again
-    emit input(info, Magick::Image(info.file.filePath().toStdString()));
+    onInput(info);
+  }
+
+  ImageLoader::ImageLoader(QTextStream *_verboseOutput, QTextStream *_err) :
+  verboseOutput(_verboseOutput), err(_err) {
   }
 
   void ImageLoader::onInput(InputImageInfo info) {
-    emit input(info, Magick::Image(info.file.filePath().toStdString()));
+    Magick::Image image;
+    bool usableImage = false;
+    try {
+      image.read(info.file.filePath().toStdString());
+      usableImage = true;
+    } catch (Magick::WarningCoder &warning) {
+      // Process coder warning while loading
+      *err << "Coder Warning: " << warning.what() << endl;
+      usableImage = true;
+    } catch (Magick::Warning &warning) {
+      // Handle any other Magick++ warning. 
+      *err << "Warning: " << warning.what() << endl;
+      usableImage = true;
+    } catch (Magick::ErrorFileOpen &e) {
+      // Process Magick++ file open error       
+      emit error(QString(e.what()));
+    } catch (Magick::Error &e) {
+      // Process other Magick++ 
+      emit error(QString("Failed to load file as image (%1). Reason: %2")
+        .arg(info.file.filePath())
+        .arg(e.what()));
+    }
+    if (usableImage)
+      emit input(info, image);
   }
 
   void ImageTrash::onInput(InputImageInfo info) {

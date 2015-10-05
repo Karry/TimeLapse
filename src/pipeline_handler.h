@@ -63,11 +63,15 @@ namespace timelapse {
   class ImageLoader : public ImageHandler {
     Q_OBJECT
   public:
+    ImageLoader(QTextStream *verboseOutput, QTextStream *err);
   public slots:
     virtual void onInput(InputImageInfo info, Magick::Image img);
     virtual void onInput(InputImageInfo info);
   signals:
     void input(InputImageInfo info, Magick::Image img);
+  private:
+    QTextStream *verboseOutput;
+    QTextStream *err;
   };
 
   class ImageTrash : public InputHandler {

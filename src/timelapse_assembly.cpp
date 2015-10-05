@@ -275,6 +275,7 @@ namespace timelapse {
       _output, _width, _height, _fps, _bitrate, _codec);
 
     connect(pipeline, SIGNAL(done()), this, SLOT(cleanup()));
+    connect(pipeline, SIGNAL(error(QString)), this, SLOT(onError(QString)));
 
     // startup pipeline
     emit pipeline->process();

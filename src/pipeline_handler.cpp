@@ -69,9 +69,6 @@ namespace timelapse {
       // Handle any other Magick++ warning. 
       *err << "Warning: " << warning.what() << endl;
       usableImage = true;
-    } catch (Magick::ErrorFileOpen &e) {
-      // Process Magick++ file open error       
-      emit error(QString(e.what()));
     } catch (Magick::Error &e) {
       // Process other Magick++ 
       emit error(QString("Failed to load file as image (%1). Reason: %2")

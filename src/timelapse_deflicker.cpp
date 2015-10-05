@@ -61,7 +61,7 @@ namespace timelapse {
     QCommandLineParser parser;
     ErrorMessageHelper die(err.device(), &parser);
 
-    parser.setApplicationDescription("Tool for assembly time-lapse video from sequence of images.");
+    parser.setApplicationDescription("Tool for deflicker sequence of images.");
     parser.addHelpOption();
     parser.addVersionOption();
 
@@ -111,9 +111,9 @@ namespace timelapse {
     QList<InputImageInfo> inputs = parseArguments();
 
     // build processing pipeline
-    pipeline = new Pipeline(inputs, &verboseOutput, &err);
+    //pipeline = new Pipeline(inputs, &verboseOutput, &err);
     // startup pipeline
-    emit pipeline->process();
+    //emit pipeline->process();
   }
 }
 

@@ -51,17 +51,6 @@ namespace timelapse {
     void input(InputImageInfo info);
   };
 
-  class PipelineSource : public InputHandler {
-    Q_OBJECT
-  public:
-    PipelineSource(QList<InputImageInfo> inputs);
-  public slots:
-    void process();
-    virtual void onInput(InputImageInfo info);
-  private:
-    QList<InputImageInfo> _inputs;
-  };
-
   class ImageHandler : public PipelineHandler {
     Q_OBJECT
   public:

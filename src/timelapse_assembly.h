@@ -55,7 +55,7 @@ namespace timelapse {
     void done();
 
   protected:
-    QList<InputImageInfo> parseArguments();
+    QStringList parseArguments();
 
   protected:
     QTextStream _out;
@@ -64,7 +64,7 @@ namespace timelapse {
     QTextStream _verboseOutput;
     BlackHoleDevice *_blackHole;
     bool _forceOverride;
-    QList<InputImageInfo> _inputs;
+    //QList<InputImageInfo> _inputs;
     QString _tmpBaseDir;
 
     QTemporaryDir *_tempDir;

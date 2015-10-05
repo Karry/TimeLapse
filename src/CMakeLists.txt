@@ -50,6 +50,7 @@ qt5_generate_moc(pipeline_frame_prepare.h   pipeline_frame_prepare.moc)
 qt5_generate_moc(pipeline_video_assembly.h  pipeline_video_assembly.moc)
 qt5_generate_moc(pipeline_write_frame.h     pipeline_write_frame.moc)
 qt5_generate_moc(pipeline_resize_frame.h    pipeline_resize_frame.moc)
+qt5_generate_moc(pipeline_source.h          pipeline_source.moc)
 
 set(timelapse_SRCS 
 
@@ -76,6 +77,9 @@ set(timelapse_SRCS
 
     pipeline_write_frame.cpp
     pipeline_write_frame.moc
+
+    pipeline_source.cpp
+    pipeline_source.moc
 
     pipeline.cpp
     pipeline.moc

@@ -45,21 +45,6 @@ namespace timelapse {
     emit last();
   }
 
-  PipelineSource::PipelineSource(QList<InputImageInfo> inputs) : _inputs(inputs) {
-
-  }
-
-  void PipelineSource::onInput(InputImageInfo info) {
-    // just ingore, we are the source
-  }
-
-  void PipelineSource::process() {
-    for (InputImageInfo info : _inputs) {
-      emit input(info);
-    }
-    emit last();
-  }
-
   void ImageLoader::onInput(InputImageInfo info, Magick::Image img) {
     // load image again
     emit input(info, Magick::Image(info.file.filePath().toStdString()));

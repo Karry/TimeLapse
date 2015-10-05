@@ -50,7 +50,7 @@ namespace timelapse {
   TimeLapseAssembly::TimeLapseAssembly(int &argc, char **argv) :
   QCoreApplication(argc, argv),
   _out(stdout), _err(stderr), _dryRun(false), _verboseOutput(stdout), _blackHole(NULL),
-  _forceOverride(false), _inputs(),
+  _forceOverride(false), 
   _tmpBaseDir(QDir::tempPath()),
   _tempDir(NULL),
   _output("timelapse.mkv"),
@@ -72,7 +72,7 @@ namespace timelapse {
     }
   }
 
-  QList<InputImageInfo> TimeLapseAssembly::parseArguments() {
+  QStringList TimeLapseAssembly::parseArguments() {
     QCommandLineParser parser;
     ErrorMessageHelper die(_err.device(), &parser);
 
@@ -169,7 +169,7 @@ namespace timelapse {
 
     if (parser.isSet(outputOption))
       _output = QFileInfo(parser.value(outputOption));
-    //_err << endl << "output: " << _output.filePath() << endl << endl;
+
     if (_output.exists()) {
       if (_output.isDir())
         die << "Output is directory";
@@ -180,34 +180,7 @@ namespace timelapse {
     // inputs
     QStringList inputArgs = parser.positionalArguments();
     if (inputArgs.empty())
-      die << "No input given";
-
-    _verboseOutput << "inputs: " << inputArgs.join(", ") << endl;
-    for (QString inputArg : inputArgs) {
-      QFileInfo i(inputArg);
-      if (i.isFile() || i.isSymLink()) {
-        _verboseOutput << "Input file: " << inputArg << endl;
-        _inputs.append(InputImageInfo(i));
-      } else if (i.isDir()) {
-        _verboseOutput << "Dive into directory: " << inputArg << endl;
-        // list files in directory (no recursive)
-        QDir d(i.filePath());
-        QFileInfoList l = d.entryInfoList(QDir::Files, QDir::Name);
-        _verboseOutput << "...found " << l.size() << " entries" << endl;
-        for (QFileInfo i2 : l) {
-          if (i2.isFile() || i2.isSymLink()) {
-            _verboseOutput << "Input file: " << i2.filePath() << endl;
-            _inputs.append(InputImageInfo(i2));
-          } else {
-            die << (QString("Can't find input ") + i2.filePath());
-          }
-        }
-      } else {
-        die << (QString("Can't find input ") + inputArg);
-      }
-    }
-    if (_inputs.empty())
-      die << "No input images found!";
+      die << "No input given";    
 
     bool ok = false;
     if (parser.isSet(widthOption)) {
@@ -254,7 +227,7 @@ namespace timelapse {
     _tempDir->setAutoRemove(!parser.isSet(keepTempOption));
     _verboseOutput << "Using temp directory " << _tempDir->path() << endl;
 
-    return _inputs;
+    return inputArgs;
   }
 
   void TimeLapseAssembly::onError(QString msg) {
@@ -276,10 +249,10 @@ namespace timelapse {
 
   void TimeLapseAssembly::run() {
 
-    QList<InputImageInfo> inputs = parseArguments();
+    QStringList inputArguments = parseArguments();
 
     // build processing pipeline
-    pipeline = new Pipeline(inputs, &_verboseOutput, &_err);
+    pipeline = new Pipeline(inputArguments, false, &_verboseOutput, &_err);
 
     if (_length < 0) {
       *pipeline << new OneToOneFrameMapping();

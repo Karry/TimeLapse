@@ -25,11 +25,12 @@
 
 namespace timelapse {
 
-  Pipeline::Pipeline(QList<InputImageInfo> inputs, QTextStream *_verboseOutput, QTextStream *_err) :
+  Pipeline::Pipeline(QStringList inputArguments, bool recursive,
+    QTextStream *_verboseOutput, QTextStream *_err) :
   verboseOutput(_verboseOutput), err(_err),
   elements(), lastInputHandler(NULL), lastImageHandler(NULL) {
 
-    lastInputHandler = src = new PipelineSource(inputs);
+    lastInputHandler = src = new PipelineSource(inputArguments, recursive, verboseOutput, err);
     append(src);
   }
 

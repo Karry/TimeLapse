@@ -3,7 +3,7 @@
 Goal of this project is to create set of tools for capturing series of images 
 from camera (V4L or gphoto2), process them and assembly "time-lapse" video from them.
 
-Currently, only timelapse_assembly tool is available.
+Currently, timelapse_assembly and timelapse_deflicker tool is available.
 
 ## Build
 
@@ -64,6 +64,28 @@ Options:
 
 Arguments:
   source(s)                Source images (images or directories with images).
+```
+
+### TimeLapse Deflickering tool
+
+Tool for "average" luminance of series of images.
+
+```
+Usage: ./src/timelapse_deflicker [options] source(s)
+Tool for deflicker sequence of images.
+
+Options:
+  -h, --help                Displays this help.
+  -v, --version             Displays version information.
+  -o, --output <directory>  Output directory.
+  -d, --dryrun              Just parse arguments, check inputs and prints
+                            informations.
+  -w, --debug-view          Composite one half of output image from original
+                            and second half from updated image.
+  -V, --verbose             Verbose output.
+
+Arguments:
+  source(s)                 Source images (images or directories with images).
 ```
 
 ## External tools

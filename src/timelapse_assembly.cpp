@@ -269,9 +269,9 @@ namespace timelapse {
       *pipeline << new FramePrepare(&_verboseOutput);
     }
     *pipeline << new ResizeFrame(_width, _height);
-    *pipeline << new WriteFrame(_tempDir, &_verboseOutput, _dryRun);
+    *pipeline << new WriteFrame(QDir(_tempDir->path()), &_verboseOutput, _dryRun);
 
-    * pipeline << new VideoAssembly(_tempDir, &_verboseOutput, &_err, _dryRun,
+    * pipeline << new VideoAssembly(QDir(_tempDir->path()), &_verboseOutput, &_err, _dryRun,
       _output, _width, _height, _fps, _bitrate, _codec);
 
     connect(pipeline, SIGNAL(done()), this, SLOT(cleanup()));

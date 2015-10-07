@@ -29,7 +29,10 @@
 #include <QtCore/QDir>
 #include <QtCore/QProcess>
 
+#include <Magick++.h>
 #include <exception>
+#include <ImageMagick-6/Magick++/Exception.h>
+#include <ImageMagick-6/Magick++/Color.h>
 
 #include "pipeline_frame_prepare.h"
 #include "pipeline_frame_prepare.moc"
@@ -85,7 +88,9 @@ namespace timelapse {
       if (f - f1 > 0) { // for 100 % transparency, we don't have to composite
         Magick::Image secondLayer = *img2;
         *verboseOutput << "Blend with next image with " << (opacity * 100) << " % transparency" << endl;
-        secondLayer.opacity(((double) QuantumRange) * opacity);
+        
+        //secondLayer.opacity(((double) QuantumRange) * opacity);
+        secondLayer.opacity(Magick::Color::scaleDoubleToQuantum(opacity));
         blended.composite(secondLayer, 0, 0, Magick::DissolveCompositeOp);
       }
       //writeFrame(f, blended);      

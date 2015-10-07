@@ -40,8 +40,8 @@ using namespace timelapse;
 
 namespace timelapse {
 
-  WriteFrame::WriteFrame(QTemporaryDir *_tempDir, QTextStream *_verboseOutput, bool _dryRun) :
-  tempDir(_tempDir), frameNumberLocale(QLocale::c()),
+  WriteFrame::WriteFrame(QDir _outputDir, QTextStream *_verboseOutput, bool _dryRun) :
+  outputDir(_outputDir), frameNumberLocale(QLocale::c()),
   verboseOutput(_verboseOutput), dryRun(_dryRun) {
 
     frameNumberLocale.setNumberOptions(QLocale::OmitGroupSeparator);
@@ -57,13 +57,16 @@ namespace timelapse {
   }
 
   void WriteFrame::onInput(InputImageInfo info, Magick::Image img) {
-    QString framePath = tempDir->path() + QDir::separator()
+    QString framePath = outputDir.path() + QDir::separator()
       + leadingZeros(info.frame, FRAME_FILE_LEADING_ZEROS) + QString(".jpeg");
 
     *verboseOutput << "Write frame " << framePath << endl;
     if (!dryRun) {
       img.write(framePath.toStdString());
     }
+    // update image location & emit signal
+    info.file = QFileInfo(framePath);
+    emit input(info, img);
   }
 
 }

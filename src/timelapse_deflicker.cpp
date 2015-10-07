@@ -25,13 +25,26 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QCommandLineParser>
 #include <QtCore/QProcess>
-
 #include <QtCore/QDir>
+
+#include <vector>
+#include <utility>
+#include <Magick++.h>
+#include <Magick++/Color.h>
+
 
 #include "timelapse_deflicker.h"
 #include "timelapse_deflicker.moc"
 
 #include "timelapse.h"
+
+#include "pipeline_handler.h"
+#include "pipeline_frame_mapping.h"
+#include "pipeline_frame_prepare.h"
+#include "pipeline_video_assembly.h"
+#include "pipeline_write_frame.h"
+#include "pipeline_resize_frame.h"
+#include "pipeline_deflicker.h"
 
 using namespace std;
 using namespace timelapse;
@@ -40,9 +53,10 @@ namespace timelapse {
 
   TimeLapseDeflicker::TimeLapseDeflicker(int &argc, char **argv) :
   QCoreApplication(argc, argv),
-  out(stdout), err(stderr), dryRun(false), verboseOutput(stdout), blackHole(NULL),
-  inputs(),
-  pipeline(NULL) {
+  out(stdout), err(stderr),
+  dryRun(false), debugView(false),
+  verboseOutput(stdout), blackHole(NULL),
+  pipeline(NULL), output() {
 
     setApplicationName("TimeLapse deflicker tool");
     setApplicationVersion(VERSION_TIMELAPSE);
@@ -57,7 +71,7 @@ namespace timelapse {
     }
   }
 
-  QList<InputImageInfo> TimeLapseDeflicker::parseArguments() {
+  QStringList TimeLapseDeflicker::parseArguments() {
     QCommandLineParser parser;
     ErrorMessageHelper die(err.device(), &parser);
 
@@ -65,32 +79,56 @@ namespace timelapse {
     parser.addHelpOption();
     parser.addVersionOption();
 
-    // Process the actual command line arguments given by the user
-    parser.process(*this);
+    parser.addPositionalArgument("source(s)",
+      QCoreApplication::translate("main", "Source images (images or directories with images)."));
+
+    QCommandLineOption outputOption(QStringList() << "o" << "output",
+      QCoreApplication::translate("main", "Output directory."),
+      QCoreApplication::translate("main", "directory"));
+    parser.addOption(outputOption);
 
     QCommandLineOption dryRunOption(QStringList() << "d" << "dryrun",
       QCoreApplication::translate("main", "Just parse arguments, check inputs and prints informations."));
     parser.addOption(dryRunOption);
 
+    QCommandLineOption debugViewOption(QStringList() << "w" << "debug-view",
+      QCoreApplication::translate("main", "Composite one half of output image from original and second half from updated image."));
+    parser.addOption(debugViewOption);
+
     QCommandLineOption verboseOption(QStringList() << "V" << "verbose",
       QCoreApplication::translate("main", "Verbose output."));
     parser.addOption(verboseOption);
+
+    // Process the actual command line arguments given by the user
+    parser.process(*this);
+
+    if (!parser.isSet(outputOption))
+      die << "Output directory is not set";
+    output = QDir(parser.value(outputOption));
+    if (output.exists())
+      err << "Output directory exists already." << endl;
+    if (!output.mkpath(output.path()))
+      die << QString("Can't create output directory %1 !").arg(output.path());
 
     // verbose?
     if (!parser.isSet(verboseOption)) {
       blackHole = new BlackHoleDevice();
       verboseOutput.setDevice(blackHole);
-      //_err << "no verbose"<< endl;
     } else {
       // verbose
       verboseOutput << "Turning on verbose output..." << endl;
       verboseOutput << applicationName() << " " << applicationVersion() << endl;
     }
 
-
+    debugView = parser.isSet(debugViewOption);
     dryRun = parser.isSet(dryRunOption);
 
-    return inputs;
+    // inputs
+    QStringList inputArgs = parser.positionalArguments();
+    if (inputArgs.empty())
+      die << "No input given";
+
+    return inputArgs;
   }
 
   void TimeLapseDeflicker::onError(QString msg) {
@@ -108,12 +146,23 @@ namespace timelapse {
 
   void TimeLapseDeflicker::run() {
 
-    QList<InputImageInfo> inputs = parseArguments();
+    QStringList inputArgs = parseArguments();
 
     // build processing pipeline
-    //pipeline = new Pipeline(inputs, &verboseOutput, &err);
+    pipeline = new Pipeline(inputArgs, false, &verboseOutput, &err);
+
+    *pipeline << new ComputeLuminance(&verboseOutput);
+    *pipeline << new OneToOneFrameMapping();
+    *pipeline << new ComputeAverageLuminance(&verboseOutput);
+    *pipeline << new AdjustLuminance(&verboseOutput, debugView);
+    //*pipeline << new ComputeLuminance(&verboseOutput);
+    *pipeline << new WriteFrame(output, &verboseOutput, dryRun);
+
+    connect(pipeline, SIGNAL(done()), this, SLOT(cleanup()));
+    connect(pipeline, SIGNAL(error(QString)), this, SLOT(onError(QString)));
+
     // startup pipeline
-    //emit pipeline->process();
+    emit pipeline->process();
   }
 }
 

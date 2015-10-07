@@ -56,18 +56,18 @@ namespace timelapse {
     void done();
 
   protected:
-    QList<InputImageInfo> parseArguments();
+    QStringList parseArguments();
 
   protected:
     QTextStream out;
     QTextStream err;
     bool dryRun;
+    bool debugView;
     QTextStream verboseOutput;
     BlackHoleDevice *blackHole;
-    
-        QList<InputImageInfo> inputs;
-            
-        Pipeline *pipeline;
+
+    Pipeline *pipeline;
+    QDir output;
   };
 
 }

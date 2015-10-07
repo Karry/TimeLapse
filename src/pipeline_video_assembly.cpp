@@ -40,7 +40,7 @@ using namespace timelapse;
 
 namespace timelapse {
 
-  VideoAssembly::VideoAssembly(QTemporaryDir *_tempDir, QTextStream *_verboseOutput, QTextStream *_err, bool _dryRun,
+  VideoAssembly::VideoAssembly(QDir _tempDir, QTextStream *_verboseOutput, QTextStream *_err, bool _dryRun,
     QFileInfo _output, int _width, int _height, float _fps, QString _bitrate, QString _codec) :
   tempDir(_tempDir), verboseOutput(_verboseOutput), err(_err), dryRun(_dryRun),
   output(_output), width(_width), height(_height), fps(_fps), bitrate(_bitrate), codec(_codec) {
@@ -73,7 +73,7 @@ namespace timelapse {
       << "-f" << "image2"
       << "-r" << QString("%1").arg(fps)
       << "-s" << QString("%1x%2").arg(width).arg(height)
-      << "-i" << (tempDir->path() + QDir::separator() + QString("%0") + QString("%1d.jpeg").arg(FRAME_FILE_LEADING_ZEROS))
+      << "-i" << (tempDir.path() + QDir::separator() + QString("%0") + QString("%1d.jpeg").arg(FRAME_FILE_LEADING_ZEROS))
       << "-b:v" << bitrate
       << "-c:v" << codec
       << "-y" // Overwrite output file without asking

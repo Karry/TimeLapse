@@ -29,7 +29,7 @@ ADD_DEFINITIONS(${Qt5Core_DEFINITIONS})
 
 # ImageMagick compile time configuration
 ADD_DEFINITIONS(-DMAGICKCORE_QUANTUM_DEPTH=16) # Number of bits in a pixel Quantum (8/16/32/64)
-ADD_DEFINITIONS(-DMAGICKCORE_HDRI_SUPPORT=0)
+# ADD_DEFINITIONS(-DMAGICKCORE_HDRI_SUPPORT=0) # colorHistogram fails with SIGSEGV when this option is enabled
 ADD_DEFINITIONS(-DMAGICKCORE_HDRI_ENABLE=0)
 
 ## for debug
@@ -51,6 +51,7 @@ qt5_generate_moc(pipeline_video_assembly.h  pipeline_video_assembly.moc)
 qt5_generate_moc(pipeline_write_frame.h     pipeline_write_frame.moc)
 qt5_generate_moc(pipeline_resize_frame.h    pipeline_resize_frame.moc)
 qt5_generate_moc(pipeline_source.h          pipeline_source.moc)
+qt5_generate_moc(pipeline_deflicker.h       pipeline_deflicker.moc)
 
 set(timelapse_SRCS 
 
@@ -80,6 +81,9 @@ set(timelapse_SRCS
 
     pipeline_source.cpp
     pipeline_source.moc
+
+    pipeline_deflicker.cpp
+    pipeline_deflicker.moc
 
     pipeline.cpp
     pipeline.moc

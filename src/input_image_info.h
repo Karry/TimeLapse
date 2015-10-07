@@ -24,6 +24,9 @@
 #include <QtCore/QDateTime>
 #include <QtCore/QFileInfo>
 
+#include <Magick++.h>
+#include <vector>
+
 class InputImageInfo : QObject {
   Q_OBJECT
 
@@ -34,13 +37,16 @@ public:
   virtual ~InputImageInfo();
 
   InputImageInfo& operator=(const InputImageInfo&);
-  
+
 public:
   QFileInfo file;
   int width;
   int height;
   int frame;
   QDateTime timestamp;
+  double luminance;
+  double luminanceChange;
+  std::vector<std::pair < Magick::Color, size_t>> histogram;
 };
 
 #endif	/* INPUTIMAGEINFO_H */

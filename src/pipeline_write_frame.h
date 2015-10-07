@@ -34,12 +34,12 @@ namespace timelapse {
   class WriteFrame : public ImageHandler {
     Q_OBJECT
   public:
-    WriteFrame(QTemporaryDir *tempDir, QTextStream *verboseOutput, bool dryRun);
+    WriteFrame(QDir outputDir, QTextStream *verboseOutput, bool dryRun);
     QString leadingZeros(int i, int leadingZeros);
   public slots:
     virtual void onInput(InputImageInfo info, Magick::Image img);
   private:
-    QTemporaryDir *tempDir;
+    QDir outputDir;
     QLocale frameNumberLocale;
     QTextStream *verboseOutput;
     bool dryRun;

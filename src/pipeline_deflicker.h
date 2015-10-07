@@ -17,8 +17,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             
  */
 
-#ifndef PIPELINE_VIDEO_ASSEMBLY_H
-#define	PIPELINE_VIDEO_ASSEMBLY_H
+#ifndef PIPELINE_DEFLICKER_H
+#define	PIPELINE_DEFLICKER_H
 
 #include <QtCore/QObject>
 #include <QtCore/QDebug>
@@ -31,31 +31,44 @@
 
 namespace timelapse {
 
-  class VideoAssembly : public InputHandler {
+  class ComputeLuminance : public ImageHandler {
     Q_OBJECT
   public:
-    VideoAssembly(QDir tempDir, QTextStream *verboseOutput, QTextStream *err, bool dryRun,
-            QFileInfo output, int width, int height, float fps, QString bitrate, QString codec);
+    ComputeLuminance(QTextStream *verboseOutput);
+
+    static double computeLuminance(
+            const std::vector<std::pair<Magick::Color, size_t>> &histogram,
+            double gamma = 1.0);
 
   public slots:
-    virtual void onInput(InputImageInfo info);
-    virtual void onLast();
-
+    virtual void onInput(InputImageInfo info, Magick::Image img);
   private:
-    QDir tempDir;
     QTextStream *verboseOutput;
-    QTextStream *err;
-    bool dryRun;
+  };
 
-    QFileInfo output;
-    int width;
-    int height;
-    float fps;
-    QString bitrate;
-    QString codec;
+  class ComputeAverageLuminance : public InputHandler {
+    Q_OBJECT
+  public:
+    ComputeAverageLuminance(QTextStream *verboseOutput);
+  public slots:
+    virtual void onInput(InputImageInfo info);
+    void onLast();
+  private:
+    QTextStream *verboseOutput;
+    QList<InputImageInfo> inputs;
+  };
+
+  class AdjustLuminance : public ImageHandler {
+    Q_OBJECT
+  public:
+    AdjustLuminance(QTextStream *verboseOutput, bool debugView);
+  public slots:
+    virtual void onInput(InputImageInfo info, Magick::Image img);
+  private:
+    QTextStream *verboseOutput;
+    bool debugView;
   };
 
 }
-
-#endif	/* PIPELINE_VIDEO_ASSEMBLY_H */
+#endif	/* PIPELINE_DEFLICKER_H */
 

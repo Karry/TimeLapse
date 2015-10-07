@@ -21,10 +21,13 @@
 #include "input_image_info.moc"
 
 InputImageInfo::InputImageInfo() :
-file(), width(-1), height(-1), frame(-1), timestamp() {
+file(), width(-1), height(-1), frame(-1), timestamp(),
+luminance(-1), luminanceChange(0), histogram() {
 }
 
-InputImageInfo::InputImageInfo(QFileInfo &f) : file(f), width(-1), height(-1), frame(-1), timestamp() {
+InputImageInfo::InputImageInfo(QFileInfo &f) :
+file(f), width(-1), height(-1), frame(-1), timestamp(),
+luminance(-1), luminanceChange(0), histogram() {
 }
 
 InputImageInfo& InputImageInfo::operator=(const InputImageInfo& i) {
@@ -33,11 +36,15 @@ InputImageInfo& InputImageInfo::operator=(const InputImageInfo& i) {
   height = i.height;
   frame = i.frame;
   timestamp = i.timestamp;
+  luminance = i.luminance;
+  luminanceChange = i.luminanceChange;
+  histogram = i.histogram;
   return *this;
 }
 
 InputImageInfo::InputImageInfo(const InputImageInfo& i) :
-file(i.file), width(i.width), height(i.height), frame(i.frame), timestamp(i.timestamp) {
+file(i.file), width(i.width), height(i.height), frame(i.frame), timestamp(i.timestamp),
+luminance(i.luminance), luminanceChange(i.luminanceChange), histogram(i.histogram) {
 }
 
 InputImageInfo::~InputImageInfo() {

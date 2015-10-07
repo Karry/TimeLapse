@@ -75,7 +75,6 @@ namespace timelapse {
   void ComputeLuminance::onInput(InputImageInfo info, Magick::Image img) {
 
     Magick::colorHistogram(&info.histogram, img);
-    //double histogramLuminance = computeLuminance(info.histogram);
 
     Magick::Image::ImageStatistics stat;
     img.statistics(&stat);
@@ -83,9 +82,10 @@ namespace timelapse {
     // We use the following formula to get the perceived luminance.
     // Set it as the original and target value to start out with.
     info.luminance = 0.299 * stat.red.mean + 0.587 * stat.green.mean + 0.114 * stat.blue.mean;
+    //double histogramLuminance = computeLuminance(info.histogram);
     *verboseOutput << info.file.filePath()
       //<< " R: " << stat.red.mean << " G: " << stat.green.mean << " B: " << stat.blue.mean
-      << " luminance: " << info.luminance 
+      << " luminance: " << info.luminance
       //<< " (computed " << histogramLuminance << ")" 
       << endl;
 
@@ -117,14 +117,6 @@ namespace timelapse {
 
   AdjustLuminance::AdjustLuminance(QTextStream *_verboseOutput, bool _debugView) :
   verboseOutput(_verboseOutput), debugView(_debugView) {
-
-    // Read image
-    Magick::Image image;
-    //image.read( srcdir + "test_image.miff" );
-    image.read("/home/karry/data/tmp/timelapse/DSC_3809.JPG");
-
-    std::vector<std::pair<Magick::Color, size_t> > histogram;
-    Magick::colorHistogram(&histogram, image);
   }
 
   void AdjustLuminance::onInput(InputImageInfo info, Magick::Image img) {
@@ -153,8 +145,8 @@ namespace timelapse {
         std::log(Magick::Color::scaleQuantumToDouble(targetLuminance)) /
         std::log(Magick::Color::scaleQuantumToDouble(expectedLuminance)));
 
-      //double gammaChange = 1 + (info.luminanceChange / info.luminance);
       expectedLuminance = ComputeLuminance::computeLuminance(info.histogram, gamma);
+
       *verboseOutput << QString("%1 iteration %2 changing gamma to %3 (expected luminance: %4, target %5)")
         .arg(info.file.filePath())
         .arg(iteration)

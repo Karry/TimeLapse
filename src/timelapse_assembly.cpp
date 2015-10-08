@@ -41,6 +41,7 @@
 #include "pipeline_video_assembly.h"
 #include "pipeline_write_frame.h"
 #include "pipeline_resize_frame.h"
+#include "pipeline_deflicker.h"
 
 using namespace std;
 using namespace timelapse;
@@ -49,8 +50,10 @@ namespace timelapse {
 
   TimeLapseAssembly::TimeLapseAssembly(int &argc, char **argv) :
   QCoreApplication(argc, argv),
-  _out(stdout), _err(stderr), _dryRun(false), _verboseOutput(stdout), _blackHole(NULL),
-  _forceOverride(false), 
+  _out(stdout), _err(stderr),
+  _dryRun(false), deflickerAvg(false), deflickerDebugView(false),
+  _verboseOutput(stdout), _blackHole(NULL),
+  _forceOverride(false),
   _tmpBaseDir(QDir::tempPath()),
   _tempDir(NULL),
   _output("timelapse.mkv"),
@@ -129,6 +132,15 @@ namespace timelapse {
       QCoreApplication::translate("main", "Blend frame transition."));
     parser.addOption(blendFramesOption);
 
+    QCommandLineOption deflickerAvgOption(QStringList() << "deflicker-average",
+      QCoreApplication::translate("main", "Deflicker images by average luminance."));
+    parser.addOption(deflickerAvgOption);
+
+    QCommandLineOption deflickerDebugViewOption(QStringList() << "deflicker-debug-view",
+      QCoreApplication::translate("main", "Composite one half of output image from original "
+      "and second half from image with corrected luminance."));
+    parser.addOption(deflickerDebugViewOption);
+
     QCommandLineOption verboseOption(QStringList() << "V" << "verbose",
       QCoreApplication::translate("main", "Verbose output."));
     parser.addOption(verboseOption);
@@ -166,6 +178,8 @@ namespace timelapse {
 
     _forceOverride = parser.isSet(forceOption);
     _dryRun = parser.isSet(dryRunOption);
+    deflickerAvg = parser.isSet(deflickerAvgOption);
+    deflickerDebugView = parser.isSet(deflickerDebugViewOption);
 
     if (parser.isSet(outputOption))
       _output = QFileInfo(parser.value(outputOption));
@@ -180,7 +194,7 @@ namespace timelapse {
     // inputs
     QStringList inputArgs = parser.positionalArguments();
     if (inputArgs.empty())
-      die << "No input given";    
+      die << "No input given";
 
     bool ok = false;
     if (parser.isSet(widthOption)) {
@@ -254,6 +268,10 @@ namespace timelapse {
     // build processing pipeline
     pipeline = new Pipeline(inputArguments, false, &_verboseOutput, &_err);
 
+    if (deflickerAvg) {
+      *pipeline << new ComputeLuminance(&_verboseOutput);
+    }
+
     if (_length < 0) {
       *pipeline << new OneToOneFrameMapping();
     } else if (_noStrictInterval) {
@@ -261,6 +279,11 @@ namespace timelapse {
       *pipeline << new VariableIntervalFrameMapping(&_verboseOutput, &_err, _length, _fps);
     } else {
       *pipeline << new ConstIntervalFrameMapping(&_verboseOutput, &_err, _length, _fps);
+    }
+
+    if (deflickerAvg) {
+      *pipeline << new ComputeAverageLuminance(&_verboseOutput);
+      *pipeline << new AdjustLuminance(&_verboseOutput, deflickerDebugView);
     }
 
     if (_blendFrames) {

@@ -45,7 +45,7 @@ namespace timelapse {
     TimeLapseAssembly(int &argc, char **argv);
     virtual ~TimeLapseAssembly();
     void verbose(QString &s);
-    
+
   public slots:
     void run();
     void cleanup(int exitCode = 0);
@@ -61,6 +61,8 @@ namespace timelapse {
     QTextStream _out;
     QTextStream _err;
     bool _dryRun;
+    bool deflickerAvg;
+    bool deflickerDebugView;
     QTextStream _verboseOutput;
     BlackHoleDevice *_blackHole;
     bool _forceOverride;

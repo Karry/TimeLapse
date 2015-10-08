@@ -54,6 +54,9 @@ Options:
                            mapping will be computed from image timestamp (EXIF
                            metadata will be used or file modification time).
   --blend-frames           Blend frame transition.
+  --deflicker-average      Deflicker images by average luminance.
+  --deflicker-debug-view   Composite one half of output image from original and
+                           second half from image with corrected luminance.
   -V, --verbose            Verbose output.
   -d, --dryrun             Just parse arguments, check inputs and prints
                            informations.

@@ -46,7 +46,6 @@ public:
   QDateTime timestamp;
   double luminance;
   double luminanceChange;
-  std::vector<std::pair < Magick::Color, size_t>> histogram;
 };
 
 #endif	/* INPUTIMAGEINFO_H */

@@ -22,12 +22,12 @@
 
 InputImageInfo::InputImageInfo() :
 file(), width(-1), height(-1), frame(-1), timestamp(),
-luminance(-1), luminanceChange(0), histogram() {
+luminance(-1), luminanceChange(0) {
 }
 
 InputImageInfo::InputImageInfo(QFileInfo &f) :
 file(f), width(-1), height(-1), frame(-1), timestamp(),
-luminance(-1), luminanceChange(0), histogram() {
+luminance(-1), luminanceChange(0) {
 }
 
 InputImageInfo& InputImageInfo::operator=(const InputImageInfo& i) {
@@ -38,13 +38,12 @@ InputImageInfo& InputImageInfo::operator=(const InputImageInfo& i) {
   timestamp = i.timestamp;
   luminance = i.luminance;
   luminanceChange = i.luminanceChange;
-  histogram = i.histogram;
   return *this;
 }
 
 InputImageInfo::InputImageInfo(const InputImageInfo& i) :
 file(i.file), width(i.width), height(i.height), frame(i.frame), timestamp(i.timestamp),
-luminance(i.luminance), luminanceChange(i.luminanceChange), histogram(i.histogram) {
+luminance(i.luminance), luminanceChange(i.luminanceChange) {
 }
 
 InputImageInfo::~InputImageInfo() {

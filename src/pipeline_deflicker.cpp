@@ -66,7 +66,8 @@ namespace timelapse {
       sumB += p.second * Magick::Color::scaleDoubleToQuantum(
         std::pow(Magick::Color::scaleQuantumToDouble(p.first.blueQuantum()), powArg));
     }
-    //double pixelCount = img.columns() * img.rows();
+
+    // We use the following formula to get the perceived luminance.
     return 0.299 * ((double) sumR / (double) pixelCount)
       + 0.587 * ((double) sumG / (double) pixelCount)
       + 0.114 * ((double) sumB / (double) pixelCount);
@@ -74,19 +75,14 @@ namespace timelapse {
 
   void ComputeLuminance::onInput(InputImageInfo info, Magick::Image img) {
 
-    Magick::colorHistogram(&info.histogram, img);
-
     Magick::Image::ImageStatistics stat;
     img.statistics(&stat);
 
     // We use the following formula to get the perceived luminance.
-    // Set it as the original and target value to start out with.
     info.luminance = 0.299 * stat.red.mean + 0.587 * stat.green.mean + 0.114 * stat.blue.mean;
-    //double histogramLuminance = computeLuminance(info.histogram);
+
     *verboseOutput << info.file.filePath()
-      //<< " R: " << stat.red.mean << " G: " << stat.green.mean << " B: " << stat.blue.mean
       << " luminance: " << info.luminance
-      //<< " (computed " << histogramLuminance << ")" 
       << endl;
 
     emit input(info, img);
@@ -120,6 +116,8 @@ namespace timelapse {
   }
 
   void AdjustLuminance::onInput(InputImageInfo info, Magick::Image img) {
+    std::vector<std::pair < Magick::Color, size_t>> histogram;
+    Magick::colorHistogram(&histogram, img);
     Magick::Image original = img;
     /* gamma correction rules:
      * http://www.imagemagick.org/Usage/transform/#evaluate_pow
@@ -145,7 +143,7 @@ namespace timelapse {
         std::log(Magick::Color::scaleQuantumToDouble(targetLuminance)) /
         std::log(Magick::Color::scaleQuantumToDouble(expectedLuminance)));
 
-      expectedLuminance = ComputeLuminance::computeLuminance(info.histogram, gamma);
+      expectedLuminance = ComputeLuminance::computeLuminance(histogram, gamma);
 
       *verboseOutput << QString("%1 iteration %2 changing gamma to %3 (expected luminance: %4, target %5)")
         .arg(info.file.filePath())

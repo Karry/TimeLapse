@@ -63,6 +63,7 @@ namespace timelapse {
     bool _dryRun;
     bool deflickerAvg;
     bool deflickerDebugView;
+        size_t wmaCount;
     QTextStream _verboseOutput;
     BlackHoleDevice *_blackHole;
     bool _forceOverride;

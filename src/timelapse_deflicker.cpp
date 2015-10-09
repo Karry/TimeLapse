@@ -55,6 +55,7 @@ namespace timelapse {
   QCoreApplication(argc, argv),
   out(stdout), err(stderr),
   dryRun(false), debugView(false),
+  wmaCount(-1),
   verboseOutput(stdout), blackHole(NULL),
   pipeline(NULL), output() {
 
@@ -87,6 +88,12 @@ namespace timelapse {
       QCoreApplication::translate("main", "directory"));
     parser.addOption(outputOption);
 
+    QCommandLineOption wmaCountOption(QStringList() << "wm-average",
+      QCoreApplication::translate("main", "Use weighted moving average for luminance."
+      "Argument specified count of previous images for compute average."),
+      QCoreApplication::translate("main", "count"));
+    parser.addOption(wmaCountOption);
+
     QCommandLineOption dryRunOption(QStringList() << "d" << "dryrun",
       QCoreApplication::translate("main", "Just parse arguments, check inputs and prints informations."));
     parser.addOption(dryRunOption);
@@ -109,6 +116,15 @@ namespace timelapse {
       err << "Output directory exists already." << endl;
     if (!output.mkpath(output.path()))
       die << QString("Can't create output directory %1 !").arg(output.path());
+
+    // wma?
+    if (parser.isSet(wmaCountOption)) {
+      bool ok = false;
+      int i = parser.value(wmaCountOption).toInt(&ok);
+      if (!ok) die << "Cant parse wma count.";
+      if (i < 0) die << "Wma count have to be possitive";
+      wmaCount = (size_t) i;
+    }
 
     // verbose?
     if (!parser.isSet(verboseOption)) {
@@ -153,7 +169,10 @@ namespace timelapse {
 
     *pipeline << new ComputeLuminance(&verboseOutput);
     *pipeline << new OneToOneFrameMapping();
-    *pipeline << new ComputeAverageLuminance(&verboseOutput);
+    if (wmaCount > 0)
+      *pipeline << new WMALuminance(&verboseOutput, wmaCount);
+    else
+      *pipeline << new ComputeAverageLuminance(&verboseOutput);
     *pipeline << new AdjustLuminance(&verboseOutput, debugView);
     //*pipeline << new ComputeLuminance(&verboseOutput);
     *pipeline << new WriteFrame(output, &verboseOutput, dryRun);

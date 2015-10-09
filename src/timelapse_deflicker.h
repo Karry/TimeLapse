@@ -63,6 +63,7 @@ namespace timelapse {
     QTextStream err;
     bool dryRun;
     bool debugView;
+    size_t wmaCount;
     QTextStream verboseOutput;
     BlackHoleDevice *blackHole;
 

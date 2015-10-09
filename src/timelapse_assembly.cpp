@@ -51,7 +51,7 @@ namespace timelapse {
   TimeLapseAssembly::TimeLapseAssembly(int &argc, char **argv) :
   QCoreApplication(argc, argv),
   _out(stdout), _err(stderr),
-  _dryRun(false), deflickerAvg(false), deflickerDebugView(false),
+  _dryRun(false), deflickerAvg(false), deflickerDebugView(false), wmaCount(-1),
   _verboseOutput(stdout), _blackHole(NULL),
   _forceOverride(false),
   _tmpBaseDir(QDir::tempPath()),
@@ -136,6 +136,12 @@ namespace timelapse {
       QCoreApplication::translate("main", "Deflicker images by average luminance."));
     parser.addOption(deflickerAvgOption);
 
+    QCommandLineOption wmaCountOption(QStringList() << "deflicker-wm-average",
+      QCoreApplication::translate("main", "Deflicker images using weighted moving average of luminance."
+      "Argument specified count of previous images for compute weighted average."),
+      QCoreApplication::translate("main", "count"));
+    parser.addOption(wmaCountOption);
+
     QCommandLineOption deflickerDebugViewOption(QStringList() << "deflicker-debug-view",
       QCoreApplication::translate("main", "Composite one half of output image from original "
       "and second half from image with corrected luminance."));
@@ -180,6 +186,18 @@ namespace timelapse {
     _dryRun = parser.isSet(dryRunOption);
     deflickerAvg = parser.isSet(deflickerAvgOption);
     deflickerDebugView = parser.isSet(deflickerDebugViewOption);
+
+    // wma?
+    if (parser.isSet(wmaCountOption)) {
+      if (deflickerAvg)
+        _err << "Ignore average luminance option. Weighted moving average will be used." << endl;
+      deflickerAvg = true;
+      bool ok = false;
+      int i = parser.value(wmaCountOption).toInt(&ok);
+      if (!ok) die << "Cant parse wma count.";
+      if (i < 0) die << "Wma count have to be possitive";
+      wmaCount = (size_t) i;
+    }
 
     if (parser.isSet(outputOption))
       _output = QFileInfo(parser.value(outputOption));
@@ -282,7 +300,10 @@ namespace timelapse {
     }
 
     if (deflickerAvg) {
-      *pipeline << new ComputeAverageLuminance(&_verboseOutput);
+      if (wmaCount > 0)
+        *pipeline << new WMALuminance(&_verboseOutput, wmaCount);
+      else
+        *pipeline << new ComputeAverageLuminance(&_verboseOutput);
       *pipeline << new AdjustLuminance(&_verboseOutput, deflickerDebugView);
     }
 

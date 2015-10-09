@@ -30,6 +30,7 @@
 #include <QtCore/QProcess>
 
 #include <exception>
+#include <queue>
 #include <vector>
 #include <utility>
 #include <Magick++.h>
@@ -107,6 +108,38 @@ namespace timelapse {
     for (InputImageInfo i : inputs) {
       i.luminanceChange = avgLumi - i.luminance;
       emit input(i);
+    }
+    emit last();
+  }
+
+  WMALuminance::WMALuminance(QTextStream *_verboseOutput, size_t _count) :
+  count(_count), verboseOutput(_verboseOutput), inputs() {
+    if (count < 1)
+      throw std::logic_error("Count for weighted moving average have to be greater than 0.");
+  }
+
+  void WMALuminance::onInput(InputImageInfo info) {
+    inputs.append(info);
+  }
+
+  void WMALuminance::onLast() {
+    std::list<double> queue; 
+    for (InputImageInfo in : inputs) {
+      queue.push_back(in.luminance);
+      if (queue.size() > count)
+        queue.pop_front();
+      double sum = 0;
+      double sumWeight = 0;
+      size_t i = 1;
+      for (double d: queue){
+        double w = (double)i / (double)queue.size();
+        sum += w * d;
+        sumWeight += w;
+        i++;
+      }
+      
+      in.luminanceChange = (sum / sumWeight) - in.luminance;
+      emit input(in);
     }
     emit last();
   }

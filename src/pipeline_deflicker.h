@@ -46,6 +46,9 @@ namespace timelapse {
     QTextStream *verboseOutput;
   };
 
+  /**
+   * Compute target luminance by average from all images
+   */
   class ComputeAverageLuminance : public InputHandler {
     Q_OBJECT
   public:
@@ -54,6 +57,22 @@ namespace timelapse {
     virtual void onInput(InputImageInfo info);
     void onLast();
   private:
+    QTextStream *verboseOutput;
+    QList<InputImageInfo> inputs;
+  };
+
+  /**
+   * Compute target luminance by weighted moving average
+   */
+  class WMALuminance : public InputHandler {
+    Q_OBJECT
+  public:
+    WMALuminance(QTextStream *verboseOutput, size_t count);
+  public slots:
+    virtual void onInput(InputImageInfo info);
+    void onLast();
+  private:
+    size_t count;
     QTextStream *verboseOutput;
     QList<InputImageInfo> inputs;
   };

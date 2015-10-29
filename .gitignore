@@ -17,3 +17,4 @@ install_manifest.txt
 *.so
 /src/timelapse_assembly
 /src/timelapse_deflicker
+/src/timelapse_stabilize

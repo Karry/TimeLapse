@@ -1,7 +1,8 @@
 # TimeLapse
 
-Goal of this project is to create set of tools for capturing series of images 
-from camera (V4L or gphoto2), process them and assembly "time-lapse" video from them.
+Goal of this project is to create set of tools for creating timelapse videos.
+From capturing series of images by some camera (V4L or gphoto2), 
+process them and assembly "time-lapse" video from them.
 
 Currently, timelapse_assembly and timelapse_deflicker tool is available.
 

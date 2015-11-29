@@ -109,14 +109,6 @@ namespace timelapse {
     // Process the actual command line arguments given by the user
     parser.process(*this);
 
-    if (!parser.isSet(outputOption))
-      die << "Output directory is not set";
-    output = QDir(parser.value(outputOption));
-    if (output.exists())
-      err << "Output directory exists already." << endl;
-    if (!output.mkpath(output.path()))
-      die << QString("Can't create output directory %1 !").arg(output.path());
-
     // wma?
     if (parser.isSet(wmaCountOption)) {
       bool ok = false;
@@ -143,6 +135,15 @@ namespace timelapse {
     QStringList inputArgs = parser.positionalArguments();
     if (inputArgs.empty())
       die << "No input given";
+
+    // output
+    if (!parser.isSet(outputOption))
+      die << "Output directory is not set";
+    output = QDir(parser.value(outputOption));
+    if (output.exists())
+      err << "Output directory exists already." << endl;
+    if (!output.mkpath(output.path()))
+      die << QString("Can't create output directory %1 !").arg(output.path());
 
     return inputArgs;
   }

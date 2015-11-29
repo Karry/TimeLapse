@@ -31,13 +31,24 @@
 
 #include <Magick++.h>
 
-#include "vid.stab/libvidstab.h"
+#include "libvidstab.h"
 
 #include "black_hole_device.h"
 #include "input_image_info.h"
 #include "pipeline.h"
 
 namespace timelapse {
+  
+  typedef struct {
+    //const AVClass *class;
+
+    VSMotionDetect md;
+    VSMotionDetectConfig conf;
+
+    char *result;
+    FILE *f;
+  } StabData;
+
 
   class TimeLapseStabilize : public QCoreApplication {
     Q_OBJECT

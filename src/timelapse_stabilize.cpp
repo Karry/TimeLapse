@@ -130,8 +130,67 @@ namespace timelapse {
   }
 
   void TimeLapseStabilize::run() {
+    ErrorMessageHelper die(err.device());
 
     QStringList inputArgs = parseArguments();
+    
+    // prepare structures configuration
+    StabData _s;
+    _s.result = (char*) "/tmp/timelapse_vidstab.log";
+    
+    StabData *s = &_s;
+    
+    // initialization
+    VSMotionDetect* md = &(s->md);
+    VSFrameInfo fi;    
+    
+    vsFrameInfoInit(&fi, 1920, 1080, PF_RGB24);
+    fi.planes = 1; // I don't understand vs frame info... But later is assert for planes == 1
+    
+    s->conf.algo     = 1;
+    s->conf.modName  = "vidstabdetect";
+    if (vsMotionDetectInit(md, &s->conf, &fi) != VS_OK) {
+        err << "Initialization of Motion Detection failed, please report a BUG";
+        exit(1);
+    }
+    vsMotionDetectGetConfig(&s->conf, md);
+    verboseOutput << "Video stabilization settings (pass 1/2):" << endl;
+    verboseOutput << "     shakiness = " << s->conf.shakiness << endl;
+    verboseOutput << "      accuracy = " << s->conf.accuracy << endl;
+    verboseOutput << "      stepsize = " << s->conf.stepSize << endl;
+    verboseOutput << "   mincontrast = " << s->conf.contrastThreshold << endl;
+    verboseOutput << "        tripod = " << s->conf.virtualTripod << endl;
+    verboseOutput << "          show = " << s->conf.show << endl;
+    verboseOutput << "        result = " << s->result << endl;
+        
+    s->f = fopen(s->result, "w");
+    if (s->f == NULL) {
+        die << QString("cannot open transform file %1").arg( s->result);
+    } else {
+        if (vsPrepareFile(md, s->f) != VS_OK) {
+            die << QString("cannot write to transform file %1").arg(s->result );
+        }
+    }    
+    
+    // process frames
+    // TODO
+    
+    // motion detect cleanup  
+    if (s->f) {
+        fclose(s->f);
+        s->f = NULL;
+    }
+
+    vsMotionDetectionCleanup(md);
+    
+    // init transofrmation
+    // TODO
+
+    // transform frames
+    // TODO
+
+    // cleanup transformation
+    // TODO
 
     exit(0);
   }

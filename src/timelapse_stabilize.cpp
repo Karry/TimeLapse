@@ -41,14 +41,98 @@ using namespace timelapse;
 namespace timelapse {
 
   TimeLapseStabilize::TimeLapseStabilize(int &argc, char **argv) :
-    QCoreApplication(argc, argv)
-  {
+  QCoreApplication(argc, argv),
+  out(stdout), err(stderr),
+  verboseOutput(stdout), blackHole(NULL),
+  pipeline(NULL), output(),
+  dryRun(false) {
+
+    setApplicationName("TimeLapse stabilize tool");
+    setApplicationVersion(VERSION_TIMELAPSE);
   }
 
   TimeLapseStabilize::~TimeLapseStabilize() {
+    if (blackHole != NULL) {
+      verboseOutput.flush();
+      verboseOutput.setDevice(NULL);
+      delete blackHole;
+      blackHole = NULL;
+    }
+  }
+
+  QStringList TimeLapseStabilize::parseArguments() {
+    QCommandLineParser parser;
+    ErrorMessageHelper die(err.device(), &parser);
+
+    parser.setApplicationDescription("Tool for deflicker sequence of images.");
+    parser.addHelpOption();
+    parser.addVersionOption();
+
+    parser.addPositionalArgument("source(s)",
+      QCoreApplication::translate("main", "Source images (images or directories with images)."));
+
+    QCommandLineOption outputOption(QStringList() << "o" << "output",
+      QCoreApplication::translate("main", "Output directory."),
+      QCoreApplication::translate("main", "directory"));
+    parser.addOption(outputOption);
+
+    QCommandLineOption dryRunOption(QStringList() << "d" << "dryrun",
+      QCoreApplication::translate("main", "Just parse arguments, check inputs and prints informations."));
+    parser.addOption(dryRunOption);
+
+    QCommandLineOption verboseOption(QStringList() << "V" << "verbose",
+      QCoreApplication::translate("main", "Verbose output."));
+    parser.addOption(verboseOption);
+
+    // Process the actual command line arguments given by the user
+    parser.process(*this);
+
+    // verbose?
+    if (!parser.isSet(verboseOption)) {
+      blackHole = new BlackHoleDevice();
+      verboseOutput.setDevice(blackHole);
+    } else {
+      // verbose
+      verboseOutput << "Turning on verbose output..." << endl;
+      verboseOutput << applicationName() << " " << applicationVersion() << endl;
+    }
+
+    dryRun = parser.isSet(dryRunOption);
+
+    // inputs
+    QStringList inputArgs = parser.positionalArguments();
+    if (inputArgs.empty())
+      die << "No input given";
+
+    // output
+    if (!parser.isSet(outputOption))
+      die << "Output directory is not set";
+    output = QDir(parser.value(outputOption));
+    if (output.exists())
+      err << "Output directory exists already." << endl;
+    if (!output.mkpath(output.path()))
+      die << QString("Can't create output directory %1 !").arg(output.path());
+
+    return inputArgs;
+  }
+
+  void TimeLapseStabilize::onError(QString msg) {
+    emit cleanup(1);
+  }
+
+  void TimeLapseStabilize::cleanup(int exitCode) {
+    if (pipeline != NULL) {
+      delete pipeline;
+      pipeline = NULL;
+    }
+
+    exit(exitCode);
   }
 
   void TimeLapseStabilize::run() {
+
+    QStringList inputArgs = parseArguments();
+
     exit(0);
   }
 }

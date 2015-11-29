@@ -33,6 +33,10 @@
 
 #include "vid.stab/libvidstab.h"
 
+#include "black_hole_device.h"
+#include "input_image_info.h"
+#include "pipeline.h"
+
 namespace timelapse {
 
   class TimeLapseStabilize : public QCoreApplication {
@@ -44,15 +48,24 @@ namespace timelapse {
 
   public slots:
     void run();
-  signals:
+    void onError(QString msg);
+  //signals:
 
   protected:
+    void cleanup(int exitCode) ;
     QStringList parseArguments();
 
   protected:
-    QTextStream _out;
-    QTextStream _err;
-    bool _dryRun;
+    QTextStream out;
+    QTextStream err;
+    
+    QTextStream verboseOutput;
+    BlackHoleDevice *blackHole;
+
+    Pipeline *pipeline;
+    QDir output;
+    
+    bool dryRun;
   };
 }
 

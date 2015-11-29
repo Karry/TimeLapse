@@ -35,6 +35,10 @@ namespace timelapse {
     ErrorMessageHelper(QIODevice *errDev, QCommandLineParser *parser) :
     _coloredTerm(true), _err(errDev), _parser(parser) {
     }
+    
+    ErrorMessageHelper(QIODevice *errDev) :
+    _coloredTerm(true), _err(errDev), _parser(NULL) {
+    }
 
     void operator<<(const QString &s) {
       //bold red text\033[0m\n";
@@ -44,7 +48,10 @@ namespace timelapse {
       if (_coloredTerm)
         _err << "\033[0m";
       _err << endl << endl;
-      _parser->showHelp(-1);
+      if (_parser != NULL)
+        _parser->showHelp(-1);
+      else
+        exit(-1);
     }
 
   protected:

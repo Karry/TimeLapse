@@ -17,14 +17,27 @@ It uses avconv or ffmpeg to build final videos.
 Install build tools and libraries:
 
 ```
-sudo apt-get install cmake build-essential libmagick++-dev qtbase5-dev libav-tools
+sudo apt-get install cmake build-essential libmagick++-dev qtbase5-dev libav-tools git
 ```
 
-compile & install:
+build & install libvidstab:
+```
+git clone https://github.com/georgmartius/vid.stab.git vidstab
+cd vidstab
+cmake .
+make -j `nproc`
+sudo make install
+sudo ldconfig
+cd ..
+```
+
+build & install TimeLapse tools:
 
 ```
+git clone https://github.com/Karry/TimeLapse.git timelapse-tools
+cd timelapse-tools
 cmake . 
-make
+make -j `nproc`
 sudo make install
 sudo ldconfig
 ```

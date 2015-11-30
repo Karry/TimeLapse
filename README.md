@@ -42,7 +42,7 @@ sudo make install
 sudo ldconfig
 ```
 
-If you want help me with bug fixing, recompile tools with `cmake -DCMAKE_BUILD_TYPE=Debug`, 
+If you want help me with bug fixing, recompile tools with `cmake -DCMAKE_BUILD_TYPE=DebugFull`, 
 reproduce bug inside `gdb` and post stacktrace to github issue...
 
 ## Tools

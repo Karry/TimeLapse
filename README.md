@@ -17,7 +17,7 @@ It uses avconv or ffmpeg to build final videos.
 Install build tools and libraries:
 
 ```
-sudo apt-get install cmake build-essential libmagick++-dev qtbase5-dev libav-tools git
+sudo apt-get install cmake cmake-data build-essential libmagick++-dev qtbase5-dev libav-tools git
 ```
 
 build & install libvidstab:
@@ -41,6 +41,9 @@ make -j `nproc`
 sudo make install
 sudo ldconfig
 ```
+
+If you want help me with bug fixing, recompile tools with `cmake -DCMAKE_BUILD_TYPE=Debug`, 
+reproduce bug inside `gdb` and post stacktrace to github issue...
 
 ## Tools
 ### TimeLapse Assembly tool

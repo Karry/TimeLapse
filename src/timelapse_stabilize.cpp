@@ -132,26 +132,56 @@ namespace timelapse {
   void TimeLapseStabilize::run() {
     ErrorMessageHelper die(err.device());
 
-    QStringList inputArgs = parseArguments();
-    
+    //QStringList inputArgs = parseArguments();
+    parseArguments();
+    QStringList inputArgs;
+    inputArgs << "/media/data/tmp/timelapse/DSC_3803.JPG";
+    inputArgs << "/media/data/tmp/timelapse/DSC_3804.JPG";
+    inputArgs << "/media/data/tmp/timelapse/DSC_3805.JPG";
+    inputArgs << "/media/data/tmp/timelapse/DSC_3806.JPG";
+    inputArgs << "/media/data/tmp/timelapse/DSC_3807.JPG";
+    inputArgs << "/media/data/tmp/timelapse/DSC_3808.JPG";
+    inputArgs << "/media/data/tmp/timelapse/DSC_3809.JPG";
+    inputArgs << "/media/data/tmp/timelapse/DSC_3810.JPG";
+    inputArgs << "/media/data/tmp/timelapse/DSC_3810_2.JPG";
+    inputArgs << "/media/data/tmp/timelapse/DSC_3811.JPG";
+    inputArgs << "/media/data/tmp/timelapse/DSC_3812.JPG";
+    inputArgs << "/media/data/tmp/timelapse/DSC_3813.JPG";
+    inputArgs << "/media/data/tmp/timelapse/DSC_3814.JPG";
+    inputArgs << "/media/data/tmp/timelapse/DSC_3815.JPG";
+    inputArgs << "/media/data/tmp/timelapse/DSC_3816.JPG";
+    inputArgs << "/media/data/tmp/timelapse/DSC_3817.JPG";
+
     // prepare structures configuration
     StabData _s;
-    _s.result = (char*) "/tmp/timelapse_vidstab.log";
-    
+    size_t size = sizeof (StabData);
+    memset(&_s, 0, size);
     StabData *s = &_s;
-    
+    _s.result = (char*) "/tmp/timelapse_vidstab.trf";
+    uint width = 4928; //1920; // TODO: read from image
+    uint height = 3264; //1080; 
+
+
     // initialization
     VSMotionDetect* md = &(s->md);
-    VSFrameInfo fi;    
-    
-    vsFrameInfoInit(&fi, 1920, 1080, PF_RGB24);
+    VSFrameInfo fi;
+
+    vsFrameInfoInit(&fi, width, height, PF_RGB24);
     fi.planes = 1; // I don't understand vs frame info... But later is assert for planes == 1
-    
-    s->conf.algo     = 1;
-    s->conf.modName  = "vidstabdetect";
+
+    s->conf.algo = 1;
+    s->conf.modName = "vidstabdetect";
+
+    // see https://github.com/georgmartius/vid.stab
+    s->conf.shakiness = 1;
+    s->conf.accuracy = 15;
+    s->conf.stepSize = 6;
+    s->conf.contrastThreshold = 0.3;
+    s->conf.show = 0;
+
     if (vsMotionDetectInit(md, &s->conf, &fi) != VS_OK) {
-        err << "Initialization of Motion Detection failed, please report a BUG";
-        exit(1);
+      err << "Initialization of Motion Detection failed, please report a BUG";
+      exit(1);
     }
     vsMotionDetectGetConfig(&s->conf, md);
     verboseOutput << "Video stabilization settings (pass 1/2):" << endl;
@@ -162,27 +192,55 @@ namespace timelapse {
     verboseOutput << "        tripod = " << s->conf.virtualTripod << endl;
     verboseOutput << "          show = " << s->conf.show << endl;
     verboseOutput << "        result = " << s->result << endl;
-        
+
     s->f = fopen(s->result, "w");
     if (s->f == NULL) {
-        die << QString("cannot open transform file %1").arg( s->result);
+      die << QString("cannot open transform file %1").arg(s->result);
     } else {
-        if (vsPrepareFile(md, s->f) != VS_OK) {
-            die << QString("cannot write to transform file %1").arg(s->result );
-        }
-    }    
-    
+      if (vsPrepareFile(md, s->f) != VS_OK) {
+        die << QString("cannot write to transform file %1").arg(s->result);
+      }
+    }
+
     // process frames
+    for (QString input : inputArgs) { // TODO : for each frame
+      verboseOutput << "read " << input << endl;
+      Magick::Image image;
+      image.read(input.toStdString());
+      Q_ASSERT(image.baseColumns() == width && image.baseRows() == height);
+      Magick::Blob blob;
+      // set raw RGBS output format & convert it into a Blob  
+      image.magick("RGB");
+      image.write(&blob);
+
+      LocalMotions localmotions;
+      VSFrame frame;
+      int plane;
+
+      for (plane = 0; plane < md->fi.planes; plane++) {
+        Q_ASSERT(blob.length() == image.baseColumns() * image.baseRows() * 3);
+        frame.data[plane] = (uint8_t*) blob.data(); // TODO: image data?
+        frame.linesize[plane] = image.baseColumns() * 3; // TODO: it is correct?
+      }
+      if (vsMotionDetection(md, &localmotions, &frame) != VS_OK) {
+        die << "motion detection failed";
+      } else {
+        if (vsWriteToFile(md, s->f, &localmotions) != VS_OK) {
+          die << "cannot write to transform file";
+        }
+        vs_vector_del(&localmotions);
+      }
+    }
     // TODO
-    
+
     // motion detect cleanup  
     if (s->f) {
-        fclose(s->f);
-        s->f = NULL;
+      fclose(s->f);
+      s->f = NULL;
     }
 
     vsMotionDetectionCleanup(md);
-    
+
     // init transofrmation
     // TODO
 

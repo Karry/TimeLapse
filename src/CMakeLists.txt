@@ -28,16 +28,21 @@ ADD_DEFINITIONS( -Wall -pedantic -std=c++11 -fPIC)
 # QT5 definitions
 ADD_DEFINITIONS(${Qt5Core_DEFINITIONS})
 
+# read and setup ImageMagick cflags (these flags are not setup by FindImageMagick.cmake)
+FIND_PACKAGE(PkgConfig REQUIRED)
+pkg_check_modules(IM "ImageMagick")
 # ImageMagick compile time configuration
-ADD_DEFINITIONS(-DMAGICKCORE_QUANTUM_DEPTH=16) # Number of bits in a pixel Quantum (8/16/32/64)
+# ADD_DEFINITIONS(-DMAGICKCORE_QUANTUM_DEPTH=16) # Number of bits in a pixel Quantum (8/16/32/64)
 # ADD_DEFINITIONS(-DMAGICKCORE_HDRI_SUPPORT=0) # colorHistogram fails with SIGSEGV when this option is enabled
-ADD_DEFINITIONS(-DMAGICKCORE_HDRI_ENABLE=0)
+ADD_DEFINITIONS(${IM_CFLAGS})
 
 ## for debug
 message(STATUS "Module path:              ${CMAKE_MODULE_PATH}")
 message(STATUS "Qt5Core_INCLUDE_DIRS:     ${Qt5Core_INCLUDE_DIRS}")
+message(STATUS "Qt5Core_DEFINITIONS:      ${Qt5Core_DEFINITIONS}")
 message(STATUS "ImageMagick_INCLUDE_DIRS: ${ImageMagick_INCLUDE_DIRS}")
 message(STATUS "ImageMagick_LIBRARIES:    ${ImageMagick_LIBRARIES}")
+message(STATUS "IM_CFLAGS:                ${IM_CFLAGS}")
 message(STATUS "LIBVIDSTAB_INCLUDE_DIRS:  ${LIBVIDSTAB_INCLUDE_DIRS}")
 message(STATUS "LIBVIDSTAB_LIBRARIES:     ${LIBVIDSTAB_LIBRARIES}")
 message(STATUS "LIBVIDSTAB_FOUND:         ${LIBVIDSTAB_FOUND}")

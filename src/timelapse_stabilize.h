@@ -38,7 +38,7 @@
 #include "pipeline.h"
 
 namespace timelapse {
-  
+
   typedef struct {
     //const AVClass *class;
 
@@ -49,6 +49,17 @@ namespace timelapse {
     FILE *f;
   } StabData;
 
+  typedef struct {
+    //const AVClass *class;
+
+    VSTransformData td;
+    VSTransformConfig conf;
+
+    VSTransformations trans; // transformations
+    char *input; // name of transform file
+    int tripod;
+    int debug;
+  } TransformContext;
 
   class TimeLapseStabilize : public QCoreApplication {
     Q_OBJECT
@@ -60,22 +71,22 @@ namespace timelapse {
   public slots:
     void run();
     void onError(QString msg);
-  //signals:
+    //signals:
 
   protected:
-    void cleanup(int exitCode) ;
+    void cleanup(int exitCode);
     QStringList parseArguments();
 
   protected:
     QTextStream out;
     QTextStream err;
-    
+
     QTextStream verboseOutput;
     BlackHoleDevice *blackHole;
 
     Pipeline *pipeline;
     QDir output;
-    
+
     bool dryRun;
   };
 }

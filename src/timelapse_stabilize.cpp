@@ -109,7 +109,7 @@ namespace timelapse {
       die << "Output directory is not set";
     output = QDir(parser.value(outputOption));
     if (output.exists())
-      err << "Output directory exists already." << endl;
+      err << "Output directory already exists." << endl;
     if (!output.mkpath(output.path()))
       die << QString("Can't create output directory %1 !").arg(output.path());
 
@@ -154,19 +154,24 @@ namespace timelapse {
 
     // prepare structures configuration
     StabData _s;
-    size_t size = sizeof (StabData);
-    memset(&_s, 0, size);
     StabData *s = &_s;
-    _s.result = (char*) "/tmp/timelapse_vidstab.trf";
+    memset(s, 0, sizeof (StabData));
+    char * statFile = (char*) "/tmp/timelapse_vidstab.trf";
+    _s.result = statFile;
     uint width = 4928; //1920; // TODO: read from image
     uint height = 3264; //1080; 
+
+    VS_ERROR = 0;
+    VS_OK = 1;
 
 
     // initialization
     VSMotionDetect* md = &(s->md);
     VSFrameInfo fi;
 
-    vsFrameInfoInit(&fi, width, height, PF_RGB24);
+    if (!vsFrameInfoInit(&fi, width, height, PF_RGB24)) {
+      die << "Failed to initialize frame info";
+    }
     fi.planes = 1; // I don't understand vs frame info... But later is assert for planes == 1
 
     s->conf.algo = 1;
@@ -178,6 +183,7 @@ namespace timelapse {
     s->conf.stepSize = 6;
     s->conf.contrastThreshold = 0.3;
     s->conf.show = 0;
+    //s->conf.numThreads = 1;
 
     if (vsMotionDetectInit(md, &s->conf, &fi) != VS_OK) {
       err << "Initialization of Motion Detection failed, please report a BUG";
@@ -231,7 +237,6 @@ namespace timelapse {
         vs_vector_del(&localmotions);
       }
     }
-    // TODO
 
     // motion detect cleanup  
     if (s->f) {
@@ -241,14 +246,120 @@ namespace timelapse {
 
     vsMotionDetectionCleanup(md);
 
-    // init transofrmation
-    // TODO
+
+    verboseOutput << "Stage 2" << endl;
+
+    // init transformation
+    TransformContext _tc;
+    TransformContext *tc = &_tc;
+    memset(tc, 0, sizeof (TransformContext));
+
+    VSTransformData *td = &(tc->td);
+
+    tc->input = statFile;
+    if (!vsFrameInfoInit(&fi, width, height, PF_RGB24)) {
+      die << "Failed to initialize frame format";
+    }
+    fi.planes = 1; // I don't understand vs frame info... But later is assert for planes == 1
+    
+
+    // set values that are not initializes by the options
+    tc->conf.modName = "vidstabtransform";
+    tc->conf.verbose = 1 + tc->debug;
+    if (tc->tripod) {
+      verboseOutput << "Virtual tripod mode: relative=0, smoothing=0" << endl;
+      tc->conf.relative = 0;
+      tc->conf.smoothing = 0;
+    }
+    tc->conf.simpleMotionCalculation = 0;
+    tc->conf.storeTransforms = tc->debug;
+    tc->conf.smoothZoom = 0;
+
+    if (vsTransformDataInit(td, &tc->conf, &fi, &fi) != VS_OK) {
+      die << "initialization of vid.stab transform failed, please report a BUG";
+    }
+
+    vsTransformGetConfig(&tc->conf, td);
+    verboseOutput << "Video transformation/stabilization settings (pass 2/2):" << endl;
+    verboseOutput << "    input     = " << tc->input << endl;
+    verboseOutput << "    smoothing = " << tc->conf.smoothing << endl;
+    verboseOutput << "    optalgo   = " <<
+      (tc->conf.camPathAlgo == VSOptimalL1 ? "opt" :
+      (tc->conf.camPathAlgo == VSGaussian ? "gauss" : "avg")) << endl;
+    verboseOutput << "    maxshift  = " << tc->conf.maxShift << endl;
+    verboseOutput << "    maxangle  = " << tc->conf.maxAngle << endl;
+    verboseOutput << "    crop      = " << (tc->conf.crop ? "Black" : "Keep") << endl;
+    verboseOutput << "    relative  = " << (tc->conf.relative ? "True" : "False") << endl;
+    verboseOutput << "    invert    = " << (tc->conf.invert ? "True" : "False") << endl;
+    verboseOutput << "    zoom      = " << (tc->conf.zoom) << endl;
+    verboseOutput << "    optzoom   = " << (
+      tc->conf.optZoom == 1 ? "Static (1)" : (tc->conf.optZoom == 2 ? "Dynamic (2)" : "Off (0)")) << endl;
+    if (tc->conf.optZoom == 2)
+      verboseOutput << "    zoomspeed = " << tc->conf.zoomSpeed << endl;
+    verboseOutput << "    interpol  = " << getInterpolationTypeName(tc->conf.interpolType) << endl;
+
+
+    FILE *f = fopen(tc->input, "r");
+    if (!f) {
+      die << QString("cannot open input file %1, errno %2").arg(tc->input).arg(errno);
+    } else {
+      VSManyLocalMotions mlms;
+      if (vsReadLocalMotionsFile(f, &mlms) == VS_OK) {
+        // calculate the actual transforms from the local motions
+        if (vsLocalmotions2Transforms(td, &mlms, &tc->trans) != VS_OK) {
+          die << "calculating transformations failed";
+        }
+      } else { // try to read old format
+        if (!vsReadOldTransforms(td, f, &tc->trans)) { /* read input file */
+          die << QString("error parsing input file %1").arg(tc->input);
+        }
+      }
+    }
+    fclose(f);
+
+    if (vsPreprocessTransforms(td, &tc->trans) != VS_OK) {
+      die << "error while preprocessing transforms";
+    }
 
     // transform frames
-    // TODO
+    for (QString input : inputArgs) { // for each frame
+      verboseOutput << "read " << input << endl;
+      Magick::Image image;
+      image.read(input.toStdString());
+      Q_ASSERT(image.baseColumns() == width && image.baseRows() == height);
+      Magick::Blob blob;
+      // set raw RGBS output format & convert it into a Blob  
+      image.magick("RGB");
+      image.write(&blob);
+
+      VSFrame inframe;
+      int plane;
+
+      for (plane = 0; plane < vsTransformGetSrcFrameInfo(td)->planes; plane++) {
+        inframe.data[plane] = (uint8_t*) blob.data(); // TODO: image data?
+        inframe.linesize[plane] = image.baseColumns() * 3; // TODO: it is correct?
+      }
+
+      vsTransformPrepare(td, &inframe, &inframe); // direct
+
+      vsDoTransform(td, vsGetNextTransform(td, &tc->trans));
+
+      vsTransformFinish(td);
+
+      QString framePath = output.path() + QDir::separator()+(QFile(input)).fileName();
+      Magick::Geometry g(width, height);
+      Magick::Image oimage(blob, g, "RGB");
+
+      verboseOutput << "Write frame " << framePath << endl;
+      if (!dryRun) {
+        oimage.write(framePath.toStdString());
+      }
+    }
+
 
     // cleanup transformation
-    // TODO
+    vsTransformDataCleanup(&tc->td);
+    vsTransformationsCleanup(&tc->trans);
 
     exit(0);
   }

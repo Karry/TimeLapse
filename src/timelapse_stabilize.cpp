@@ -77,7 +77,7 @@ namespace timelapse {
     parser.addOption(outputOption);
 
     QCommandLineOption dryRunOption(QStringList() << "d" << "dryrun",
-      QCoreApplication::translate("main", "Just parse arguments, check inputs and prints informations."));
+      QCoreApplication::translate("main", "Just parse arguments, check inputs and prints information."));
     parser.addOption(dryRunOption);
 
     QCommandLineOption verboseOption(QStringList() << "V" << "verbose",
@@ -216,18 +216,21 @@ namespace timelapse {
       Q_ASSERT(image.baseColumns() == width && image.baseRows() == height);
       Magick::Blob blob;
       // set raw RGBS output format & convert it into a Blob  
+      if (image.depth() > 8)
+        err << "Warning: we lost some information by converting to 8bit depth (now " << image.depth() << ")" << endl;
+      image.depth(8);
       image.magick("RGB");
       image.write(&blob);
 
       LocalMotions localmotions;
       VSFrame frame;
-      int plane;
 
-      for (plane = 0; plane < md->fi.planes; plane++) {
-        Q_ASSERT(blob.length() == image.baseColumns() * image.baseRows() * 3);
-        frame.data[plane] = (uint8_t*) blob.data(); // TODO: image data?
-        frame.linesize[plane] = image.baseColumns() * 3; // TODO: it is correct?
-      }
+      Q_ASSERT(md->fi.planes == 1);
+      Q_ASSERT(blob.length() == image.baseColumns() * image.baseRows() * 3);
+
+      frame.data[0] = (uint8_t*) blob.data(); // TODO: image data?
+      frame.linesize[0] = image.baseColumns() * 3; // TODO: it is correct?
+
       if (vsMotionDetection(md, &localmotions, &frame) != VS_OK) {
         die << "motion detection failed";
       } else {
@@ -261,7 +264,7 @@ namespace timelapse {
       die << "Failed to initialize frame format";
     }
     fi.planes = 1; // I don't understand vs frame info... But later is assert for planes == 1
-    
+
 
     // set values that are not initializes by the options
     tc->conf.modName = "vidstabtransform";
@@ -328,27 +331,50 @@ namespace timelapse {
       image.read(input.toStdString());
       Q_ASSERT(image.baseColumns() == width && image.baseRows() == height);
       Magick::Blob blob;
-      // set raw RGBS output format & convert it into a Blob  
+      // set raw RGBS output format & convert it into a Blob 
+      if (image.depth() > 8)
+        err << "Warning: we lost some information by converting to 8bit depth (now " << image.depth() << ")" << endl;
+      image.depth(8);
       image.magick("RGB");
       image.write(&blob);
 
+
+      Q_ASSERT(blob.length() == image.baseColumns() * image.baseRows() * 3);
+
+      // inframe
       VSFrame inframe;
-      int plane;
+      size_t dataLen = blob.length();
+      inframe.data[0] = (uint8_t*) blob.data();
+      inframe.linesize[0] = image.baseColumns() * 3; // TODO: it is correct?
 
-      for (plane = 0; plane < vsTransformGetSrcFrameInfo(td)->planes; plane++) {
-        inframe.data[plane] = (uint8_t*) blob.data(); // TODO: image data?
-        inframe.linesize[plane] = image.baseColumns() * 3; // TODO: it is correct?
+      // outframe
+      uint8_t* data = new uint8_t[dataLen];
+      //memcpy(data, blob.data(), dataLen);
+      VSFrame outframe;
+      outframe.data[0] = data;
+      outframe.linesize[0] = image.baseColumns() * 3; // TODO: it is correct?
+
+      if (vsTransformPrepare(td, &inframe, &outframe) != VS_OK) {
+        die << "Failed to prepare transform";
       }
-
-      vsTransformPrepare(td, &inframe, &inframe); // direct
+      Q_ASSERT(vsTransformGetSrcFrameInfo(td)->planes == 1);
 
       vsDoTransform(td, vsGetNextTransform(td, &tc->trans));
 
       vsTransformFinish(td);
 
-      QString framePath = output.path() + QDir::separator()+(QFile(input)).fileName();
+      QFileInfo fi(input);
+      QString framePath = output.path() + QDir::separator() + fi.baseName() + "." + fi.suffix();
       Magick::Geometry g(width, height);
-      Magick::Image oimage(blob, g, "RGB");
+      Magick::Blob oblob(data, dataLen);
+
+      Magick::Image oimage;
+      oimage.size(g);
+      oimage.depth(8);
+      oimage.magick("RGB");
+      oimage.read(oblob);
+
+      delete[] data;
 
       verboseOutput << "Write frame " << framePath << endl;
       if (!dryRun) {

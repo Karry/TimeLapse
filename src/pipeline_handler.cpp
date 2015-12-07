@@ -87,6 +87,17 @@ namespace timelapse {
     emit input(info);
   }
 
+  void StageSeparator::onInput(InputImageInfo info) {
+    inputs.append(info);
+  }
+
+  void StageSeparator::onLast() {
+    for (InputImageInfo inf : inputs) {
+      emit input(inf);
+    }
+    emit last();
+  }
+
   ImageMetadataReader::ImageMetadataReader(QTextStream *_verboseOutput, QTextStream *_err) :
   verboseOutput(_verboseOutput), err(_err) {
   }

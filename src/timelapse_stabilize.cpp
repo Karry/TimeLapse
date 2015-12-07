@@ -33,6 +33,10 @@
 
 #include "timelapse.h"
 #include "black_hole_device.h"
+#include "pipeline_stab.h"
+#include "pipeline_write_frame.h"
+#include "pipeline_handler.h"
+#include "pipeline_frame_mapping.h"
 
 
 using namespace std;
@@ -44,7 +48,7 @@ namespace timelapse {
   QCoreApplication(argc, argv),
   out(stdout), err(stderr),
   verboseOutput(stdout), blackHole(NULL),
-  pipeline(NULL), output(),
+  pipeline(NULL), stabConf(NULL), output(),
   dryRun(false) {
 
     setApplicationName("TimeLapse stabilize tool");
@@ -113,6 +117,7 @@ namespace timelapse {
     if (!output.mkpath(output.path()))
       die << QString("Can't create output directory %1 !").arg(output.path());
 
+    stabConf = new StabConfig();
     return inputArgs;
   }
 
@@ -125,16 +130,43 @@ namespace timelapse {
       delete pipeline;
       pipeline = NULL;
     }
+    if (stabConf != NULL) {
+      delete stabConf;
+    }
 
     exit(exitCode);
   }
 
   void TimeLapseStabilize::run() {
-    ErrorMessageHelper die(err.device());
 
+    QStringList inputArgs = parseArguments();
+
+    // build processing pipeline
+    stabInit();
+
+
+    pipeline = new Pipeline(inputArgs, false, &verboseOutput, &err);
+    *pipeline << new PipelineStabDetect(stabConf, &verboseOutput, &err);
+    *pipeline << new OneToOneFrameMapping();
+    
+    *pipeline << new StageSeparator();
+
+    *pipeline << new PipelineStabTransform(stabConf, &verboseOutput, &err);
+    *pipeline << new WriteFrame(output, &verboseOutput, dryRun);
+
+    connect(pipeline, SIGNAL(done()), this, SLOT(cleanup()));
+    connect(pipeline, SIGNAL(error(QString)), this, SLOT(onError(QString)));
+
+    // startup pipeline
+    emit pipeline->process();
+  }
+
+  void TimeLapseStabilize::demo() {
+    ErrorMessageHelper die(err.device());
     //QStringList inputArgs = parseArguments();
     parseArguments();
     QStringList inputArgs;
+
     inputArgs << "/media/data/tmp/timelapse/DSC_3803.JPG";
     inputArgs << "/media/data/tmp/timelapse/DSC_3804.JPG";
     inputArgs << "/media/data/tmp/timelapse/DSC_3805.JPG";
@@ -152,14 +184,26 @@ namespace timelapse {
     inputArgs << "/media/data/tmp/timelapse/DSC_3816.JPG";
     inputArgs << "/media/data/tmp/timelapse/DSC_3817.JPG";
 
+    uint width = 4928; //1920; // TODO: read from image
+    uint height = 3264; //1080; 
+
+    /*
+        inputArgs << "/media/data/tmp/stab/orig4.pgm";
+        inputArgs << "/media/data/tmp/stab/test-boxblured.pgm";
+        inputArgs << "/media/data/tmp/stab/test1.pgm";
+        inputArgs << "/media/data/tmp/stab/test2.pgm";
+        inputArgs << "/media/data/tmp/stab/test3.pgm";
+        inputArgs << "/media/data/tmp/stab/test4.pgm";
+        inputArgs << "/media/data/tmp/stab/test5.pgm";
+        uint width = 1280; //1920; // TODO: read from image
+        uint height = 720; //1080; 
+     */
     // prepare structures configuration
     StabData _s;
     StabData *s = &_s;
     memset(s, 0, sizeof (StabData));
     char * statFile = (char*) "/tmp/timelapse_vidstab.trf";
     _s.result = statFile;
-    uint width = 4928; //1920; // TODO: read from image
-    uint height = 3264; //1080; 
 
     VS_ERROR = 0;
     VS_OK = 1;
@@ -249,6 +293,7 @@ namespace timelapse {
 
     vsMotionDetectionCleanup(md);
 
+    // -------------------------------------------------------------------------
 
     verboseOutput << "Stage 2" << endl;
 
@@ -267,6 +312,7 @@ namespace timelapse {
 
 
     // set values that are not initializes by the options
+    // https://github.com/georgmartius/vid.stab
     tc->conf.modName = "vidstabtransform";
     tc->conf.verbose = 1 + tc->debug;
     if (tc->tripod) {
@@ -274,6 +320,11 @@ namespace timelapse {
       tc->conf.relative = 0;
       tc->conf.smoothing = 0;
     }
+    tc->conf.smoothing = 0; // 0 is a special case where a static camera is simulated.
+    tc->conf.camPathAlgo = VSGaussian; // gauss: Gaussian kernel low-pass filter on camera motion (default). 
+    tc->conf.maxShift = -1; // Set maximal number of pixels to translate frames. Default value is -1, meaning: no limit.
+    tc->conf.maxAngle = -1; //Set maximal angle in radians (degree*PI/180) to rotate frames. Default value is -1, meaning: no limit.
+    tc->conf.crop = VSKeepBorder; // Keep image information from previous frame (default). 
     tc->conf.simpleMotionCalculation = 0;
     tc->conf.storeTransforms = tc->debug;
     tc->conf.smoothZoom = 0;
@@ -364,7 +415,7 @@ namespace timelapse {
       vsTransformFinish(td);
 
       QFileInfo fi(input);
-      QString framePath = output.path() + QDir::separator() + fi.baseName() + "." + fi.suffix();
+      QString framePath = output.path() + QDir::separator() + fi.baseName() + "-2." + fi.suffix();
       Magick::Geometry g(width, height);
       Magick::Blob oblob(data, dataLen);
 

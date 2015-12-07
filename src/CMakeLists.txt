@@ -61,6 +61,7 @@ qt5_generate_moc(pipeline_write_frame.h     pipeline_write_frame.moc)
 qt5_generate_moc(pipeline_resize_frame.h    pipeline_resize_frame.moc)
 qt5_generate_moc(pipeline_source.h          pipeline_source.moc)
 qt5_generate_moc(pipeline_deflicker.h       pipeline_deflicker.moc)
+qt5_generate_moc(pipeline_stab.h            pipeline_stab.moc)
 qt5_generate_moc(timelapse_stabilize.h      timelapse_stabilize.moc)
 
 set(timelapse_SRCS 
@@ -94,6 +95,9 @@ set(timelapse_SRCS
 
     pipeline_deflicker.cpp
     pipeline_deflicker.moc
+
+    pipeline_stab.cpp
+    pipeline_stab.moc
 
     pipeline.cpp
     pipeline.moc
@@ -137,6 +141,9 @@ SET_TARGET_PROPERTIES(timelapse_deflicker PROPERTIES COMPILE_FLAGS "-g")
 SET_TARGET_PROPERTIES(timelapse_stabilize PROPERTIES COMPILE_FLAGS "-g")
 
 #Link the timelapse_assembly executable to the Qt 5 libraries.
+target_link_libraries(	timelapse
+      ${LIBVIDSTAB_LIBRARIES} # LibVidStab
+) 
 target_link_libraries(	timelapse_assembly
       timelapse
       Qt5::Core 

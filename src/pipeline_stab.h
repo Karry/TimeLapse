@@ -17,96 +17,101 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             
  */
 
-#ifndef PIPELINEHANDLER_H
-#define	PIPELINEHANDLER_H
+#ifndef PIPELINESTAB_H
+#define	PIPELINESTAB_H
+
 
 #include <QtCore/QObject>
 #include <QtCore/QDebug>
 #include <QtCore/QTemporaryDir>
+#include <QtCore/QTemporaryFile>
+#include <QtCore/QIODevice>
 
 #include <Magick++.h>
 
+#include "libvidstab.h"
+
 #include "input_image_info.h"
+#include "pipeline_handler.h"
 
 namespace timelapse {
-#define FRAME_FILE_LEADING_ZEROS 9
 
-  class PipelineHandler : public QObject {
+  void stabInit();
+
+  class StabConfig : public QObject {
     Q_OBJECT
+
   public:
-  public slots:
-    virtual void onLast();
-  signals:
-    void last();
-    void error(QString msg);
+    StabConfig();
+    virtual ~StabConfig();
+    FILE* openStabStateFile(const char *mode);
+
+    VSMotionDetectConfig mdConf;
+    VSTransformConfig tsConf;
+    QFile *stabStateFile;
+    bool dryRun;
   };
 
-  class InputHandler : public PipelineHandler {
+  class PipelineStabDetect : public ImageHandler {
     Q_OBJECT
+
   public:
+    PipelineStabDetect(StabConfig *stabConf, QTextStream *verboseOutput, QTextStream *err);
+    virtual ~PipelineStabDetect();
 
-  public slots:
-    virtual void onInput(InputImageInfo info) = 0;
-  signals:
-    void input(InputImageInfo info);
-  };
-
-  class ImageHandler : public PipelineHandler {
-    Q_OBJECT
   public:
   public slots:
-    virtual void onInput(InputImageInfo info, Magick::Image img) = 0;
-  signals:
-    void input(InputImageInfo info, Magick::Image img);
-  };
+    void onInput(InputImageInfo info, Magick::Image img);
+    void onLast();
 
-  class ImageLoader : public ImageHandler {
-    Q_OBJECT
-  public:
-    ImageLoader(QTextStream *verboseOutput, QTextStream *err);
-  public slots:
-    virtual void onInput(InputImageInfo info, Magick::Image img);
-    virtual void onInput(InputImageInfo info);
-  signals:
-    void input(InputImageInfo info, Magick::Image img);
   private:
+    void init(Magick::Image img);
+
+    StabConfig *stabConf;
+    bool initialized;
+    uint32_t width;
+    uint32_t height;
+
+    VSMotionDetect md;
+    VSFrameInfo fi;
+
+    FILE *f;
     QTextStream *verboseOutput;
     QTextStream *err;
   };
 
-  class ImageTrash : public InputHandler {
+  class PipelineStabTransform : public ImageHandler {
     Q_OBJECT
-  public:
-  public slots:
-    virtual void onInput(InputImageInfo info);
-    virtual void onInput(InputImageInfo info, Magick::Image img);
-  signals:
-    void input(InputImageInfo info);
-  };
 
-  class StageSeparator : public InputHandler {
-    Q_OBJECT
   public:
-  public slots:
-    virtual void onInput(InputImageInfo info);
-    virtual void onLast();
-  protected:
-    QList<InputImageInfo> inputs;
+    PipelineStabTransform(StabConfig *stabConf, QTextStream *verboseOutput, QTextStream *err);
+    virtual ~PipelineStabTransform();
 
-  };
-
-  class ImageMetadataReader : public ImageHandler {
-    Q_OBJECT
   public:
-    ImageMetadataReader(QTextStream *verboseOutput, QTextStream *err);
   public slots:
     virtual void onInput(InputImageInfo info, Magick::Image img);
+    void onLast();
+
   private:
+    void init(Magick::Image img);
+
+    
+    VSFrameInfo fi;
+    VSTransformData td;
+
+    VSTransformations trans; // transformations
+    
+    StabConfig *stabConf;
+
+    bool initialized;
+    uint32_t width;
+    uint32_t height;
+
+    FILE *f;
     QTextStream *verboseOutput;
     QTextStream *err;
   };
 
 }
-
-#endif	/* PIPELINEHANDLER_H */
+#endif	/* PIPELINESTAB_H */
 

@@ -36,6 +36,7 @@
 #include "black_hole_device.h"
 #include "input_image_info.h"
 #include "pipeline.h"
+#include "pipeline_stab.h"
 
 namespace timelapse {
 
@@ -70,11 +71,12 @@ namespace timelapse {
 
   public slots:
     void run();
+    void demo();
     void onError(QString msg);
+    void cleanup(int exitCode = 0);
     //signals:
 
   protected:
-    void cleanup(int exitCode);
     QStringList parseArguments();
 
   protected:
@@ -85,6 +87,7 @@ namespace timelapse {
     BlackHoleDevice *blackHole;
 
     Pipeline *pipeline;
+    StabConfig *stabConf;
     QDir output;
 
     bool dryRun;

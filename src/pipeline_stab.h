@@ -36,7 +36,17 @@
 
 namespace timelapse {
 
-  void stabInit();
+#define STAB_LOG_ERROR   0
+#define STAB_LOG_WARNING 1
+#define STAB_LOG_INFO    2
+#define STAB_LOG_VERBOSE 3
+
+  // static streams and functions for C libstab
+  QTextStream *verboseOutput;
+  QTextStream *err;
+
+  int stabLog(int type, const char* tag, const char* format, ...);
+  void stabInit(QTextStream *verboseOutput, QTextStream *err);
 
   class StabConfig : public QObject {
     Q_OBJECT
@@ -95,12 +105,12 @@ namespace timelapse {
   private:
     void init(Magick::Image img);
 
-    
+
     VSFrameInfo fi;
     VSTransformData td;
 
     VSTransformations trans; // transformations
-    
+
     StabConfig *stabConf;
 
     bool initialized;

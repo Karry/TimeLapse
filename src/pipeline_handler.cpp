@@ -56,6 +56,8 @@ namespace timelapse {
   }
 
   void ImageLoader::onInput(InputImageInfo info) {
+    *verboseOutput << "Loading " << info.file.filePath() << endl;
+    
     Magick::Image image;
     bool usableImage = false;
     try {

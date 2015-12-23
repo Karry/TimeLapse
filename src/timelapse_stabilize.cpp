@@ -142,7 +142,7 @@ namespace timelapse {
     QStringList inputArgs = parseArguments();
 
     // build processing pipeline
-    stabInit();
+    stabInit( &verboseOutput, &err);
 
 
     pipeline = new Pipeline(inputArgs, false, &verboseOutput, &err);

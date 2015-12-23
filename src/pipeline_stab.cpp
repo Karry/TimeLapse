@@ -28,11 +28,37 @@ using namespace timelapse;
 
 namespace timelapse {
 
-  void stabInit() {
+  int stabLog(int type, const char* tag, const char* format, ...) { 
+    // format message
+    va_list valist;
+    va_start(valist,format);
+    QString msg = QString().vsprintf(format, valist);
+    va_end(valist);
+    
+    QTextStream * out = verboseOutput;
+    switch (type) {
+      case STAB_LOG_ERROR:
+      case STAB_LOG_WARNING:
+        out = err;
+    }
+    *out << tag << ": " << msg;// << endl;
+    return VS_OK;
+  }
 
+  void stabInit(QTextStream *_verboseOutput, QTextStream *_err) {
+    // setup constants
     VS_ERROR = 0;
     VS_OK = 1;
 
+    VS_ERROR_TYPE = STAB_LOG_ERROR;
+    VS_WARN_TYPE = STAB_LOG_WARNING;
+    VS_INFO_TYPE = STAB_LOG_INFO;
+    VS_MSG_TYPE = STAB_LOG_VERBOSE;
+
+    // logging
+    vs_log = stabLog;
+    verboseOutput = _verboseOutput;
+    err = _err;
   }
 
   StabConfig::StabConfig() :
@@ -197,7 +223,7 @@ namespace timelapse {
     memset(&fi, 0, sizeof (VSFrameInfo));
     memset(&td, 0, sizeof (VSTransformData));
     memset(&trans, 0, sizeof (VSTransformations));
-    
+
 
   }
 

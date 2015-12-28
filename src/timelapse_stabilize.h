@@ -71,7 +71,6 @@ namespace timelapse {
 
   public slots:
     void run();
-    void demo();
     void onError(QString msg);
     void cleanup(int exitCode = 0);
     //signals:

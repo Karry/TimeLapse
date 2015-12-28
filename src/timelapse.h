@@ -25,7 +25,6 @@
 #define	TIMELAPSE_H
 
 using namespace std;
-using namespace timelapse;
 
 namespace timelapse {
 
@@ -35,7 +34,7 @@ namespace timelapse {
     ErrorMessageHelper(QIODevice *errDev, QCommandLineParser *parser) :
     _coloredTerm(true), _err(errDev), _parser(parser) {
     }
-    
+
     ErrorMessageHelper(QIODevice *errDev) :
     _coloredTerm(true), _err(errDev), _parser(NULL) {
     }
@@ -59,7 +58,64 @@ namespace timelapse {
     QTextStream _err;
     QCommandLineParser *_parser;
   };
-  
+
+  template<typename T> class Option {
+  public:
+    virtual const bool isDefined() const = 0;
+
+    virtual const bool isEmpty() const {
+      return !isDefined();
+    };
+    virtual const T operator*() const = 0;
+    virtual const T getOrElse(const T def) const = 0;
+  };
+
+  template<typename T> class None : public Option<T> {
+  public:
+
+    virtual const bool isDefined() const {
+      return false;
+    };
+
+    virtual const T operator*() const {
+      throw runtime_error("Not defined");
+    };
+
+    virtual const T getOrElse(const T def) const {
+      return def;
+    };
+  };
+
+  template<typename T> class Some : public Option<T> {
+  public:
+
+    Some(const T &v) : val(v) {
+    }
+
+    virtual const bool isDefined() const {
+      return true;
+    }
+
+    virtual const T operator*() const {
+      return val;
+    };
+
+    virtual const T getOrElse(const T def) const {
+      return val;
+    };
+  private:
+    T val;
+  };
+
+  typedef Option<int> OptionInt;
+  typedef Some<int> SomeInt;
+#define NoneInt None<int>() 
+  typedef Option<float> OptionFloat;
+  typedef Some<float> SomeFloat;
+#define NoneFloat None<float>()
+  typedef Option<double> OptionDouble;
+  typedef Some<double> SomeDouble;
+#define NoneDouble None<double>()
 }
 
 

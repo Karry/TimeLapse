@@ -91,6 +91,7 @@ namespace timelapse {
     QDir output;
 
     bool dryRun;
+    QTemporaryDir *tempDir;
   };
 }
 

@@ -17,22 +17,23 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             
  */
 
-#ifndef PIPELINESTAB_H
-#define	PIPELINESTAB_H
-
-
 #include <QtCore/QObject>
 #include <QtCore/QDebug>
 #include <QtCore/QTemporaryDir>
 #include <QtCore/QTemporaryFile>
 #include <QtCore/QIODevice>
+#include <QtCore/QCommandLineParser>
 
 #include <Magick++.h>
 
 #include "libvidstab.h"
 
+#include "timelapse.h"
 #include "input_image_info.h"
 #include "pipeline_handler.h"
+
+#ifndef PIPELINESTAB_H
+#define	PIPELINESTAB_H
 
 namespace timelapse {
 
@@ -54,12 +55,42 @@ namespace timelapse {
   public:
     StabConfig();
     virtual ~StabConfig();
+
+    void addOptions(QCommandLineParser &parser);
+    template<typename T> T getOpt(const QCommandLineParser &parser, ErrorMessageHelper &die,
+            const QCommandLineOption &opt, const Option<T> &min, const Option<T> &max, T def,
+            QString parseErrMsg, QString outOfRangeErrMsg);
+    void processOptions(const QCommandLineParser &parser, ErrorMessageHelper &die, QTextStream *err);
+
     FILE* openStabStateFile(const char *mode);
 
     VSMotionDetectConfig mdConf;
     VSTransformConfig tsConf;
     QFile *stabStateFile;
     bool dryRun;
+
+  private:
+    QCommandLineOption *threadsOption;
+
+    QCommandLineOption *shakinessOption;
+    QCommandLineOption *accuracyOption;
+    QCommandLineOption *stepSizeOption;
+    QCommandLineOption *minContrastOption;
+    QCommandLineOption *tripodOption;
+    QCommandLineOption *showOption;
+
+    QCommandLineOption *smoothingOption;
+    QCommandLineOption *camPathAlgoOption;
+    QCommandLineOption *maxShiftOption;
+    QCommandLineOption *maxAngleOption;
+    QCommandLineOption *cropBlackOption;
+    QCommandLineOption *invertOption;
+    QCommandLineOption *relativeOption;
+    QCommandLineOption *zoomOption;
+    QCommandLineOption *optZoomOption;
+    QCommandLineOption *zoomSpeedOption;
+    QCommandLineOption *interpolOption;
+
   };
 
   class PipelineStabDetect : public ImageHandler {

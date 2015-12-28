@@ -49,7 +49,8 @@ namespace timelapse {
   out(stdout), err(stderr),
   verboseOutput(stdout), blackHole(NULL),
   pipeline(NULL), stabConf(NULL), output(),
-  dryRun(false) {
+  dryRun(false),
+  tempDir(NULL) {
 
     setApplicationName("TimeLapse stabilize tool");
     setApplicationVersion(VERSION_TIMELAPSE);
@@ -61,6 +62,11 @@ namespace timelapse {
       verboseOutput.setDevice(NULL);
       delete blackHole;
       blackHole = NULL;
+    }
+
+    if (tempDir != NULL) {
+      delete tempDir;
+      tempDir = NULL;
     }
   }
 
@@ -88,6 +94,13 @@ namespace timelapse {
       QCoreApplication::translate("main", "Verbose output."));
     parser.addOption(verboseOption);
 
+    if (stabConf != NULL) {
+      delete stabConf;
+    }
+    stabConf = new StabConfig();
+
+    stabConf->addOptions(parser);
+
     // Process the actual command line arguments given by the user
     parser.process(*this);
 
@@ -103,6 +116,8 @@ namespace timelapse {
 
     dryRun = parser.isSet(dryRunOption);
 
+    stabConf->processOptions(parser, die, &err);
+
     // inputs
     QStringList inputArgs = parser.positionalArguments();
     if (inputArgs.empty())
@@ -117,7 +132,12 @@ namespace timelapse {
     if (!output.mkpath(output.path()))
       die << QString("Can't create output directory %1 !").arg(output.path());
 
-    stabConf = new StabConfig();
+    if (stabConf->mdConf.show > 0) {
+      QString tmpBaseDir = QDir::tempPath();
+      tempDir = new QTemporaryDir(tmpBaseDir + QDir::separator() + "timelapse_");
+      if (!tempDir->isValid())
+        die << "Can't create temp directory";
+    }
     return inputArgs;
   }
 
@@ -132,6 +152,7 @@ namespace timelapse {
     }
     if (stabConf != NULL) {
       delete stabConf;
+      stabConf = NULL;
     }
 
     exit(exitCode);
@@ -142,12 +163,15 @@ namespace timelapse {
     QStringList inputArgs = parseArguments();
 
     // build processing pipeline
-    stabInit( &verboseOutput, &err);
+    stabInit(&verboseOutput, &err);
 
 
     pipeline = new Pipeline(inputArgs, false, &verboseOutput, &err);
-    *pipeline << new PipelineStabDetect(stabConf, &verboseOutput, &err);
     *pipeline << new OneToOneFrameMapping();
+    *pipeline << new PipelineStabDetect(stabConf, &verboseOutput, &err);
+    if (stabConf->mdConf.show > 0) {
+      *pipeline << new WriteFrame(QDir(tempDir->path()), &verboseOutput, dryRun);
+    }
     
     *pipeline << new StageSeparator();
 

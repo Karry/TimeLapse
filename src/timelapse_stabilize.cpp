@@ -37,7 +37,7 @@
 #include "pipeline_write_frame.h"
 #include "pipeline_handler.h"
 #include "pipeline_frame_mapping.h"
-
+#include "pipeline_effects.h"
 
 using namespace std;
 using namespace timelapse;
@@ -168,6 +168,7 @@ namespace timelapse {
 
     pipeline = new Pipeline(inputArgs, false, &verboseOutput, &err);
     *pipeline << new OneToOneFrameMapping();
+    *pipeline << new PipelineEdgeEffect(3);
     *pipeline << new PipelineStabDetect(stabConf, &verboseOutput, &err);
     if (stabConf->mdConf.show > 0) {
       *pipeline << new WriteFrame(QDir(tempDir->path()), &verboseOutput, dryRun);

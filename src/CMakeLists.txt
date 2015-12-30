@@ -62,6 +62,7 @@ qt5_generate_moc(pipeline_resize_frame.h    pipeline_resize_frame.moc)
 qt5_generate_moc(pipeline_source.h          pipeline_source.moc)
 qt5_generate_moc(pipeline_deflicker.h       pipeline_deflicker.moc)
 qt5_generate_moc(pipeline_stab.h            pipeline_stab.moc)
+qt5_generate_moc(pipeline_effects.h         pipeline_effects.moc)
 qt5_generate_moc(timelapse_stabilize.h      timelapse_stabilize.moc)
 
 set(timelapse_SRCS 
@@ -98,6 +99,9 @@ set(timelapse_SRCS
 
     pipeline_stab.cpp
     pipeline_stab.moc
+
+    pipeline_effects.cpp
+    pipeline_effects.moc
 
     pipeline.cpp
     pipeline.moc

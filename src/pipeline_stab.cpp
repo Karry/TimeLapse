@@ -255,10 +255,10 @@ namespace timelapse {
     parser.addOption(*minContrastOption);
     parser.addOption(*tripodOption);
 
-    // vid.stab don't support show option for packet frames
-    // see motiondetect.c, method drawField(VSMotionDetect* md, const LocalMotion* lm, short box)
-    // TODO: implement draw* methods for packet frames and enable this option...
-    // parser.addOption(*showOption);
+    // origin vid.stab don't support show option for packet pixel format
+    // "improvements" branch from my fork https://github.com/Karry/vid.stab
+    // should be used meanwhile 
+    parser.addOption(*showOption);
 
     parser.addOption(*smoothingOption);
     parser.addOption(*camPathAlgoOption);

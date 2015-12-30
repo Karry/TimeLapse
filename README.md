@@ -22,7 +22,7 @@ sudo apt-get install cmake cmake-data build-essential libmagick++-dev qtbase5-de
 
 build & install libvidstab*:
 ```
-git clone https://github.com/Karry/vid.stab.git vidstab
+git clone -b improvements https://github.com/Karry/vid.stab.git vidstab
 cd vidstab
 cmake .
 make -j `nproc`

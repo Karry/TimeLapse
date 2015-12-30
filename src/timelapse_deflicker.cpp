@@ -142,7 +142,7 @@ namespace timelapse {
     output = QDir(parser.value(outputOption));
     if (output.exists())
       err << "Output directory exists already." << endl;
-    if (!output.mkpath(output.path()))
+    if (!output.mkpath("."))
       die << QString("Can't create output directory %1 !").arg(output.path());
 
     return inputArgs;

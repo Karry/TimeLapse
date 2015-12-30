@@ -471,7 +471,7 @@ namespace timelapse {
       if (image.depth() > 8)
         *err << "Warning: we lost some information by converting to 8bit depth (now " << image.depth() << ")" << endl;
       image.depth(8);
-      image.magick("RGB");
+      image.magick("YUV"); // default IM sampling factor is 4:2:2
       image.write(&blob);
 
       LocalMotions localmotions;
@@ -479,7 +479,7 @@ namespace timelapse {
       size_t dataLen = blob.length();
 
       Q_ASSERT(fi.planes == 1);
-      Q_ASSERT(dataLen == image.baseColumns() * image.baseRows() * 3);
+      Q_ASSERT(dataLen == (image.baseColumns() * image.baseRows()) * 1.5);
 
       if (stabConf->mdConf.show > 0) { // create copy of blob
         frame.data[0] = new uint8_t[dataLen];
@@ -506,7 +506,7 @@ namespace timelapse {
         Magick::Image oimage;
         oimage.size(g);
         oimage.depth(8);
-        oimage.magick("RGB");
+        oimage.magick("YUV");
         oimage.read(oblob);
         delete[] frame.data[0];
         emit input(info, oimage);
@@ -523,7 +523,7 @@ namespace timelapse {
     width = img.columns();
     height = img.rows();
 
-    if (!vsFrameInfoInit(&fi, width, height, PF_RGB24)) {
+    if (!vsFrameInfoInit(&fi, width, height, PF_YUV422P)) {
       throw runtime_error("Failed to initialize frame info");
     }
     fi.planes = 1; // I don't understand vs frame info... But later is assert for planes == 1

@@ -18,3 +18,4 @@ install_manifest.txt
 /src/timelapse_assembly
 /src/timelapse_deflicker
 /src/timelapse_stabilize
+/src/timelapse_capture

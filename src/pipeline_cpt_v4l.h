@@ -17,8 +17,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             
  */
 
-#ifndef TIMELAPSECAPTURE_H
-#define	TIMELAPSECAPTURE_H
+#ifndef PIPELINECPTV4L_H
+#define	PIPELINECPTV4L_H
 
 #include <QtCore/QObject>
 #include <QtCore/QDebug>
@@ -34,29 +34,41 @@
 
 namespace timelapse {
 
-  class TimeLapseCapture : public QCoreApplication {
+#define CLEAR(x) memset(&(x), 0, sizeof(x))
+
+  struct buffer {
+    void *start;
+    size_t length;
+  };
+
+  class V4LDevice : public QObject {
     Q_OBJECT
-
   public:
-    TimeLapseCapture(int &argc, char **argv);
-    virtual ~TimeLapseCapture();
+    V4LDevice(QString dev = "/dev/video0");
+    V4LDevice(const timelapse::V4LDevice& other);
+    virtual ~V4LDevice();
 
-  public slots:
-    void run();
-    void cleanup(int exitCode = 0);
-    void onError(QString msg);
+    Magick::Image capture();
 
-  signals:
-    void done();
+    QString toString();
+    V4LDevice operator=(const timelapse::V4LDevice&);
 
-  protected:
-    QStringList parseArguments();
+    static void ioctl(int fh, unsigned long int request, void *arg);
+    static QList<V4LDevice> listDevices(QDir devDir = QDir("/dev"), int max = 32);
 
   protected:
-    QTextStream out;
-    QTextStream err;
+    void initialize();
+    int open();
+
+    bool initialized;
+    QString dev;
+    struct v4l2_format dst;
+    struct v4l2_format src;
 
   };
+
+
 }
-#endif	/* TIMELAPSECAPTURE_H */
+
+#endif	/* PIPELINECPTV4L_H */
 

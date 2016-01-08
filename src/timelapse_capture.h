@@ -31,6 +31,8 @@
 #include <Magick++.h>
 
 #include "black_hole_device.h"
+#include "input_image_info.h"
+#include "pipeline.h"
 
 namespace timelapse {
 
@@ -56,6 +58,13 @@ namespace timelapse {
     QTextStream out;
     QTextStream err;
 
+    QTextStream verboseOutput;
+    BlackHoleDevice *blackHole;
+
+    Pipeline *pipeline;
+    QDir output;
+
+    bool dryRun;    
   };
 }
 #endif	/* TIMELAPSECAPTURE_H */

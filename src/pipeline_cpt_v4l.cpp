@@ -27,7 +27,7 @@
 #include <sys/mman.h>
 //#include <linux/videodev2.h>
 #include <libv4l2.h>
-#include <libv4lconvert.h>
+//#include <libv4lconvert.h>
 
 
 #include <QtCore/QObject>
@@ -56,7 +56,7 @@ namespace timelapse {
   }
 
   V4LDevice::V4LDevice(const timelapse::V4LDevice& o) :
-  initialized(o.initialized), dev(o.dev), dst(o.dst), src(o.src) {
+  initialized(o.initialized), dev(o.dev), v4lfmt(o.v4lfmt) {
   }
 
   V4LDevice::~V4LDevice() {
@@ -69,18 +69,25 @@ namespace timelapse {
   V4LDevice V4LDevice::operator=(const timelapse::V4LDevice& o) {
     initialized = o.initialized;
     dev = o.dev;
-    dst = o.dst;
-    src = o.src;
+    v4lfmt = o.v4lfmt;
     return *this;
   }
 
-  QList<V4LDevice> V4LDevice::listDevices(QDir devDir, int max) {
+  QList<V4LDevice> V4LDevice::listDevices(QTextStream *verboseOut, QDir devDir, int max) {
     QList<V4LDevice> result;
 
     for (int i = 0; i < max; i++) {
       QFileInfo fi(devDir, QString("video%1").arg(i));
-      if (fi.exists())
-        result.append(V4LDevice(fi.absoluteFilePath()));
+      if (fi.exists()) {
+        *verboseOut << "Probing v4l device " << fi.absoluteFilePath() << endl;
+        V4LDevice d(fi.absoluteFilePath());
+        try {
+          d.initialize();
+          result.append(d);
+        } catch (std::exception &e) {
+          *verboseOut << "Device " << fi.absoluteFilePath() << " can't be used for capturing." << endl;
+        }
+      }
     }
 
     return result;
@@ -93,7 +100,7 @@ namespace timelapse {
     } while (r == -1 && ((errno == EINTR) || (errno == EAGAIN)));
 
     if (r == -1) {
-      throw runtime_error(QString("error %d, %s")
+      throw runtime_error(QString("error %1, %2")
         .arg(errno)
         .arg(strerror(errno))
         .toStdString());
@@ -104,7 +111,7 @@ namespace timelapse {
     const char *dev_name = dev.toStdString().c_str();
     int fd = v4l2_open(dev_name, O_RDWR | O_NONBLOCK, 0);
     if (fd < 0) {
-      throw runtime_error(QString("Cannot open device %s")
+      throw runtime_error(QString("Cannot open device %1")
         .arg(dev)
         .toStdString());
     }
@@ -115,14 +122,14 @@ namespace timelapse {
     if (initialized)
       return;
 
-    CLEAR(src);
-    CLEAR(dst);
+    CLEAR(v4lfmt);
+    //CLEAR(dst);
 
     int fd = open();
-    v4lconvert_data *v4lcdt = v4lconvert_create(fd);
+    //v4lconvert_data *v4lcdt = v4lconvert_create(fd);
 
     try {
-      // determine highest available resolution
+      // determine highest available resolution with RGB24 pixel format
       // v4l2-ctl --list-formats-ext
 
       struct v4l2_fmtdesc fmt;
@@ -133,11 +140,14 @@ namespace timelapse {
       //struct v4l2_frmivalenum frmival;
 
       fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-      src.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-      dst.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+      v4lfmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+      v4lfmt.fmt.pix.width = 0;
+      v4lfmt.fmt.pix.height = 0;
+      v4lfmt.fmt.pix.pixelformat = 0;
+      //dst.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-      dst.fmt.pix.field = V4L2_FIELD_INTERLACED;
-      src.fmt.pix.field = V4L2_FIELD_INTERLACED;
+      //dst.fmt.pix.field = V4L2_FIELD_INTERLACED;
+      v4lfmt.fmt.pix.field = V4L2_FIELD_NONE;
 
       fmt.index = 0;
       while (v4l2_ioctl(fd, VIDIOC_ENUM_FMT, &fmt) >= 0) {
@@ -154,19 +164,19 @@ namespace timelapse {
             h = frmsize.stepwise.max_height;
           }
 
-          if ((w > src.fmt.pix.width && h > src.fmt.pix.height)
-            || (w == src.fmt.pix.width && h == src.fmt.pix.height && fmt.pixelformat == V4L2_PIX_FMT_RGB24)) {
-            src.fmt.pix.width = w;
-            src.fmt.pix.height = h;
-            src.fmt.pix.pixelformat = fmt.pixelformat;
+          if ((w > v4lfmt.fmt.pix.width && h > v4lfmt.fmt.pix.height && fmt.pixelformat == V4L2_PIX_FMT_RGB24)) {
+            v4lfmt.fmt.pix.width = w;
+            v4lfmt.fmt.pix.height = h;
+            v4lfmt.fmt.pix.pixelformat = fmt.pixelformat;
           }
           frmsize.index++;
         }
         fmt.index++;
       }
 
-      dst.fmt.pix.width = src.fmt.pix.width;
-      dst.fmt.pix.height = src.fmt.pix.height; // try to maximum possible resolution
+      /*
+      dst.fmt.pix.width = v4lfmt.fmt.pix.width;
+      dst.fmt.pix.height = v4lfmt.fmt.pix.height; // try to maximum possible resolution
       dst.fmt.pix.pixelformat = V4L2_PIX_FMT_RGB24;
 
       // try format
@@ -176,18 +186,18 @@ namespace timelapse {
           .arg(v4lconvert_get_error_message(v4lcdt))
           .toStdString());
       }
-
-      // check dst pixel format
-      if (dst.fmt.pix.pixelformat != V4L2_PIX_FMT_RGB24) {
-        throw runtime_error(QString("Device %s didn't accept RGB24 format. Can't proceed.")
+       */
+      // check format
+      if (v4lfmt.fmt.pix.pixelformat != V4L2_PIX_FMT_RGB24) {
+        throw runtime_error(QString("Device %1 didn't accept RGB24 format. Can't proceed.")
           .arg(dev)
           .toStdString());
       }
 
-      v4lconvert_destroy(v4lcdt);
+      //v4lconvert_destroy(v4lcdt);
       v4l2_close(fd);
     } catch (std::exception &e) {
-      v4lconvert_destroy(v4lcdt);
+      //v4lconvert_destroy(v4lcdt);
       v4l2_close(fd);
       throw e;
     }
@@ -205,14 +215,38 @@ namespace timelapse {
     struct timeval tv;
     int r, fd = -1;
     unsigned int i, n_buffers;
-    char out_name[256];
-    FILE *fout;
+    //char out_name[256];
+    //FILE *fout;
     struct buffer *buffers;
+    buffers = NULL;
+    Magick::Image capturedImage;
+    unsigned int warmupFrames = 20 ;// TODO: configurable
 
-    fd = open();
-    v4lconvert_data *v4lcdt = v4lconvert_create(fd);
+      fd = open();
+    //v4lconvert_data *v4lcdt = v4lconvert_create(fd);
     try {
-      bool needsConversion = v4lconvert_needs_conversion(v4lcdt, &src, &dst) == 1;
+      //bool needsConversion = v4lconvert_needs_conversion(v4lcdt, &src, &dst) == 1;
+      struct v4l2_format sfmt;
+      memcpy(&sfmt, &v4lfmt, sizeof (struct v4l2_format));
+      V4LDevice::ioctl(fd, VIDIOC_S_FMT, &sfmt);
+
+      // check format (driver can change it if something is not supported)
+      //if (memcmp(&sfmt, &v4lfmt, sizeof(struct v4l2_format)) != 0) {
+      if (v4lfmt.type != sfmt.type
+        || v4lfmt.fmt.pix.width != sfmt.fmt.pix.width
+        || v4lfmt.fmt.pix.height != sfmt.fmt.pix.height
+        || v4lfmt.fmt.pix.pixelformat != sfmt.fmt.pix.pixelformat
+        || v4lfmt.fmt.pix.field != sfmt.fmt.pix.field) {
+
+        throw runtime_error(QString("Device %1 didn't accept requiered format.")
+          .arg(dev)
+          .toStdString());
+      }
+      /*
+              if ((fmt.fmt.pix.width != 640) || (fmt.fmt.pix.height != 480))
+                      printf("Warning: driver is sending image at %dx%d\n",
+                              fmt.fmt.pix.width, fmt.fmt.pix.height);
+       */
 
       CLEAR(req);
       req.count = 2;
@@ -251,7 +285,7 @@ namespace timelapse {
       type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
       V4LDevice::ioctl(fd, VIDIOC_STREAMON, &type);
-      for (i = 0; i < 20; i++) {
+      for (i = 0; i <= warmupFrames; i++) {
         do {
           FD_ZERO(&fds);
           FD_SET(fd, &fds);
@@ -274,6 +308,7 @@ namespace timelapse {
         buf.memory = V4L2_MEMORY_MMAP;
         V4LDevice::ioctl(fd, VIDIOC_DQBUF, &buf);
 
+        /*
         sprintf(out_name, "out%03d.ppm", i);
         fout = fopen(out_name, "w");
         if (!fout) {
@@ -281,9 +316,19 @@ namespace timelapse {
           exit(EXIT_FAILURE);
         }
         fprintf(fout, "P6\n%d %d 255\n",
-          dst.fmt.pix.width, dst.fmt.pix.height);
+          v4lfmt.fmt.pix.width, v4lfmt.fmt.pix.height);
         fwrite(buffers[buf.index].start, buf.bytesused, 1, fout);
         fclose(fout);
+         */
+        if (i == warmupFrames) { // last frame, we capture it
+          Magick::Blob oblob(buffers[buf.index].start, buf.bytesused);
+
+          Magick::Geometry g(v4lfmt.fmt.pix.width, v4lfmt.fmt.pix.height);
+          capturedImage.size(g);
+          capturedImage.depth(8);
+          capturedImage.magick("RGB");
+          capturedImage.read(oblob);
+        }
 
         V4LDevice::ioctl(fd, VIDIOC_QBUF, &buf);
       }
@@ -294,16 +339,19 @@ namespace timelapse {
         v4l2_munmap(buffers[i].start, buffers[i].length);
 
       delete[] buffers;
-      v4lconvert_destroy(v4lcdt);
+      //v4lconvert_destroy(v4lcdt);
       v4l2_close(fd);
     } catch (std::exception &e) {
-      delete[] buffers;
-      v4lconvert_destroy(v4lcdt);
+      // cleanup
+      if (buffers != NULL)
+        delete[] buffers;
+      //v4lconvert_destroy(v4lcdt);
       v4l2_close(fd);
-      throw e;
+      //QTextStream(stdout) << e.what() << endl;
+      throw runtime_error(e.what()); // rethrow
     }
 
-    return Magick::Image();
+    return capturedImage;
   }
 
 }

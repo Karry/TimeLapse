@@ -33,7 +33,7 @@
 #include <sys/mman.h>
 //#include <linux/videodev2.h>
 #include <libv4l2.h>
-#include <libv4lconvert.h>
+//#include <libv4lconvert.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QDebug>
@@ -52,19 +52,33 @@
 #include "pipeline_cpt_v4l.h"
 #include "timelapse.h"
 #include "black_hole_device.h"
+#include "pipeline_stab.h"
 
 using namespace std;
 using namespace timelapse;
 
 namespace timelapse {
 
-
   TimeLapseCapture::TimeLapseCapture(int &argc, char **argv) :
   QCoreApplication(argc, argv),
-  out(stdout), err(stderr) {
+  out(stdout), err(stderr),
+  verboseOutput(stdout), blackHole(NULL),
+  pipeline(NULL), output(),
+  dryRun(false) {
+
+    setApplicationName("TimeLapse capture tool");
+    setApplicationVersion(VERSION_TIMELAPSE);
+
   }
 
   TimeLapseCapture::~TimeLapseCapture() {
+    if (blackHole != NULL) {
+      verboseOutput.flush();
+      verboseOutput.setDevice(NULL);
+      delete blackHole;
+      blackHole = NULL;
+    }
+
   }
 
   QStringList TimeLapseCapture::parseArguments() {
@@ -74,6 +88,24 @@ namespace timelapse {
     parser.setApplicationDescription("Tool for capture sequence of images from digital camera (V4L API).");
     parser.addHelpOption();
     parser.addVersionOption();
+
+    QCommandLineOption verboseOption(QStringList() << "V" << "verbose",
+      QCoreApplication::translate("main", "Verbose output."));
+    parser.addOption(verboseOption);
+
+    // Process the actual command line arguments given by the user
+    parser.process(*this);
+
+
+    // verbose?
+    if (!parser.isSet(verboseOption)) {
+      blackHole = new BlackHoleDevice();
+      verboseOutput.setDevice(blackHole);
+    } else {
+      // verbose
+      verboseOutput << "Turning on verbose output..." << endl;
+      verboseOutput << applicationName() << " " << applicationVersion() << endl;
+    }
 
     return QStringList();
   }
@@ -93,17 +125,22 @@ namespace timelapse {
 
     V4LDevice firstDevice;
     bool assigned = false;
-    QList<V4LDevice> devices = V4LDevice::listDevices();
+    QList<V4LDevice> devices = V4LDevice::listDevices(&verboseOutput);
+    out << "Found devices: " << endl;
     for (V4LDevice d : devices) {
-      if (!assigned){
+      if (!assigned) {
         firstDevice = d;
         assigned = true;
       }
-      out << d.toString() << endl;
+      out << "  " << d.toString() << endl;
     }
 
-    firstDevice.capture();
-
+    out << "Try to campure from " << firstDevice.toString() << endl;
+    try {
+      firstDevice.capture();
+    } catch (std::exception &e) {
+      err << "Capturing failed: " << e.what() << endl;
+    }
     emit cleanup();
   }
 }

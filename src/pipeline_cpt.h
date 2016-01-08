@@ -17,63 +17,20 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             
  */
 
-#ifndef PIPELINECPTV4L_H
-#define	PIPELINECPTV4L_H
-
-#include <libv4l2.h>
-//#include <libv4lconvert.h>
-#include <linux/videodev2.h>
+#ifndef PIPELINE_CPT_H
+#define	PIPELINE_CPT_H
 
 #include <QtCore/QObject>
-#include <QtCore/QDebug>
-#include <QtCore/QTimer>
-#include <QtCore/QTextStream>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QFileInfo>
-#include <QtCore/QTemporaryDir>
 
 #include <Magick++.h>
 
-#include "black_hole_device.h"
-#include "pipeline_cpt.h"
-
 namespace timelapse {
 
-#define CLEAR(x) memset(&(x), 0, sizeof(x))
-
-  struct buffer {
-    void *start;
-    size_t length;
+  class CaptureDevice  {       
+    virtual Magick::Image capture() = 0;
+    virtual QString toString() = 0;
   };
-
-  class V4LDevice : public QObject, CaptureDevice {
-    Q_OBJECT
-  public:
-    V4LDevice(QString dev = "/dev/video0");
-    V4LDevice(const timelapse::V4LDevice& other);
-    virtual ~V4LDevice();
-
-    Magick::Image capture();
-
-    QString toString();
-    V4LDevice operator=(const timelapse::V4LDevice&);
-
-    static void ioctl(int fh, unsigned long int request, void *arg);
-    static QList<V4LDevice> listDevices(QTextStream *verboseOut, QDir devDir = QDir("/dev"), int max = 32);
-
-  protected:
-    void initialize();
-    int open();
-
-    bool initialized;
-    QString dev;
-    //struct v4l2_format dst;
-    struct v4l2_format v4lfmt;
-
-  };
-
-
 }
 
-#endif	/* PIPELINECPTV4L_H */
+#endif	/* PIPELINE_CPT_H */
 

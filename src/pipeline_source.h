@@ -31,15 +31,23 @@
 
 namespace timelapse {
 
-  class PipelineSource : public InputHandler {
+  class PipelineSource {
+  public:
+
+    virtual ~PipelineSource() {
+    };
+    virtual void process() = 0;
+  };
+
+  class PipelineFileSource : public InputHandler, public PipelineSource {
     Q_OBJECT
   public:
-    PipelineSource(QStringList inputArguments, bool recursive, QTextStream *verboseOutput, QTextStream *err);
+    PipelineFileSource(QStringList inputArguments, bool recursive, QTextStream *verboseOutput, QTextStream *err);
+    virtual void process();
   protected:
-    QList<InputImageInfo> listDirectory(QDir d) ;
+    QList<InputImageInfo> listDirectory(QDir d);
     QList<InputImageInfo> parseArguments();
   public slots:
-    void process();
     virtual void onInput(InputImageInfo info);
   private:
     QStringList inputArguments;

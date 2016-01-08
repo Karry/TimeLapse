@@ -33,6 +33,7 @@
 #include "black_hole_device.h"
 #include "input_image_info.h"
 #include "pipeline.h"
+#include "pipeline_cpt.h"
 
 namespace timelapse {
 
@@ -65,7 +66,12 @@ namespace timelapse {
     QDir output;
 
     bool dryRun;    
+    
+    CaptureDevice *dev;
+    int64_t interval;
+    int32_t cnt;
   };
 }
+
 #endif	/* TIMELAPSECAPTURE_H */
 

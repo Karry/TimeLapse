@@ -504,10 +504,7 @@ namespace timelapse {
         Magick::Blob oblob(frame.data[0], dataLen);
 
         Magick::Image oimage;
-        oimage.size(g);
-        oimage.depth(8);
-        oimage.magick("RGB");
-        oimage.read(oblob);
+        oimage.read(oblob, g, 8, "RGB");
         delete[] frame.data[0];
         emit input(info, oimage);
       } else {

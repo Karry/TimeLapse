@@ -40,14 +40,14 @@ using namespace timelapse;
 
 namespace timelapse {
 
-  PipelineSource::PipelineSource(QStringList _inputArguments, bool _recursive,
+  PipelineFileSource::PipelineFileSource(QStringList _inputArguments, bool _recursive,
     QTextStream *_verboseOutput, QTextStream *_err) :
   inputArguments(_inputArguments), recursive(_recursive),
   verboseOutput(_verboseOutput), err(_err) {
 
   }
 
-  QList<InputImageInfo> PipelineSource::listDirectory(QDir d) {
+  QList<InputImageInfo> PipelineFileSource::listDirectory(QDir d) {
     *verboseOutput << "Dive into directory: " << d.path() << endl;
     QList<InputImageInfo> inputs;
     QFileInfoList l = d.entryInfoList(QDir::Files, QDir::Name);
@@ -69,7 +69,7 @@ namespace timelapse {
     return inputs;
   }
 
-  QList<InputImageInfo> PipelineSource::parseArguments() {
+  QList<InputImageInfo> PipelineFileSource::parseArguments() {
     QList<InputImageInfo> inputs;
     *verboseOutput << "inputs: " << inputArguments.join(", ") << endl;
     for (QString inputArg : inputArguments) {
@@ -104,11 +104,11 @@ namespace timelapse {
     return inputs;
   }
 
-  void PipelineSource::onInput(InputImageInfo info) {
+  void PipelineFileSource::onInput(InputImageInfo info) {
     // just ingore, we are the source
   }
 
-  void PipelineSource::process() {
+  void PipelineFileSource::process() {
     QList<InputImageInfo> inputs = parseArguments();
     for (InputImageInfo info : inputs) {
       emit input(info);

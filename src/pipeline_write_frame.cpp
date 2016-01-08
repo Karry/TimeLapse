@@ -31,6 +31,8 @@
 
 #include <exception>
 
+#include <Magick++.h>
+
 #include "pipeline_write_frame.h"
 #include "pipeline_write_frame.moc"
 
@@ -62,6 +64,8 @@ namespace timelapse {
 
     *verboseOutput << "Write frame " << framePath << endl;
     if (!dryRun) {
+      img.compressType(Magick::JPEGCompression);
+      img.magick( "JPEG" );
       img.write(framePath.toStdString());
     }
     // update image location & emit signal

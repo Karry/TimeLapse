@@ -28,6 +28,7 @@
 #include "input_image_info.h"
 #include "pipeline_handler.h"
 #include "pipeline_source.h"
+#include "pipeline_cpt.h"
 
 using namespace std;
 using namespace timelapse;
@@ -37,13 +38,23 @@ namespace timelapse {
   class Pipeline : public QObject {
     Q_OBJECT
 
-  public:
-    Pipeline(QStringList inputArguments, bool recursive,
+  protected:
+    Pipeline(PipelineSource *src, InputHandler *firstInputHandler,
             QTextStream *verboseOutput, QTextStream *err);
+    Pipeline(PipelineSource *src, ImageHandler *firstImageHandler,
+            QTextStream *verboseOutput, QTextStream *err);
+
+  public:
     virtual ~Pipeline();
 
     void operator<<(ImageHandler *handler);
     void operator<<(InputHandler *handler);
+
+    static Pipeline* createWithCaptureSource(CaptureDevice *dev, int64_t interval, int32_t cnt,
+            QTextStream *verboseOutput, QTextStream *err);
+    static Pipeline* createWithFileSource(QStringList inputArguments, bool recursive,
+            QTextStream *verboseOutput, QTextStream *err);
+
 
   public slots:
     void process();

@@ -21,15 +21,51 @@
 #define	PIPELINE_CPT_H
 
 #include <QtCore/QObject>
+#include <QTimer>
 
 #include <Magick++.h>
 
+#include "input_image_info.h"
+#include "pipeline_source.h"
+
 namespace timelapse {
 
-  class CaptureDevice  {       
+  class CaptureDevice {
+  public:
+
+    virtual ~CaptureDevice() {
+    };
+
     virtual Magick::Image capture() = 0;
     virtual QString toString() = 0;
   };
+
+#define INFINITE_CNT -1
+
+  class PipelineCaptureSource : public ImageHandler, public PipelineSource {
+    Q_OBJECT
+  public:
+    PipelineCaptureSource(CaptureDevice *dev, uint64_t intervalMs, int32_t cnt,
+            QTextStream *verboseOutput, QTextStream *err);\
+        virtual ~PipelineCaptureSource();
+
+    virtual void process();
+    
+  public slots:
+    virtual void capture();
+        virtual void onInput(InputImageInfo info, Magick::Image img);
+  signals:
+    void input(InputImageInfo info, Magick::Image img);
+  private:
+    CaptureDevice *dev;
+    uint64_t intervalMs;
+    int32_t capturedCnt;
+    int32_t cnt;
+    QTextStream *verboseOutput;
+    QTextStream *err;
+    QTimer *timer;
+  };
+
 }
 
 #endif	/* PIPELINE_CPT_H */

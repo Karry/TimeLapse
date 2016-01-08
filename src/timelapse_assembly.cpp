@@ -284,7 +284,7 @@ namespace timelapse {
     QStringList inputArguments = parseArguments();
 
     // build processing pipeline
-    pipeline = new Pipeline(inputArguments, false, &_verboseOutput, &_err);
+    pipeline = Pipeline::createWithFileSource (inputArguments, false, &_verboseOutput, &_err);
 
     if (deflickerAvg) {
       *pipeline << new ComputeLuminance(&_verboseOutput);

@@ -46,7 +46,7 @@ namespace timelapse {
     size_t length;
   };
 
-  class V4LDevice : public QObject, CaptureDevice {
+  class V4LDevice : public QObject, public CaptureDevice {
     Q_OBJECT
   public:
     V4LDevice(QString dev = "/dev/video0");
@@ -61,8 +61,8 @@ namespace timelapse {
     static void ioctl(int fh, unsigned long int request, void *arg);
     static QList<V4LDevice> listDevices(QTextStream *verboseOut, QDir devDir = QDir("/dev"), int max = 32);
 
-  protected:
     void initialize();
+  protected:
     int open();
 
     bool initialized;

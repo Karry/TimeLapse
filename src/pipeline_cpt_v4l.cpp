@@ -16,16 +16,14 @@
  *   Free Software Foundation, Inc.,                                       
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             
  */
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
+
+
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/ioctl.h>
-//#include <sys/types.h>
 #include <sys/time.h>
 #include <sys/mman.h>
-//#include <linux/videodev2.h>
+#include <linux/videodev2.h>
 #include <libv4l2.h>
 //#include <libv4lconvert.h>
 
@@ -123,10 +121,8 @@ namespace timelapse {
       return;
 
     CLEAR(v4lfmt);
-    //CLEAR(dst);
 
     int fd = open();
-    //v4lconvert_data *v4lcdt = v4lconvert_create(fd);
 
     try {
       // determine highest available resolution with RGB24 pixel format
@@ -144,9 +140,6 @@ namespace timelapse {
       v4lfmt.fmt.pix.width = 0;
       v4lfmt.fmt.pix.height = 0;
       v4lfmt.fmt.pix.pixelformat = 0;
-      //dst.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-
-      //dst.fmt.pix.field = V4L2_FIELD_INTERLACED;
       v4lfmt.fmt.pix.field = V4L2_FIELD_NONE;
 
       fmt.index = 0;
@@ -174,19 +167,6 @@ namespace timelapse {
         fmt.index++;
       }
 
-      /*
-      dst.fmt.pix.width = v4lfmt.fmt.pix.width;
-      dst.fmt.pix.height = v4lfmt.fmt.pix.height; // try to maximum possible resolution
-      dst.fmt.pix.pixelformat = V4L2_PIX_FMT_RGB24;
-
-      // try format
-      if (v4lconvert_try_format(v4lcdt, &dst, &src) != 0) {
-        throw runtime_error(QString("Failed to setup format on device %s: %s")
-          .arg(dev)
-          .arg(v4lconvert_get_error_message(v4lcdt))
-          .toStdString());
-      }
-       */
       // check format
       if (v4lfmt.fmt.pix.pixelformat != V4L2_PIX_FMT_RGB24) {
         throw runtime_error(QString("Device %1 didn't accept RGB24 format. Can't proceed.")
@@ -215,23 +195,18 @@ namespace timelapse {
     struct timeval tv;
     int r, fd = -1;
     unsigned int i, n_buffers;
-    //char out_name[256];
-    //FILE *fout;
     struct buffer *buffers;
     buffers = NULL;
     Magick::Image capturedImage;
-    unsigned int warmupFrames = 20 ;// TODO: configurable
+    unsigned int warmupFrames = 20; // TODO: configurable
 
-      fd = open();
-    //v4lconvert_data *v4lcdt = v4lconvert_create(fd);
+    fd = open();
     try {
-      //bool needsConversion = v4lconvert_needs_conversion(v4lcdt, &src, &dst) == 1;
       struct v4l2_format sfmt;
       memcpy(&sfmt, &v4lfmt, sizeof (struct v4l2_format));
       V4LDevice::ioctl(fd, VIDIOC_S_FMT, &sfmt);
 
       // check format (driver can change it if something is not supported)
-      //if (memcmp(&sfmt, &v4lfmt, sizeof(struct v4l2_format)) != 0) {
       if (v4lfmt.type != sfmt.type
         || v4lfmt.fmt.pix.width != sfmt.fmt.pix.width
         || v4lfmt.fmt.pix.height != sfmt.fmt.pix.height
@@ -242,11 +217,6 @@ namespace timelapse {
           .arg(dev)
           .toStdString());
       }
-      /*
-              if ((fmt.fmt.pix.width != 640) || (fmt.fmt.pix.height != 480))
-                      printf("Warning: driver is sending image at %dx%d\n",
-                              fmt.fmt.pix.width, fmt.fmt.pix.height);
-       */
 
       CLEAR(req);
       req.count = 2;
@@ -298,36 +268,29 @@ namespace timelapse {
         } while ((r == -1 && (errno = EINTR)));
         if (r == -1) {
           perror("select");
-          //cleanup(errno); 
-          // TODO: exception
-          return Magick::Image();
+          throw runtime_error("Failed to read from device");
         }
 
         CLEAR(buf);
         buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         buf.memory = V4L2_MEMORY_MMAP;
         V4LDevice::ioctl(fd, VIDIOC_DQBUF, &buf);
-
-        /*
-        sprintf(out_name, "out%03d.ppm", i);
-        fout = fopen(out_name, "w");
-        if (!fout) {
-          perror("Cannot open image");
-          exit(EXIT_FAILURE);
-        }
-        fprintf(fout, "P6\n%d %d 255\n",
-          v4lfmt.fmt.pix.width, v4lfmt.fmt.pix.height);
-        fwrite(buffers[buf.index].start, buf.bytesused, 1, fout);
-        fclose(fout);
-         */
+      
         if (i == warmupFrames) { // last frame, we capture it
           Magick::Blob oblob(buffers[buf.index].start, buf.bytesused);
 
           Magick::Geometry g(v4lfmt.fmt.pix.width, v4lfmt.fmt.pix.height);
-          capturedImage.size(g);
-          capturedImage.depth(8);
-          capturedImage.magick("RGB");
-          capturedImage.read(oblob);
+          capturedImage.read(oblob, g, 8, "RGB");
+          
+          
+          QDateTime now = QDateTime::currentDateTime();
+          QString exifDateTime = now.toString("yyyy:MM:dd HH:mm:ss");\
+          
+          // ImageMagick don't support writing of exif data
+          // TODO: setup exif timestamp correctly
+          capturedImage.attribute("EXIF:DateTime", exifDateTime.toStdString());
+          //capturedImage.defineValue("EXIF", "DateTime", exifDateTime.toStdString());
+
         }
 
         V4LDevice::ioctl(fd, VIDIOC_QBUF, &buf);
@@ -339,13 +302,11 @@ namespace timelapse {
         v4l2_munmap(buffers[i].start, buffers[i].length);
 
       delete[] buffers;
-      //v4lconvert_destroy(v4lcdt);
       v4l2_close(fd);
     } catch (std::exception &e) {
       // cleanup
       if (buffers != NULL)
         delete[] buffers;
-      //v4lconvert_destroy(v4lcdt);
       v4l2_close(fd);
       //QTextStream(stdout) << e.what() << endl;
       throw runtime_error(e.what()); // rethrow

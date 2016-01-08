@@ -22,16 +22,38 @@
 #include "pipeline.h"
 #include "pipeline.moc"
 #include "pipeline_handler.h"
+#include "pipeline_cpt.h"
 
 namespace timelapse {
 
-  Pipeline::Pipeline(QStringList inputArguments, bool recursive,
-    QTextStream *_verboseOutput, QTextStream *_err) :
-  verboseOutput(_verboseOutput), err(_err),
-  elements(), lastInputHandler(NULL), lastImageHandler(NULL) {
+  Pipeline* Pipeline::createWithCaptureSource(CaptureDevice *dev, int64_t interval, int32_t cnt,
+    QTextStream *verboseOutput, QTextStream *err) {
 
-    lastInputHandler = src = new PipelineSource(inputArguments, recursive, verboseOutput, err);
-    append(src);
+    PipelineCaptureSource *src = new PipelineCaptureSource(dev, interval, cnt, verboseOutput, err);
+    return new Pipeline(src, src, verboseOutput, err);
+  }
+
+  Pipeline* Pipeline::createWithFileSource(QStringList inputArguments, bool recursive,
+    QTextStream *verboseOutput, QTextStream *err) {
+
+    PipelineFileSource *src = new PipelineFileSource(inputArguments, recursive, verboseOutput, err);
+    return new Pipeline(src, src, verboseOutput, err);
+  }
+
+  Pipeline::Pipeline(PipelineSource *src, InputHandler *firstInputHandler,
+    QTextStream *verboseOutput, QTextStream *err) :
+  verboseOutput(verboseOutput), err(err),
+  elements(), src(src), lastInputHandler(firstInputHandler), lastImageHandler(NULL) {
+
+    append(firstInputHandler);
+  }
+
+  Pipeline::Pipeline(PipelineSource *src, ImageHandler *firstImageHandler,
+    QTextStream *verboseOutput, QTextStream *err) :
+  verboseOutput(verboseOutput), err(err),
+  elements(), src(src), lastInputHandler(NULL), lastImageHandler(firstImageHandler) {
+
+    append(firstImageHandler);
   }
 
   Pipeline::~Pipeline() {
@@ -125,7 +147,8 @@ namespace timelapse {
     } else if (lastImageHandler != NULL) {
       connect(lastImageHandler, SIGNAL(last()), this, SIGNAL(done()));
     } else {
-      connect(src, SIGNAL(last()), this, SIGNAL(done()));
+      throw logic_error("No handler in pipeline");
+      //connect(src, SIGNAL(last()), this, SIGNAL(done()));
     }
 
     emit src->process();

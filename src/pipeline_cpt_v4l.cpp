@@ -54,20 +54,29 @@ namespace timelapse {
   }
 
   V4LDevice::V4LDevice(const timelapse::V4LDevice& o) :
-  initialized(o.initialized), dev(o.dev), v4lfmt(o.v4lfmt) {
+  initialized(o.initialized), dev(o.dev), capability(o.capability), v4lfmt(o.v4lfmt) {
   }
 
   V4LDevice::~V4LDevice() {
   }
 
   QString V4LDevice::toString() {
-    return dev;
+    initialize();
+
+    uint32_t v = capability.version;
+    return QString("%1 \t\"%2\" @ %3 (%4 %5.%6.%7)")
+      .arg(dev)
+      .arg(QString::fromLatin1((char *) capability.card, sizeof (capability.card)))
+      .arg(QString::fromLatin1((char *) capability.bus_info, sizeof (capability.bus_info)))
+      .arg(QString::fromLatin1((char *) capability.driver, sizeof (capability.driver)))
+      .arg((v >> 16) & 0xff).arg((v >> 8) & 0xff).arg(v & 0xff);
   }
 
   V4LDevice V4LDevice::operator=(const timelapse::V4LDevice& o) {
     initialized = o.initialized;
     dev = o.dev;
     v4lfmt = o.v4lfmt;
+    capability = o.capability;
     return *this;
   }
 
@@ -125,6 +134,11 @@ namespace timelapse {
     int fd = open();
 
     try {
+
+      CLEAR(capability);
+      // get device informations
+      ioctl(fd, VIDIOC_QUERYCAP, &capability);
+
       // determine highest available resolution with RGB24 pixel format
       // v4l2-ctl --list-formats-ext
 
@@ -275,14 +289,14 @@ namespace timelapse {
         buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         buf.memory = V4L2_MEMORY_MMAP;
         V4LDevice::ioctl(fd, VIDIOC_DQBUF, &buf);
-      
+
         if (i == warmupFrames) { // last frame, we capture it
           Magick::Blob oblob(buffers[buf.index].start, buf.bytesused);
 
           Magick::Geometry g(v4lfmt.fmt.pix.width, v4lfmt.fmt.pix.height);
           capturedImage.read(oblob, g, 8, "RGB");
-          
-          
+
+
           QDateTime now = QDateTime::currentDateTime();
           QString exifDateTime = now.toString("yyyy:MM:dd HH:mm:ss");\
           

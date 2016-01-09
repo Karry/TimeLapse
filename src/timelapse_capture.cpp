@@ -112,6 +112,10 @@ namespace timelapse {
       QCoreApplication::translate("main", "device"));
     parser.addOption(deviceOption);
 
+    QCommandLineOption listOption(QStringList() << "l" << "list",
+      QCoreApplication::translate("main", "List available capture devices and exits."));
+    parser.addOption(listOption);
+
     QCommandLineOption intervalOption(QStringList() << "i" << "interval",
       QCoreApplication::translate("main", "Capture interval (in milliseconds). Default is 10000."),
       QCoreApplication::translate("main", "interval"));
@@ -125,15 +129,6 @@ namespace timelapse {
     // Process the actual command line arguments given by the user
     parser.process(*this);
 
-    // output
-    if (!parser.isSet(outputOption))
-      die << "Output directory is not set";
-    output = QDir(parser.value(outputOption));
-    if (output.exists())
-      err << "Output directory exists already." << endl;
-    if (!output.mkpath("."))
-      die << QString("Can't create output directory %1 !").arg(output.path());
-
     // verbose?
     if (!parser.isSet(verboseOption)) {
       blackHole = new BlackHoleDevice();
@@ -143,6 +138,29 @@ namespace timelapse {
       verboseOutput << "Turning on verbose output..." << endl;
       verboseOutput << applicationName() << " " << applicationVersion() << endl;
     }
+
+    // list devices?
+    if (parser.isSet(listOption)) {
+      QList<V4LDevice> devices = V4LDevice::listDevices(&verboseOutput);
+      if (devices.isEmpty()) {
+        die << "No compatible found!";
+      } else {
+        out << "Found devices: " << endl;
+        for (V4LDevice d : devices) {
+          out << "  " << d.toString() << endl;
+        }
+      }
+      std::exit(0);
+    }
+
+    // output
+    if (!parser.isSet(outputOption))
+      die << "Output directory is not set";
+    output = QDir(parser.value(outputOption));
+    if (output.exists())
+      err << "Output directory exists already." << endl;
+    if (!output.mkpath("."))
+      die << QString("Can't create output directory %1 !").arg(output.path());
 
     if (parser.isSet(intervalOption)) {
       bool ok = false;

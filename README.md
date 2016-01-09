@@ -17,7 +17,8 @@ It uses avconv or ffmpeg to build final videos.
 Install build tools and libraries:
 
 ```
-sudo apt-get install cmake cmake-data build-essential libmagick++-dev qtbase5-dev libav-tools git
+sudo apt-get install cmake cmake-data build-essential libmagick++-dev qtbase5-dev \
+  libav-tools git libv4l-dev
 ```
 
 build & install libvidstab*:

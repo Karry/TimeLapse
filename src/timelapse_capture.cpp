@@ -198,7 +198,7 @@ namespace timelapse {
       if (!assigned)
         die << "No supported device.";
     } else {
-      QString devVal = parser.value(intervalOption);
+      QString devVal = parser.value(deviceOption);
       for (QSharedPointer<CaptureDevice> d : devices) {
         if (d->toString().contains(devVal, Qt::CaseInsensitive)) {
           assigned = true;
@@ -206,7 +206,7 @@ namespace timelapse {
         }
       }
       if (!assigned) {
-        die << QString("No device found matching \"%1\".").arg(devVal);
+        die << QString("No device matching \"%1\" found.").arg(devVal);
       }
     }
     out << "Using device " << dev->toString() << endl;

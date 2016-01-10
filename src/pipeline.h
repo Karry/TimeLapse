@@ -22,6 +22,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QDebug>
+#include <QtCore/QSharedPointer>
 
 #include <Magick++.h>
 
@@ -50,7 +51,7 @@ namespace timelapse {
     void operator<<(ImageHandler *handler);
     void operator<<(InputHandler *handler);
 
-    static Pipeline* createWithCaptureSource(CaptureDevice *dev, int64_t interval, int32_t cnt,
+    static Pipeline* createWithCaptureSource(QSharedPointer<CaptureDevice> dev, int64_t interval, int32_t cnt,
             QTextStream *verboseOutput, QTextStream *err);
     static Pipeline* createWithFileSource(QStringList inputArguments, bool recursive,
             QTextStream *verboseOutput, QTextStream *err);

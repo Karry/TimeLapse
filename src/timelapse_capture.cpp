@@ -45,6 +45,7 @@
 #include <QtCore/QProcess>
 
 #include <QtCore/QDir>
+#include <qt4/QtCore/qnamespace.h>
 
 #include "timelapse_capture.h"
 #include "timelapse_capture.moc"
@@ -66,7 +67,7 @@ namespace timelapse {
   out(stdout), err(stderr),
   verboseOutput(stdout), blackHole(NULL),
   pipeline(NULL), output(),
-  dryRun(false), dev(NULL), interval(10000), cnt(-1) {
+  dryRun(false), interval(10000), cnt(-1) {
 
     setApplicationName("TimeLapse capture tool");
     setApplicationVersion(VERSION_TIMELAPSE);
@@ -80,17 +81,24 @@ namespace timelapse {
       delete blackHole;
       blackHole = NULL;
     }
-    if (dev != NULL) {
-      delete dev;
-      dev = NULL;
-    }
     if (pipeline != NULL) {
       delete pipeline;
       pipeline = NULL;
     }
   }
 
-  QStringList TimeLapseCapture::parseArguments() {
+  QList<QSharedPointer<CaptureDevice>> TimeLapseCapture::listDevices() {
+    QList<QSharedPointer < CaptureDevice>> result;
+
+    QList<V4LDevice> v4lDevices = V4LDevice::listDevices(&verboseOutput);
+    for (V4LDevice v4lDev : v4lDevices) {
+      result.push_back(QSharedPointer<CaptureDevice>(new V4LDevice(v4lDev)));
+    }
+
+    return result;
+  }
+
+  QSharedPointer<CaptureDevice> TimeLapseCapture::parseArguments() {
     QCommandLineParser parser;
     ErrorMessageHelper die(err.device(), &parser);
 
@@ -140,14 +148,15 @@ namespace timelapse {
     }
 
     // list devices?
+    QList<QSharedPointer < CaptureDevice>> devices = listDevices();
+    QSharedPointer<CaptureDevice> dev;
     if (parser.isSet(listOption)) {
-      QList<V4LDevice> devices = V4LDevice::listDevices(&verboseOutput);
       if (devices.isEmpty()) {
         die << "No compatible found!";
       } else {
         out << "Found devices: " << endl;
-        for (V4LDevice d : devices) {
-          out << "  " << d.toString() << endl;
+        for (QSharedPointer<CaptureDevice> d : devices) {
+          out << "  " << d->toString() << endl;
         }
       }
       std::exit(0);
@@ -175,34 +184,34 @@ namespace timelapse {
       if (!ok) die << "Cant parse count.";
       cnt = i;
     }
+
+    bool assigned = false;
     if (!parser.isSet(deviceOption)) {
-      V4LDevice firstDevice;
-      bool assigned = false;
-      QList<V4LDevice> devices = V4LDevice::listDevices(&verboseOutput);
       verboseOutput << "Found devices: " << endl;
-      for (V4LDevice d : devices) {
+      for (QSharedPointer<CaptureDevice> d : devices) {
         if (!assigned) {
-          firstDevice = d;
+          dev = d;
           assigned = true;
         }
-        verboseOutput << "  " << d.toString() << endl;
+        verboseOutput << "  " << d->toString() << endl;
       }
       if (!assigned)
         die << "No supported device.";
-      out << "Using device " << firstDevice.toString() << endl;
-      dev = new V4LDevice(firstDevice);
     } else {
       QString devVal = parser.value(intervalOption);
-      try {
-        V4LDevice *d = new V4LDevice(devVal);
-        dev = d;
-        d->initialize();
-      } catch (std::exception &e) {
-        die << QString("Device %1 can't be used for capturing.").arg(devVal);
+      for (QSharedPointer<CaptureDevice> d : devices) {
+        if (d->toString().contains(devVal, Qt::CaseInsensitive)) {
+          assigned = true;
+          dev = d;
+        }
+      }
+      if (!assigned) {
+        die << QString("No device found matching \"%1\".").arg(devVal);
       }
     }
+    out << "Using device " << dev->toString() << endl;
 
-    return QStringList();
+    return dev;
   }
 
   void TimeLapseCapture::onError(QString msg) {
@@ -215,7 +224,7 @@ namespace timelapse {
 
   void TimeLapseCapture::run() {
 
-    parseArguments();
+    QSharedPointer<CaptureDevice> dev = parseArguments();
 
     // build processing pipeline
     pipeline = Pipeline::createWithCaptureSource(dev, interval, cnt, &verboseOutput, &err);

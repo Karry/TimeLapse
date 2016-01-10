@@ -22,6 +22,7 @@
 
 #include <QtCore/QObject>
 #include <QTimer>
+#include <QtCore/QSharedPointer>
 
 #include <Magick++.h>
 
@@ -45,7 +46,7 @@ namespace timelapse {
   class PipelineCaptureSource : public ImageHandler, public PipelineSource {
     Q_OBJECT
   public:
-    PipelineCaptureSource(CaptureDevice *dev, uint64_t intervalMs, int32_t cnt,
+    PipelineCaptureSource(QSharedPointer<CaptureDevice> dev, uint64_t intervalMs, int32_t cnt,
             QTextStream *verboseOutput, QTextStream *err);\
         virtual ~PipelineCaptureSource();
 
@@ -57,7 +58,7 @@ namespace timelapse {
   signals:
     void input(InputImageInfo info, Magick::Image img);
   private:
-    CaptureDevice *dev;
+    QSharedPointer<CaptureDevice> dev;
     uint64_t intervalMs;
     int32_t capturedCnt;
     int32_t cnt;

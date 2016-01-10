@@ -26,7 +26,7 @@ using namespace std;
 
 namespace timelapse {
 
-  PipelineCaptureSource::PipelineCaptureSource(CaptureDevice *dev, uint64_t intervalMs, int32_t cnt,
+  PipelineCaptureSource::PipelineCaptureSource(QSharedPointer<CaptureDevice> dev, uint64_t intervalMs, int32_t cnt,
     QTextStream *verboseOutput, QTextStream *err) :
   dev(dev), intervalMs(intervalMs), capturedCnt(0), cnt(cnt),
   verboseOutput(verboseOutput), err(err), timer(NULL) {

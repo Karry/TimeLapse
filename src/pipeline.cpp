@@ -26,7 +26,7 @@
 
 namespace timelapse {
 
-  Pipeline* Pipeline::createWithCaptureSource(CaptureDevice *dev, int64_t interval, int32_t cnt,
+  Pipeline* Pipeline::createWithCaptureSource(QSharedPointer<CaptureDevice> dev, int64_t interval, int32_t cnt,
     QTextStream *verboseOutput, QTextStream *err) {
 
     PipelineCaptureSource *src = new PipelineCaptureSource(dev, interval, cnt, verboseOutput, err);

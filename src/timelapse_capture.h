@@ -27,6 +27,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QFileInfo>
 #include <QtCore/QTemporaryDir>
+#include <QtCore/QSharedPointer>
 
 #include <Magick++.h>
 
@@ -53,7 +54,8 @@ namespace timelapse {
     void done();
 
   protected:
-    QStringList parseArguments();
+    QList<QSharedPointer<CaptureDevice>> listDevices();
+    QSharedPointer<CaptureDevice> parseArguments();
 
   protected:
     QTextStream out;
@@ -67,7 +69,6 @@ namespace timelapse {
 
     bool dryRun;    
     
-    CaptureDevice *dev;
     int64_t interval;
     int32_t cnt;
   };

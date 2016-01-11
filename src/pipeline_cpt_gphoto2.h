@@ -17,12 +17,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             
  */
 
-#ifndef PIPELINECPTV4L_H
-#define	PIPELINECPTV4L_H
 
-#include <libv4l2.h>
-//#include <libv4lconvert.h>
-#include <linux/videodev2.h>
+#ifndef PIPELINECPTGPHOTO2_H
+#define	PIPELINECPTGPHOTO2_H
 
 #include <QtCore/QObject>
 #include <QtCore/QDebug>
@@ -34,46 +31,23 @@
 
 #include <Magick++.h>
 
-#include "black_hole_device.h"
 #include "pipeline_cpt.h"
 
 namespace timelapse {
 
-#define CLEAR(x) memset(&(x), 0, sizeof(x))
-
-  struct buffer {
-    void *start;
-    size_t length;
-  };
-
-  class V4LDevice : public QObject, public CaptureDevice {
+  class Gphoto2Device : public QObject, public CaptureDevice {
     Q_OBJECT
   public:
-    V4LDevice(QString dev = "/dev/video0");
-    V4LDevice(const timelapse::V4LDevice& other);
-    virtual ~V4LDevice();
+    Gphoto2Device(QString dev = "");
+    Gphoto2Device(const timelapse::Gphoto2Device& other);
+    virtual ~Gphoto2Device();
 
     virtual Magick::Image capture();
 
     virtual QString toString();
-    V4LDevice operator=(const timelapse::V4LDevice&);
-
-    static void ioctl(int fh, unsigned long int request, void *arg);
-    static QList<V4LDevice> listDevices(QTextStream *verboseOut, QDir devDir = QDir("/dev"), int max = 32);
-
-    void initialize();
-  protected:
-    int open();
-
-    bool initialized;
-    QString dev;
-    struct v4l2_capability  capability;    
-    struct v4l2_format v4lfmt;
-
+    Gphoto2Device operator=(const timelapse::Gphoto2Device&);
   };
-
-
 }
 
-#endif	/* PIPELINECPTV4L_H */
+#endif	/* PIPELINECPTGPHOTO2_H */
 

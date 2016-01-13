@@ -139,7 +139,7 @@ namespace timelapse {
     QSharedPointer<CaptureDevice> dev;
     if (parser.isSet(listOption)) {
       if (devices.isEmpty()) {
-        die << "No compatible found!";
+        die << QCoreApplication::translate("main", "No compatible capture device found");
       } else {
         out << "Found devices: " << endl;
         for (QSharedPointer<CaptureDevice> d : devices) {

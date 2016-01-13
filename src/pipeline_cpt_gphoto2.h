@@ -21,6 +21,9 @@
 #ifndef PIPELINECPTGPHOTO2_H
 #define	PIPELINECPTGPHOTO2_H
 
+#include <gphoto2/gphoto2-file.h>
+#include <gphoto2/gphoto2-camera.h>
+
 #include <QtCore/QObject>
 #include <QtCore/QDebug>
 #include <QtCore/QTimer>

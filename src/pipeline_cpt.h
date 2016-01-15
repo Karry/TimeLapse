@@ -31,6 +31,9 @@
 
 namespace timelapse {
 
+#define CLEAR(x) memset(&(x), 0, sizeof(x))
+#define ALLOC_CHECK(ptr) { if (ptr==NULL) throw std::runtime_error("Allocation failure"); }
+
   class CaptureDevice {
   public:
 
@@ -51,10 +54,10 @@ namespace timelapse {
         virtual ~PipelineCaptureSource();
 
     virtual void process();
-    
+
   public slots:
     virtual void capture();
-        virtual void onInput(InputImageInfo info, Magick::Image img);
+    virtual void onInput(InputImageInfo info, Magick::Image img);
   signals:
     void input(InputImageInfo info, Magick::Image img);
   private:

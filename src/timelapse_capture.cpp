@@ -55,6 +55,7 @@
 #include "pipeline_frame_mapping.h"
 #include "pipeline_cpt.h"
 #include "pipeline_cpt_v4l.h"
+#include "pipeline_cpt_gphoto2.h"
 #include "pipeline_write_frame.h"
 
 using namespace std;
@@ -93,6 +94,15 @@ namespace timelapse {
     QList<V4LDevice> v4lDevices = V4LDevice::listDevices(&verboseOutput);
     for (V4LDevice v4lDev : v4lDevices) {
       result.push_back(QSharedPointer<CaptureDevice>(new V4LDevice(v4lDev)));
+    }
+
+    try {
+      QList<Gphoto2Device> gp2devices = Gphoto2Device::listDevices();
+      for (Gphoto2Device gp2Dev : gp2devices) {
+        result.push_back(QSharedPointer<Gphoto2Device>(new Gphoto2Device(gp2Dev)));
+      }
+    } catch (std::exception &e) {
+      err << "Can't get Gphoto2 devices. " << e.what() << endl;
     }
 
     return result;

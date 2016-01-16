@@ -184,6 +184,7 @@ target_link_libraries(	timelapse_assembly
       timelapse
       Qt5::Core 
       ${ImageMagick_LIBRARIES} # Magick++-6.Q16
+      ${GPHOTO2_LIBRARIES}
 ) 
 target_link_libraries(	timelapse_deflicker
       timelapse

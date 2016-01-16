@@ -99,7 +99,7 @@ namespace timelapse {
   class Gphoto2Device : public QObject, public CaptureDevice {
     Q_OBJECT
   public:
-    Gphoto2Device(GPContext *context, QString port, QString model);
+    Gphoto2Device(GPContext *context, Camera *camera, QString port, QString model);
     Gphoto2Device(const timelapse::Gphoto2Device& other);
     virtual ~Gphoto2Device();
 
@@ -108,11 +108,16 @@ namespace timelapse {
     virtual QString toString();
     Gphoto2Device operator=(const timelapse::Gphoto2Device&);
 
-    static QList<Gphoto2Device> listDevices();
-    static GPContext *initContext();
+    static Gphoto2Device createDevice(GPContext *context, QString port, QTextStream *verboseOut);
+    static QList<Gphoto2Device> listDevices(QTextStream *verboseOut, QTextStream *errOut);
+    static GPContext *initContext(QTextStream *verboseOut, QTextStream *errOut);
+    static void releaseContext(GPContext *context);
 
   protected:
+    void tryToSetRamStorage();
+    
     GPContext *context;
+    Camera *camera;
     QString port;
     QString model;
   };

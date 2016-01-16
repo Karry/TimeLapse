@@ -84,7 +84,7 @@ namespace timelapse {
     }
 
     try {
-      QList<Gphoto2Device> gp2devices = Gphoto2Device::listDevices();
+      QList<Gphoto2Device> gp2devices = Gphoto2Device::listDevices(&verboseOutput, &err);
       for (Gphoto2Device gp2Dev : gp2devices) {
         result.push_back(QSharedPointer<Gphoto2Device>(new Gphoto2Device(gp2Dev)));
       }

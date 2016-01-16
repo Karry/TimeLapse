@@ -22,18 +22,6 @@
  * and other utils from v4l-utils repository http://git.linuxtv.org//v4l-utils.git
  */
 
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <sys/ioctl.h>
-//#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/mman.h>
-//#include <linux/videodev2.h>
-#include <libv4l2.h>
-//#include <libv4lconvert.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QDebug>
@@ -45,7 +33,6 @@
 #include <QtCore/QProcess>
 
 #include <QtCore/QDir>
-#include <qt4/QtCore/qnamespace.h>
 
 #include "timelapse_capture.h"
 #include "timelapse_capture.moc"
@@ -162,7 +149,7 @@ namespace timelapse {
     QSharedPointer<CaptureDevice> dev;
     if (parser.isSet(listOption)) {
       if (devices.isEmpty()) {
-        die << "No compatible found!";
+        die << QCoreApplication::translate("main", "No compatible capture device found");
       } else {
         out << "Found devices: " << endl;
         for (QSharedPointer<CaptureDevice> d : devices) {

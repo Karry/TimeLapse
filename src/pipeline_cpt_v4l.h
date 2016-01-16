@@ -57,7 +57,7 @@ namespace timelapse {
     V4LDevice operator=(const timelapse::V4LDevice&);
 
     static void ioctl(int fh, unsigned long int request, void *arg);
-    static QList<V4LDevice> listDevices(QTextStream *verboseOut, QDir devDir = QDir("/dev"), int max = 32);
+    static QList<V4LDevice> listDevices(QTextStream *verboseOut, QDir devDir = QDir("/dev"));
 
     void initialize();
   protected:

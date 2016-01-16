@@ -79,23 +79,25 @@ namespace timelapse {
     return *this;
   }
 
-  QList<V4LDevice> V4LDevice::listDevices(QTextStream *verboseOut, QDir devDir, int max) {
+  QList<V4LDevice> V4LDevice::listDevices(QTextStream *verboseOut, QDir devDir) {
     QList<V4LDevice> result;
 
-    for (int i = 0; i < max; i++) {
-      QFileInfo fi(devDir, QString("video%1").arg(i));
-      if (fi.exists()) {
-        *verboseOut << "Probing v4l device " << fi.absoluteFilePath() << endl;
-        V4LDevice d(fi.absoluteFilePath());
+    //*verboseOut << "list devices in " << devDir.absolutePath() << endl;
+    QFileInfoList l = devDir.entryInfoList(QDir::System);
+    for (QFileInfo i : l) {
+      //*verboseOut << "   " << i.baseName() << endl;
+      if ((!i.isDir()) && i.baseName().startsWith("video")) {
+        *verboseOut << "Probing v4l device " << i.absoluteFilePath() << endl;
+        V4LDevice d(i.absoluteFilePath());
         try {
           d.initialize();
           result.append(d);
         } catch (std::exception &e) {
-          *verboseOut << "Device " << fi.absoluteFilePath() << " can't be used for capturing." << endl;
+          *verboseOut << "Device " << i.absoluteFilePath() << " can't be used for capturing." << endl;
         }
       }
     }
-
+    
     return result;
   }
 

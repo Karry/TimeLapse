@@ -85,14 +85,16 @@ namespace timelapse {
   }
 
   Gphoto2Device::Gphoto2Device(GPContext *context, Camera *camera, QString port, QString model) :
-  context(context), camera(camera), port(port), model(model) {
+  context(context), camera(camera), port(port), model(model), timer(),
+  pollingScheduled(false), deviceLocked(false) {
 
     gp_camera_ref(camera);
     gp_context_ref(context);
   }
 
   Gphoto2Device::Gphoto2Device(const timelapse::Gphoto2Device& other) :
-  context(other.context), camera(other.camera), port(other.port), model(other.model) {
+  context(other.context), camera(other.camera), port(other.port), model(other.model), timer(),
+  pollingScheduled(false), deviceLocked(false) {
 
     gp_camera_ref(camera);
     gp_context_ref(context);
@@ -103,11 +105,139 @@ namespace timelapse {
     gp_context_unref(context);
   }
 
+  void Gphoto2Device::setConfig(QString option, QString value, CameraWidgetType expectedType) {
+    CameraWidget *rootconfig, *child;
+    int ret, ro;
+
+    // get root widget
+    ret = gp_camera_get_config(camera, &rootconfig, context);
+    if (ret != GP_OK)
+      throw runtime_error("Can't get rootconfig widget");
+    ret = gp_widget_get_child_by_name(rootconfig, option.toStdString().c_str(), &child);
+    if (ret != GP_OK)
+      ret = gp_widget_get_child_by_label(rootconfig, option.toStdString().c_str(), &child);
+    if (ret != GP_OK) {
+      gp_widget_free(rootconfig);
+      throw runtime_error(QString("Config widget %1 not found").arg(option).toStdString());
+    }
+
+    // check rw/ro
+    ret = gp_widget_get_readonly(child, &ro);
+    if (ret != GP_OK) {
+      gp_widget_free(rootconfig);
+      throw runtime_error(QString("Can't get readonly status for widget %1").arg(option).toStdString());
+    }
+    if (ro == 1) {
+      gp_widget_free(rootconfig);
+      throw runtime_error(QString("Widget %1 is read only").arg(option).toStdString());
+    }
+
+    // check widget type
+    CameraWidgetType type;
+    ret = gp_widget_get_type(child, &type);
+    if (ret != GP_OK) {
+      gp_widget_free(rootconfig);
+      throw runtime_error(QString("Can't get type of widget %1").arg(option).toStdString());
+    }
+    if (type != expectedType) {
+      gp_widget_free(rootconfig);
+      throw runtime_error(QString("Unexpected widget type for %1").arg(option).toStdString());
+    }
+
+    // setup value
+    bool success = false;
+    QString error = QString("Failed to set the value of widget %1 to %2").arg(option).arg(value);
+    switch (type) {
+
+      case GP_WIDGET_TEXT:
+      { /* char *		*/
+        ret = gp_widget_set_value(child, value.toStdString().c_str());
+        if (ret != GP_OK) {
+          error = QString("Failed to set the value of text widget %1 to %2").arg(option).arg(value);
+        } else {
+          success = true;
+        }
+        break;
+      }
+
+      case GP_WIDGET_RANGE:
+      { /* float		*/
+        float f, t, b, s;
+        bool ok;
+
+        ret = gp_widget_get_range(child, &b, &t, &s);
+        if (ret != GP_OK)
+          break;
+        f = value.toFloat(&ok);
+        if (!ok) {
+          error = QString("The passed value %1 is not a floating point value.").arg(value);
+          break;
+        }
+        if ((f < b) || (f > t)) {
+          error = QString("The passed value %1 is not within the expected range %2 - %3.").arg(f).arg(b).arg(t);
+          break;
+        }
+        ret = gp_widget_set_value(child, &f);
+        if (ret != GP_OK)
+          error = QString("Failed to set the value of range widget %1 to %2").arg(option).arg(value);
+        else
+          success = true;
+        break;
+      }
+      case GP_WIDGET_TOGGLE: /* int		*/
+      case GP_WIDGET_DATE: /* int			*/
+      {
+        // TODO: port code from gphoto2, action.c
+        error = QString("Setting of TOGGLE and DATE widget is not implemented");
+        break;
+      }
+
+      case GP_WIDGET_MENU:
+      case GP_WIDGET_RADIO:
+      {
+        // setup to choice that contains value
+        int cnt = gp_widget_count_choices(child);
+        int i;
+        for (i = 0; i < cnt; i++) {
+          const char *choice;
+          ret = gp_widget_get_choice(child, i, &choice);
+          if (ret < GP_OK)
+            throw runtime_error(QString("Can't get %1. option for widget %1").arg(i).arg(option).toStdString());
+          QString s = QString::fromLatin1(choice);
+          if (s.contains(value)) {
+            //printf("setting %s to choice %d: %s\n", name, i, choice);
+            ret = gp_widget_set_value(child, choice);
+            if (ret == GP_OK)
+              success = true;
+            else
+              error = QString("%1 is not property of widget %2").arg(value).arg(option);
+          }
+        }
+        break;
+      }
+
+        /* ignore: */
+      case GP_WIDGET_WINDOW:
+      case GP_WIDGET_SECTION:
+      case GP_WIDGET_BUTTON:
+      {
+        error = QString("The %s widget is not configurable.").arg(option);
+        break;
+      }
+
+    }
+
+    gp_widget_free(rootconfig);
+
+    if (!success)
+      throw runtime_error(error.toStdString());
+  }
+
   /**
    * This method try to setup RAM storage in camera.
    * We download captured images, so we don't want to keep it in memory card...
    */
-  void Gphoto2Device::tryToSetRamStorage() {
+  bool Gphoto2Device::tryToSetRamStorage() {
     /*
      * $ gphoto2 --get-config capturetarget
      * Label: Capture Target
@@ -119,74 +249,23 @@ namespace timelapse {
      * $ gphoto2 --set-config capturetarget=0 --capture-image-and-download
      */
 
-    CameraWidget *rootconfig, *targetWidget;
-    int ret;
-    const char *name = "capturetarget";
-
-    // get root widget
-    ret = gp_camera_get_config(camera, &rootconfig, context);
-    if (ret != GP_OK)
-      return;
-    ret = gp_widget_get_child_by_name(rootconfig, name, &targetWidget);
-    if (ret != GP_OK)
-      ret = gp_widget_get_child_by_label(rootconfig, name, &targetWidget);
-    if (ret != GP_OK)
-      return;
-
-    // check widget (it should be RADIO)
-    CameraWidgetType type;
-    ret = gp_widget_get_type(targetWidget, &type);
-    if (ret != GP_OK)
-      return;
-    if (type != GP_WIDGET_RADIO)
-      return;
-
-    // setup to choice that contains "RAM"
-    int cnt = gp_widget_count_choices(targetWidget);
-    int i;
-    for (i = 0; i < cnt; i++) {
-      const char *choice;
-      ret = gp_widget_get_choice(targetWidget, i, &choice);
-      if (ret < GP_OK)
-        return;
-      QString s = QString::fromLatin1(choice);
-      if (s.contains("RAM")) {
-        //printf("setting %s to choice %d: %s\n", name, i, choice);
-        gp_widget_set_value(targetWidget, choice);
-      }
+    //const char *name = "capturetarget";
+    try {
+      setConfig("capturetarget", "Internal RAM", GP_WIDGET_RADIO);
+      return true;
+    } catch (std::exception &e) {
+      return false;
     }
-
   }
 
-  Magick::Image Gphoto2Device::capture() {
+  void Gphoto2Device::downloadAndEmitImage(CameraFilePath *filePath) {
     int ret;
 
-    // init camera
-    ret = gp_camera_init(camera, context);
-    if (ret < 0) {
-      throw std::invalid_argument(QString("Can't init camera on port %1").arg(port).toStdString());
-    }
-
-    tryToSetRamStorage();
-
-    QByteArray result;
-
-    // Capture the frame from camera
-    CameraFilePath filePath;
-    ret = gp_camera_capture(camera, GP_CAPTURE_IMAGE, &filePath, context);
-    if (ret < GP_OK) {
-      gp_camera_exit(camera, context);
-      throw std::runtime_error(QString("Failed to capture frame with camera %1: %2").arg(model).arg(ret).toStdString());
-    }
-
-    qDebug() << "Captured frame:" << filePath.folder << filePath.name;
-
-    // Download the file
     CameraFile* file;
     ret = gp_file_new(&file);
-    ret = gp_camera_file_get(camera, filePath.folder, filePath.name, GP_FILE_TYPE_NORMAL, file, context);
+    ret = gp_camera_file_get(camera, filePath->folder, filePath->name, GP_FILE_TYPE_NORMAL, file, context);
     if (ret < GP_OK) {
-      gp_camera_exit(camera, context);
+      gp_file_free(file);
       throw std::runtime_error(QString("Failed to get file from camera %1: %2").arg(model).arg(ret).toStdString());
     }
 
@@ -194,31 +273,160 @@ namespace timelapse {
     unsigned long int size = 0;
 
     gp_file_get_data_and_size(file, &data, &size);
-    result = QByteArray(data, size);
-    //emit imageCaptured(id, result, fileName);
+
+    QFileInfo fi(filePath->name);
+    Magick::Blob b(data, size);
+    emit imageCaptured(fi.suffix(), b, Magick::Geometry());
 
     gp_file_free(file);
+  }
 
-    while (1) {
-      CameraEventType type;
-      void* data;
-      ret = gp_camera_wait_for_event(camera, 100, &type, &data, context);
-      if (type == GP_EVENT_TIMEOUT) {
+  void Gphoto2Device::deleteImage(CameraFilePath *path) {
+    int ret;
+    ret = gp_camera_file_delete(camera, path->folder, path->name, context);
+    if (ret < GP_OK) {
+      throw std::runtime_error(QString("Failed to delete file from camera %1: %2").arg(model).arg(ret).toStdString());
+    }
+  }
+
+  void Gphoto2Device::waitAndHandleEvent(int waitMs, CameraEventType *evtype) {
+    int ret;
+    void *data = NULL;
+    ret = gp_camera_wait_for_event(camera, waitMs, evtype, &data, context);
+    if (ret == GP_ERROR_NOT_SUPPORTED) {
+      *evtype = GP_EVENT_TIMEOUT;
+      usleep(waitMs * 1000);
+      return;
+    }
+    if (ret != GP_OK)
+      throw std::runtime_error("Error while waiting for camera event");
+
+    CameraFilePath *path = (CameraFilePath *) data;
+    switch (*evtype) {
+      case GP_EVENT_TIMEOUT:
+      case GP_EVENT_CAPTURE_COMPLETE:
         break;
-      } else if (type == GP_EVENT_CAPTURE_COMPLETE) {
-        //                qDebug("Capture completed\n");
-      } else if (type != GP_EVENT_UNKNOWN) {
-        qWarning("Unexpected event received from camera: %d\n", (int) type);
+      case GP_EVENT_FOLDER_ADDED:
+        //printf (_("Event FOLDER_ADDED %s/%s during wait, ignoring.\n"), path->folder, path->name);
+        free(data);
+        break;
+      case GP_EVENT_FILE_ADDED:
+        qDebug() << "New image in camera " << path->folder << "/" << path->name;
+        downloadAndEmitImage(path);
+        if (deleteImageAfterDownload)
+          deleteImage(path);
+        free(data);
+        /* result will fall through to final return */
+        break;
+      case GP_EVENT_UNKNOWN:
+        free(data);
+        break;
+      default:
+        //	printf (_("Unknown event type %d during bulb wait, ignoring.\n"), *type);
+        break;
+    }
+  }
+
+  void Gphoto2Device::pollingTimeout() {
+    pollingScheduled = false;
+    CameraEventType evtype;
+    int pollingInterval = 200;
+    waitAndHandleEvent(pollingInterval /* ms */, &evtype);
+    if (evtype != GP_EVENT_TIMEOUT) {
+      timer.start();
+      //printf("Got event from camera\n");
+      // we got some real event, poll immediately 
+      pollingScheduled = true;
+      QTimer::singleShot(0, this, SLOT(pollingTimeout()));
+    } else {
+      if (timer.elapsed() > 3000) { // TODO: configurable
+        //printf("Stop polling %d\n", timer.elapsed());
+        // if we don't get any event for 3000 ms, stop polling and exit camera
+        gp_camera_exit(camera, context);
+        deviceLocked = false;
+      } else {
+        pollingScheduled = true;
+        QTimer::singleShot(pollingInterval, this, SLOT(pollingTimeout()));
       }
     }
+  }
 
-    ret = gp_camera_exit(camera, context);
+  void Gphoto2Device::bulbWait(int bulbLengthMs) {
 
-    return Magick::Image();
+    // just wait specified time...
+    QTime timer;
+    timer.start();
+
+    while ((bulbLengthMs - timer.elapsed()) > 0) {
+
+      int waittime = bulbLengthMs - timer.elapsed();
+      CameraEventType evtype;
+      waitAndHandleEvent(waittime, &evtype);
+    }
+  }
+
+  void Gphoto2Device::capture() {
+    int ret;
+    int bulbLengthMs = 0; // TODO: add support for time setting and bulb modes
+
+    // init camera
+    if (!deviceLocked) {
+      ret = gp_camera_init(camera, context);
+      if (ret < GP_OK) {
+        throw std::invalid_argument(QString("Can't init camera on port %1: %2").arg(port).arg(ret).toStdString());
+      }
+      deviceLocked = true;
+    }
+
+    //printf("capture\n");
+
+    // try to setup RAM storage for captured image
+    // if it fails, we should delete images in camera storage after download
+    deleteImageAfterDownload = !tryToSetRamStorage();
+
+    //QByteArray result;
+
+    // Capture the frame from camera
+    /* Now handle the different capture methods */
+    if (bulbLengthMs > 0) {
+      /* Bulb mode is special ... we enable it, wait disable it */
+      setConfig("bulb", "1", GP_WIDGET_RADIO); // TODO: is bulb radio?
+
+      bulbWait(bulbLengthMs);
+
+      setConfig("bulb", "0", GP_WIDGET_RADIO); // TODO: is bulb radio?
+    } else {
+      CameraFilePath filePath;
+      ret = gp_camera_capture(camera, GP_CAPTURE_IMAGE, &filePath, context);
+      if (ret < GP_OK) {
+        gp_camera_exit(camera, context);
+        throw std::runtime_error(QString("Failed to capture frame with camera %1: %2").arg(model).arg(ret).toStdString());
+      }
+      downloadAndEmitImage(&filePath);
+      if (deleteImageAfterDownload)
+        deleteImage(&filePath);
+      qDebug() << "Captured frame:" << filePath.folder << filePath.name;
+    }
+
+    // start event polling...
+    // 
+    // in case that capture produces more images (JPEG and RAW) 
+    // or we trigger bulb capture, driver send us an event 
+    // that new image was stored...
+    timer.start();
+    if (!pollingScheduled) {
+      pollingScheduled = true;
+      QTimer::singleShot(0, this, SLOT(pollingTimeout()));
+    }
+
   }
 
   QString Gphoto2Device::toString() {
     return QString("%1\t\"%2\"").arg(port).arg(model);
+  }
+
+  QObject* Gphoto2Device::qObject() {
+    return this;
   }
 
   Gphoto2Device Gphoto2Device::operator=(const timelapse::Gphoto2Device& o) {
@@ -392,7 +600,7 @@ namespace timelapse {
 
       try {
         Gphoto2Device d = createDevice(context, port, verboseOut);
-        d.capture();
+        //d.capture();
         devices.append(d);
       } catch (std::exception &e) {
         *verboseOut << "GPhoto2 device " << port << " / " << model << " can't be used for capturing: " << e.what() << endl;

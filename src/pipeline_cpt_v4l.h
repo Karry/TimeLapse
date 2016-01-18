@@ -51,21 +51,27 @@ namespace timelapse {
     V4LDevice(const timelapse::V4LDevice& other);
     virtual ~V4LDevice();
 
-    virtual Magick::Image capture();
+    virtual void capture();
 
     virtual QString toString();
     V4LDevice operator=(const timelapse::V4LDevice&);
+
+    virtual QObject* qObject();
 
     static void ioctl(int fh, unsigned long int request, void *arg);
     static QList<V4LDevice> listDevices(QTextStream *verboseOut, QDir devDir = QDir("/dev"));
 
     void initialize();
+
+  signals:
+    void imageCaptured(QString type, Magick::Blob blob, Magick::Geometry sizeHint);
+
   protected:
     int open();
 
     bool initialized;
     QString dev;
-    struct v4l2_capability  capability;    
+    struct v4l2_capability capability;
     struct v4l2_format v4lfmt;
 
   };

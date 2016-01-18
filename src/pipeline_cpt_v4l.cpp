@@ -79,6 +79,10 @@ namespace timelapse {
     return *this;
   }
 
+  QObject* V4LDevice::qObject() {
+    return this;
+  }
+
   QList<V4LDevice> V4LDevice::listDevices(QTextStream *verboseOut, QDir devDir) {
     QList<V4LDevice> result;
 
@@ -97,7 +101,7 @@ namespace timelapse {
         }
       }
     }
-    
+
     return result;
   }
 
@@ -198,7 +202,7 @@ namespace timelapse {
     initialized = true;
   }
 
-  Magick::Image V4LDevice::capture() {
+  void V4LDevice::capture() {
     initialize();
 
     struct v4l2_buffer buf;
@@ -210,7 +214,7 @@ namespace timelapse {
     unsigned int i, n_buffers;
     struct buffer *buffers;
     buffers = NULL;
-    Magick::Image capturedImage;
+    //Magick::Image capturedImage;
     unsigned int warmupFrames = 20; // TODO: configurable
 
     fd = open();
@@ -293,16 +297,8 @@ namespace timelapse {
           Magick::Blob oblob(buffers[buf.index].start, buf.bytesused);
 
           Magick::Geometry g(v4lfmt.fmt.pix.width, v4lfmt.fmt.pix.height);
-          capturedImage.read(oblob, g, 8, "RGB");
+          emit imageCaptured("RGB", oblob, g);
 
-
-          QDateTime now = QDateTime::currentDateTime();
-          QString exifDateTime = now.toString("yyyy:MM:dd HH:mm:ss");\
-          
-          // ImageMagick don't support writing of exif data
-          // TODO: setup exif timestamp correctly
-          capturedImage.attribute("EXIF:DateTime", exifDateTime.toStdString());
-          //capturedImage.defineValue("EXIF", "DateTime", exifDateTime.toStdString());
 
         }
 
@@ -325,7 +321,7 @@ namespace timelapse {
       throw runtime_error(e.what()); // rethrow
     }
 
-    return capturedImage;
+    //return capturedImage;
   }
 
 }

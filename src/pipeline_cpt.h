@@ -40,8 +40,10 @@ namespace timelapse {
     virtual ~CaptureDevice() {
     };
 
-    virtual Magick::Image capture() = 0;
+    virtual void capture() = 0;
     virtual QString toString() = 0;
+    virtual QObject *qObject() = 0;
+    // signal: emit imageCaptured(QString type, Magick::Blob blob);
   };
 
 #define INFINITE_CNT -1
@@ -58,8 +60,11 @@ namespace timelapse {
   public slots:
     virtual void capture();
     virtual void onInput(InputImageInfo info, Magick::Image img);
+    void imageCaptured(QString format, Magick::Blob blob, Magick::Geometry sizeHint);
+
   signals:
     void input(InputImageInfo info, Magick::Image img);
+    void last();
   private:
     QSharedPointer<CaptureDevice> dev;
     uint64_t intervalMs;

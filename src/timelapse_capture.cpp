@@ -177,7 +177,7 @@ namespace timelapse {
     }
     if (parser.isSet(cntOption)) {
       bool ok = false;
-      int i = parser.value(intervalOption).toInt(&ok);
+      int i = parser.value(cntOption).toInt(&ok);
       if (!ok) die << "Cant parse count.";
       cnt = i;
     }
@@ -215,6 +215,11 @@ namespace timelapse {
     emit cleanup(1);
   }
 
+  void TimeLapseCapture::done() {
+    // capturing devices can be asynchronous, we should wait a bit for possible events from devices
+    QTimer::singleShot(1000, this, SLOT(cleanup())); 
+  }
+
   void TimeLapseCapture::cleanup(int exitCode) {
     exit(exitCode);
   }
@@ -228,7 +233,7 @@ namespace timelapse {
 
     *pipeline << new WriteFrame(output, &verboseOutput, dryRun);
 
-    connect(pipeline, SIGNAL(done()), this, SLOT(cleanup()));
+    connect(pipeline, SIGNAL(done()), this, SLOT(done()));
     connect(pipeline, SIGNAL(error(QString)), this, SLOT(onError(QString)));
 
     // startup pipeline

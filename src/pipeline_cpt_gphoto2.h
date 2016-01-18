@@ -103,23 +103,40 @@ namespace timelapse {
     Gphoto2Device(const timelapse::Gphoto2Device& other);
     virtual ~Gphoto2Device();
 
-    virtual Magick::Image capture();
+    virtual void capture();
 
     virtual QString toString();
     Gphoto2Device operator=(const timelapse::Gphoto2Device&);
+
+    virtual QObject* qObject();
 
     static Gphoto2Device createDevice(GPContext *context, QString port, QTextStream *verboseOut);
     static QList<Gphoto2Device> listDevices(QTextStream *verboseOut, QTextStream *errOut);
     static GPContext *initContext(QTextStream *verboseOut, QTextStream *errOut);
     static void releaseContext(GPContext *context);
-
-  protected:
-    void tryToSetRamStorage();
     
+  signals:
+    void imageCaptured(QString type, Magick::Blob blob, Magick::Geometry sizeHint);
+    
+  protected slots:
+    void pollingTimeout();
+    
+  protected:
+    void setConfig(QString option, QString value, CameraWidgetType expectedType);
+    void downloadAndEmitImage(CameraFilePath *path);
+    void deleteImage(CameraFilePath *path);
+    void waitAndHandleEvent(int waitMs, CameraEventType *type);
+    void bulbWait(int bulbLengthMs);
+    bool tryToSetRamStorage();    
+
     GPContext *context;
     Camera *camera;
     QString port;
     QString model;
+    QTime timer;
+    bool pollingScheduled;
+    bool deleteImageAfterDownload;
+    bool deviceLocked;
   };
 }
 

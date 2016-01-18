@@ -54,24 +54,23 @@ namespace timelapse {
   QCoreApplication(argc, argv),
   out(stdout), err(stderr),
   verboseOutput(stdout), blackHole(NULL),
-  pipeline(NULL), output(),
+  output(), timer(), frameNumberLocale(QLocale::c()), capturedCnt(0),
   dryRun(false), interval(10000), cnt(-1) {
 
     setApplicationName("TimeLapse capture tool");
     setApplicationVersion(VERSION_TIMELAPSE);
-
+    frameNumberLocale.setNumberOptions(QLocale::OmitGroupSeparator);
   }
 
   TimeLapseCapture::~TimeLapseCapture() {
+
+    timer.stop();
+
     if (blackHole != NULL) {
       verboseOutput.flush();
       verboseOutput.setDevice(NULL);
       delete blackHole;
       blackHole = NULL;
-    }
-    if (pipeline != NULL) {
-      delete pipeline;
-      pipeline = NULL;
     }
   }
 
@@ -99,7 +98,7 @@ namespace timelapse {
     QCommandLineParser parser;
     ErrorMessageHelper die(err.device(), &parser);
 
-    parser.setApplicationDescription("Tool for capture sequence of images from digital camera (V4L API).");
+    parser.setApplicationDescription("Tool for capture sequence of images from digital camera (V4L or GPhoto2 API).");
     parser.addHelpOption();
     parser.addVersionOption();
 
@@ -131,6 +130,10 @@ namespace timelapse {
       QCoreApplication::translate("main", "count"));
     parser.addOption(cntOption);
 
+    QCommandLineOption rowOption(QStringList() << "r" << "raw",
+      QCoreApplication::translate("main", "Store all captured images in raw."));
+    parser.addOption(rowOption);
+
     // Process the actual command line arguments given by the user
     parser.process(*this);
 
@@ -143,6 +146,9 @@ namespace timelapse {
       verboseOutput << "Turning on verbose output..." << endl;
       verboseOutput << applicationName() << " " << applicationVersion() << endl;
     }
+
+    // raw?
+    storeRawImages = parser.isSet(rowOption);
 
     // list devices?
     QList<QSharedPointer < CaptureDevice>> devices = listDevices();
@@ -217,7 +223,7 @@ namespace timelapse {
 
   void TimeLapseCapture::done() {
     // capturing devices can be asynchronous, we should wait a bit for possible events from devices
-    QTimer::singleShot(1000, this, SLOT(cleanup())); 
+    QTimer::singleShot(1000, this, SLOT(cleanup()));
   }
 
   void TimeLapseCapture::cleanup(int exitCode) {
@@ -226,19 +232,93 @@ namespace timelapse {
 
   void TimeLapseCapture::run() {
 
-    QSharedPointer<CaptureDevice> dev = parseArguments();
+    dev = parseArguments();
 
-    // build processing pipeline
-    pipeline = Pipeline::createWithCaptureSource(dev, interval, cnt, &verboseOutput, &err);
+    connect(&timer, SIGNAL(timeout()), this, SLOT(capture()));
+    connect(dev->qObject(), SIGNAL(imageCaptured(QString, Magick::Blob, Magick::Geometry)),
+      this, SLOT(imageCaptured(QString, Magick::Blob, Magick::Geometry)));
 
-    *pipeline << new WriteFrame(output, &verboseOutput, dryRun);
-
-    connect(pipeline, SIGNAL(done()), this, SLOT(done()));
-    connect(pipeline, SIGNAL(error(QString)), this, SLOT(onError(QString)));
-
-    // startup pipeline
-    emit pipeline->process();
+    verboseOutput << "Start timer with interval " << interval << " ms" << endl;
+    timer.start(interval);
+    capture();
   }
+
+  void TimeLapseCapture::capture() {
+    if (cnt >= 0 && capturedCnt >= cnt) {
+      timer.stop();
+      done();
+      return;
+    }
+
+    try {
+      capturedSubsequence = 0;
+      capturedCnt++;
+      dev->capture();
+    } catch (std::exception &e) {
+      err << "Capturing failed: " << e.what() << endl;
+      onError(e.what());
+    }
+  }
+
+  QString TimeLapseCapture::leadingZeros(int i, int leadingZeros) {
+    // default locale can include thousand delimiter
+    QString s = frameNumberLocale.toString(i);
+    if (leadingZeros <= s.length())
+      return s;
+
+    return s.prepend(QString(leadingZeros - s.length(), '0'));
+  }
+
+  void TimeLapseCapture::imageCaptured(QString format, Magick::Blob blob, Magick::Geometry sizeHint) {
+
+    QString framePath = output.path() + QDir::separator()
+      + leadingZeros(capturedCnt, FRAME_FILE_LEADING_ZEROS) + "_" + leadingZeros(capturedSubsequence, 2);
+
+    if (format == "RGB") {
+      if (storeRawImages) {
+        // store RAW RGB data in PGM format
+        QString pgmHeader = QString("P6\n%1 %2\n255\n").arg(sizeHint.width()).arg(sizeHint.height());
+        std::string headerStr = pgmHeader.toStdString();
+        const char *headerBytes = headerStr.c_str();
+        size_t headerLen = strlen(headerBytes);
+
+        framePath += ".ppm";
+        QFile file(framePath);
+        file.open(QIODevice::WriteOnly);
+        file.write(headerBytes, headerLen);
+        file.write((char*) blob.data(), blob.length());
+        file.close();
+      }else{
+        // convert RGB data to JPEG
+        Magick::Image capturedImage;
+        capturedImage.read(blob, sizeHint, 8, "RGB");
+        QDateTime now = QDateTime::currentDateTime();
+        QString exifDateTime = now.toString("yyyy:MM:dd HH:mm:ss");\
+
+        // ImageMagick don't support writing of exif data
+        // TODO: setup exif timestamp correctly
+        capturedImage.attribute("EXIF:DateTime", exifDateTime.toStdString());
+        //capturedImage.defineValue("EXIF", "DateTime", exifDateTime.toStdString());
+
+        capturedImage.compressType(Magick::JPEGCompression);
+        capturedImage.magick("JPEG");
+        framePath += ".jpeg";
+        capturedImage.write(framePath.toStdString());
+      
+      }
+    } else {
+      // store other formats in device specific format 
+      framePath += "." + format;
+      QFile file(framePath);
+      file.open(QIODevice::WriteOnly);
+      file.write((char*) blob.data(), blob.length());
+      file.close();
+    }
+    verboseOutput << "Save captured frame to " << framePath << endl;
+
+    capturedSubsequence++;
+  }
+
 }
 
 /*

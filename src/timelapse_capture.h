@@ -50,10 +50,10 @@ namespace timelapse {
     void done();
     void cleanup(int exitCode = 0);
     void onError(QString msg);
-/*
-  signals:
-    void done();
-*/
+    virtual void capture();
+    void imageCaptured(QString format, Magick::Blob blob, Magick::Geometry sizeHint);
+    QString leadingZeros(int i, int leadingZeros);
+
   protected:
     QList<QSharedPointer<CaptureDevice>> listDevices();
     QSharedPointer<CaptureDevice> parseArguments();
@@ -65,11 +65,16 @@ namespace timelapse {
     QTextStream verboseOutput;
     BlackHoleDevice *blackHole;
 
-    Pipeline *pipeline;
     QDir output;
+    QTimer timer;
+    QSharedPointer<CaptureDevice> dev;
+    QLocale frameNumberLocale;
+    int capturedCnt;
+    int capturedSubsequence;
 
-    bool dryRun;    
-    
+    bool dryRun;
+    bool storeRawImages;
+
     int64_t interval;
     int32_t cnt;
   };

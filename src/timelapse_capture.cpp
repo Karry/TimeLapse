@@ -18,8 +18,19 @@
  */
 
 /**
- * Impementation was inspired by http://linuxtv.org/downloads/v4l-dvb-apis/v4l2grab-example.html
+ * V4L impementation was inspired by http://linuxtv.org/downloads/v4l-dvb-apis/v4l2grab-example.html
  * and other utils from v4l-utils repository http://git.linuxtv.org//v4l-utils.git
+ * 
+ * GPhoto2 code was copied and inspired by code:
+ * 
+ * qtmultimedia-gphoto : 
+ *    https://github.com/dept2/qtmultimedia-gphoto
+ *    LGPL 2.1 Copyright © 2014 Boris Moiseev
+ * 
+ * gphoto2:
+ *    https://github.com/gphoto/gphoto2
+ *    GPL 2, various authors
+ * 
  */
 
 
@@ -39,7 +50,6 @@
 
 #include "timelapse.h"
 #include "black_hole_device.h"
-#include "pipeline_frame_mapping.h"
 #include "pipeline_cpt.h"
 #include "pipeline_cpt_v4l.h"
 #include "pipeline_cpt_gphoto2.h"
@@ -188,6 +198,7 @@ namespace timelapse {
       cnt = i;
     }
 
+    // capture device
     bool assigned = false;
     if (!parser.isSet(deviceOption)) {
       verboseOutput << "Found devices: " << endl;

@@ -325,7 +325,7 @@ namespace timelapse {
       file.write((char*) blob.data(), blob.length());
       file.close();
     }
-    verboseOutput << "Save captured frame to " << framePath << endl;
+    verboseOutput << "Captured frame saved to " << framePath << endl;
 
     capturedSubsequence++;
   }

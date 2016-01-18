@@ -61,17 +61,6 @@ namespace timelapse {
 
     try {
       dev->capture();
-      // TODO: rewrite device for async. capture
-      /*
-      Magick::Image img = dev->capture();
-
-      InputImageInfo ii;
-      ii.width = img.columns();
-      ii.height = img.rows();
-      ii.frame = capturedCnt;
-
-      emit input(ii, img);
-       * */
       capturedCnt++;
     } catch (std::exception &e) {
       *err << "Capturing failed: " << e.what() << endl;
@@ -85,25 +74,24 @@ namespace timelapse {
 
     if (format == "RGB") {
       capturedImage.read(blob, sizeHint, 8, "RGB");
-
-      QDateTime now = QDateTime::currentDateTime();
-      QString exifDateTime = now.toString("yyyy:MM:dd HH:mm:ss");\
-          
-      // ImageMagick don't support writing of exif data
-      // TODO: setup exif timestamp correctly
-      capturedImage.attribute("EXIF:DateTime", exifDateTime.toStdString());
-      //capturedImage.defineValue("EXIF", "DateTime", exifDateTime.toStdString());
-
-      InputImageInfo ii;
-      ii.width = capturedImage.columns();
-      ii.height = capturedImage.rows();
-      ii.frame = capturedCnt;
-
-      emit input(ii, capturedImage);
     } else {
-      *err << "TODO: handle raw image: " << format << endl;
-      // TODO: handle raw images
+      capturedImage.read(blob, format.toStdString());
     }
+
+    QDateTime now = QDateTime::currentDateTime();
+    QString exifDateTime = now.toString("yyyy:MM:dd HH:mm:ss");\
+          
+    // ImageMagick don't support writing of exif data
+    // TODO: setup exif timestamp correctly
+    capturedImage.attribute("EXIF:DateTime", exifDateTime.toStdString());
+    //capturedImage.defineValue("EXIF", "DateTime", exifDateTime.toStdString());
+
+    InputImageInfo ii;
+    ii.width = capturedImage.columns();
+    ii.height = capturedImage.rows();
+    ii.frame = capturedCnt;
+
+    emit input(ii, capturedImage);
   }
 
   void PipelineCaptureSource::onInput(InputImageInfo info, Magick::Image img) {

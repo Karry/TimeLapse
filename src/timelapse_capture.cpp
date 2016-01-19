@@ -207,13 +207,13 @@ namespace timelapse {
 
     // getShutterSpeedOption ?
     if (parser.isSet(getShutterSpeedOption)) {
-      QStringList choices = dev->getShutterSpeedChoices();
+      QList<ShutterSpeedChoice> choices = dev->getShutterSpeedChoices();
       if (choices.isEmpty()) {
         err << "Device " << dev->toShortString() << " don't support shutterspeed setting" << endl;
       } else {
         out << "Device " << dev->toShortString() << " shutterspeed choices:" << endl;
-        for (QString ch : choices) {
-          out << "  " << ch << endl;
+        for (ShutterSpeedChoice ch : choices) {
+          out << "  " << ch.toString() << endl;
         }
       }
       std::exit(0);

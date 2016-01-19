@@ -324,14 +324,19 @@ namespace timelapse {
       throw runtime_error(error.toStdString());
   }
 
-  QStringList Gphoto2Device::getShutterSpeedChoices() {
+  QList<ShutterSpeedChoice> Gphoto2Device::getShutterSpeedChoices() {
     try {
-      QString option = "shutterspeed";
+      QString option = SHUTTERSPEED_CONFIG;
       if (!isConfigRw(option))
-        return QStringList();
-      return getConfigRadioChoices(option);
+        return QList<ShutterSpeedChoice>();
+      QList<ShutterSpeedChoice> result;
+      QStringList strList = getConfigRadioChoices(option);
+      for (QString s : strList) {
+        result.append(ShutterSpeedChoice(s));
+      }
+      return result;
     } catch (std::exception &e) {
-      return QStringList();
+      return QList<ShutterSpeedChoice>();
     }
   }
 
@@ -353,7 +358,7 @@ namespace timelapse {
 
     //const char *name = "capturetarget";
     try {
-      setConfig("capturetarget", "Internal RAM", GP_WIDGET_RADIO);
+      setConfig(CAPTURETARGET_CONFIG, INTERNALRAM_VALUE, GP_WIDGET_RADIO);
       return true;
     } catch (std::exception &e) {
       return false;
@@ -467,9 +472,9 @@ namespace timelapse {
     }
   }
 
-  void Gphoto2Device::capture() {
+  void Gphoto2Device::capture(ShutterSpeedChoice shutterSpeed) {
     int ret;
-    int bulbLengthMs = 0; // TODO: add support for time setting and bulb modes
+    //int bulbLengthMs = 0; // TODO: add support for time setting and bulb modes
 
     // init camera
     if (!deviceLocked) {
@@ -490,14 +495,18 @@ namespace timelapse {
 
     // Capture the frame from camera
     /* Now handle the different capture methods */
-    if (bulbLengthMs > 0) {
+    if (shutterSpeed.isBulb() && shutterSpeed.toMs() > 0) {
       /* Bulb mode is special ... we enable it, wait disable it */
-      setConfig("bulb", "1", GP_WIDGET_RADIO); // TODO: is bulb radio?
+      setConfig(BULB_CONFIG, ON_VALUE, GP_WIDGET_RADIO); // TODO: is bulb radio?
 
-      bulbWait(bulbLengthMs);
+      bulbWait(shutterSpeed.toMs());
 
-      setConfig("bulb", "0", GP_WIDGET_RADIO); // TODO: is bulb radio?
+      setConfig(BULB_CONFIG, OFF_VALUE, GP_WIDGET_RADIO); // TODO: is bulb radio?
     } else {
+      if (shutterSpeed.toMs() > 0) {
+        setConfig(SHUTTERSPEED_CONFIG, shutterSpeed.toString(), GP_WIDGET_RADIO);
+      }
+
       CameraFilePath filePath;
       ret = gp_camera_capture(camera, GP_CAPTURE_IMAGE, &filePath, context);
       if (ret < GP_OK) {

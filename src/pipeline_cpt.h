@@ -34,16 +34,39 @@ namespace timelapse {
 #define CLEAR(x) memset(&(x), 0, sizeof(x))
 #define ALLOC_CHECK(ptr) { if (ptr==NULL) throw std::runtime_error("Allocation failure"); }
 
+  class ShutterSpeedChoice {
+  public:
+    ShutterSpeedChoice();
+    ShutterSpeedChoice(const ShutterSpeedChoice &o);
+    ShutterSpeedChoice(const QString str);
+    virtual ~ShutterSpeedChoice();
+    QString toString();
+    uint64_t toMs();
+    uint64_t toMicrosecond();
+    bool isBulb();
+
+  private:
+    bool bulb;
+    int divident;
+    int factor;
+  };
+
   class CaptureDevice {
   public:
 
     virtual ~CaptureDevice() {
     };
 
-    virtual void capture() = 0;
+    virtual void capture(ShutterSpeedChoice shutterSpeed = ShutterSpeedChoice()) = 0;
     virtual QString toString() = 0;
-    virtual QString toShortString(){return toString();}
-    virtual QStringList getShutterSpeedChoices(){ return QStringList();};
+
+    virtual QString toShortString() {
+      return toString();
+    }
+
+    virtual QList<ShutterSpeedChoice> getShutterSpeedChoices() {
+      return QList<ShutterSpeedChoice>();
+    };
     virtual QObject *qObject() = 0;
     // signal: emit imageCaptured(QString type, Magick::Blob blob);
   };

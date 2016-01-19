@@ -26,6 +26,94 @@ using namespace std;
 
 namespace timelapse {
 
+  ShutterSpeedChoice::ShutterSpeedChoice() : bulb(false), divident(-1), factor(-1) {
+  }
+
+  ShutterSpeedChoice::ShutterSpeedChoice(const ShutterSpeedChoice &o) :
+  bulb(o.bulb), divident(o.divident), factor(o.factor) {
+  }
+
+  ShutterSpeedChoice::ShutterSpeedChoice(const QString str) : bulb(false), divident(-1), factor(-1) {
+    bool ok;
+
+    if (str.toUpper().startsWith("BULB")) {
+      bulb = true;
+      QStringList list = str.split(':', QString::SkipEmptyParts);
+      if (list.size() >= 2) {
+        divident = list[1].toInt(&ok);
+        if (!ok)
+          throw std::invalid_argument("Can't parse Bulb time");
+        factor = 1;
+      }
+    } else {
+      QStringList list = str.split('/', QString::SkipEmptyParts);
+      if (list.size() < 2) {
+        divident = str.toInt(&ok);
+        if (!ok)
+          throw std::invalid_argument("Can't parse shutter speed");
+        factor = 1;
+      } else {
+        divident = list[0].toInt(&ok);
+        if (!ok)
+          throw std::invalid_argument("Can't parse shutter speed");
+        factor = list[1].toInt(&ok);
+        if (!ok)
+          throw std::invalid_argument("Can't parse shutter speed");
+      }
+    }
+  }
+
+  ShutterSpeedChoice::~ShutterSpeedChoice() {
+  }
+
+  QString ShutterSpeedChoice::toString() {
+    if (bulb) {
+      if (divident > 0) {
+        return QString("Bulb:%1").arg(divident);
+      } else {
+        return "Bulb";
+      }
+    } else {
+      if (divident <= 0 || factor <= 0) {
+        return "Unknown";
+      } else {
+        if (factor == 1) {
+          return QString("%1").arg(divident);
+        } else {
+          return QString("%1/%2").arg(divident).arg(factor);
+        }
+      }
+    }
+  }
+
+  uint64_t ShutterSpeedChoice::toMs() {
+    uint64_t us = toMicrosecond();
+    if (us < 0)
+      return us;
+    return us / 1000;
+  }
+
+  uint64_t ShutterSpeedChoice::toMicrosecond() {
+    uint64_t us = 1000000;
+    if (bulb) {
+      if (divident > 0) {
+        return ((uint64_t) divident) * us;
+      } else {
+        return -1;
+      }
+    } else {
+      if (divident <= 0 || factor <= 0) {
+        return -1;
+      } else {
+        return ( ((uint64_t) divident) * us) / factor;
+      }
+    }
+  }
+
+  bool ShutterSpeedChoice::isBulb() {
+    return bulb;
+  }
+
   PipelineCaptureSource::PipelineCaptureSource(QSharedPointer<CaptureDevice> dev, uint64_t intervalMs, int32_t cnt,
     QTextStream *verboseOutput, QTextStream *err) :
   dev(dev), intervalMs(intervalMs), capturedCnt(0), cnt(cnt),

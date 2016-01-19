@@ -207,7 +207,7 @@ namespace timelapse {
     initialized = true;
   }
 
-  void V4LDevice::capture() {
+  void V4LDevice::capture(ShutterSpeedChoice shutterSpeed) {
     initialize();
 
     struct v4l2_buffer buf;

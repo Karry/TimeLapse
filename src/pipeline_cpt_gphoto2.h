@@ -96,6 +96,13 @@ namespace timelapse {
 #define CRU(result,file) {int __r=(result); if (__r<0) {gp_file_unref(file);throw std::runtime_error("Gphoto2 internal error");}}
 #define CL(result,list)  {int __r=(result); if (__r<0) {gp_list_free(list); throw std::runtime_error("Gphoto2 internal error");}}
 
+#define SHUTTERSPEED_CONFIG "shutterspeed2"
+#define CAPTURETARGET_CONFIG "capturetarget"
+#define INTERNALRAM_VALUE "Internal RAM"
+#define BULB_CONFIG "bulb"
+#define ON_VALUE "1"
+#define OFF_VALUE "0"
+
   class Gphoto2Device : public QObject, public CaptureDevice {
     Q_OBJECT
   public:
@@ -103,7 +110,7 @@ namespace timelapse {
     Gphoto2Device(const timelapse::Gphoto2Device& other);
     virtual ~Gphoto2Device();
 
-    virtual void capture();
+    virtual void capture(ShutterSpeedChoice shutterSpeed = ShutterSpeedChoice());
 
     virtual QString toString();
     virtual QString toShortString();
@@ -116,7 +123,7 @@ namespace timelapse {
     static QList<Gphoto2Device> listDevices(QTextStream *verboseOut, QTextStream *errOut);
     static GPContext *initContext(QTextStream *verboseOut, QTextStream *errOut);
     static void releaseContext(GPContext *context);
-    virtual QStringList getShutterSpeedChoices();
+    virtual QList<ShutterSpeedChoice> getShutterSpeedChoices();
 
   signals:
     void imageCaptured(QString type, Magick::Blob blob, Magick::Geometry sizeHint);

@@ -105,21 +105,110 @@ namespace timelapse {
     gp_context_unref(context);
   }
 
+  void Gphoto2Device::findConfigWidget(QString option, CameraWidget **rootconfig, CameraWidget **child) {
+    int ret;
+    // get root widget
+    ret = gp_camera_get_config(camera, rootconfig, context);
+    if (ret != GP_OK)
+      throw runtime_error("Can't get rootconfig widget");
+    ret = gp_widget_get_child_by_name(*rootconfig, option.toStdString().c_str(), child);
+    if (ret != GP_OK)
+      ret = gp_widget_get_child_by_label(*rootconfig, option.toStdString().c_str(), child);
+    if (ret != GP_OK) {
+      gp_widget_free(*rootconfig);
+      throw runtime_error(QString("Config widget %1 not found").arg(option).toStdString());
+    }
+  }
+
+  QString Gphoto2Device::getConfigRadio(QString option) {
+    CameraWidget *rootconfig, *child;
+    int ret;
+
+    findConfigWidget(option, &rootconfig, &child);
+
+    // check widget type
+    CameraWidgetType type;
+    ret = gp_widget_get_type(child, &type);
+    if (ret != GP_OK) {
+      gp_widget_free(rootconfig);
+      throw runtime_error(QString("Can't get type of widget %1").arg(option).toStdString());
+    }
+    if (type != GP_WIDGET_MENU && type != GP_WIDGET_RADIO && type != GP_WIDGET_TEXT) {
+      gp_widget_free(rootconfig);
+      throw runtime_error(QString("Unexpected widget type for %1").arg(option).toStdString());
+    }
+    char *choiceVal;
+    ret = gp_widget_get_value(child, &choiceVal);
+    if (ret != GP_OK) {
+      gp_widget_free(rootconfig);
+      throw runtime_error(QString("Can't get value for widget %1").arg(option).toStdString());
+    }
+    QString val = QString::fromUtf8(choiceVal);
+    gp_widget_free(rootconfig);
+    return val;
+  }
+
+  bool Gphoto2Device::isConfigRw(QString option) {
+    CameraWidget *rootconfig, *child;
+    int ret, ro;
+
+    findConfigWidget(option, &rootconfig, &child);
+
+    // check rw/ro
+    ret = gp_widget_get_readonly(child, &ro);
+    if (ret != GP_OK) {
+      gp_widget_free(rootconfig);
+      throw runtime_error(QString("Can't get readonly status for widget %1").arg(option).toStdString());
+    }
+
+    gp_widget_free(rootconfig);
+
+    return (ro != 1);
+  }
+
+  QStringList Gphoto2Device::getConfigRadioChoices(QString option) {
+    CameraWidget *rootconfig, *child;
+    int ret;
+
+    findConfigWidget(option, &rootconfig, &child);
+
+    // check widget type
+    CameraWidgetType type;
+    ret = gp_widget_get_type(child, &type);
+    if (ret != GP_OK) {
+      gp_widget_free(rootconfig);
+      throw runtime_error(QString("Can't get type of widget %1").arg(option).toStdString());
+    }
+    if (type != GP_WIDGET_MENU && type != GP_WIDGET_RADIO) {
+      gp_widget_free(rootconfig);
+      throw runtime_error(QString("Unexpected widget type for %1").arg(option).toStdString());
+    }
+
+    // retrieve choice list
+    QStringList choices;
+    int cnt = gp_widget_count_choices(child);
+    int i;
+    for (i = 0; i < cnt; i++) {
+      const char *choice;
+      ret = gp_widget_get_choice(child, i, &choice);
+      if (ret < GP_OK) {
+        gp_widget_free(rootconfig);
+        throw runtime_error(QString("Can't get %1. option for widget %1").arg(i).arg(option).toStdString());
+      }
+      QString s = QString::fromUtf8(choice);
+      choices.append(s);
+    }
+
+    gp_widget_free(rootconfig);
+
+    return choices;
+  }
+
   void Gphoto2Device::setConfig(QString option, QString value, CameraWidgetType expectedType) {
     CameraWidget *rootconfig, *child;
     int ret, ro;
 
-    // get root widget
-    ret = gp_camera_get_config(camera, &rootconfig, context);
-    if (ret != GP_OK)
-      throw runtime_error("Can't get rootconfig widget");
-    ret = gp_widget_get_child_by_name(rootconfig, option.toStdString().c_str(), &child);
-    if (ret != GP_OK)
-      ret = gp_widget_get_child_by_label(rootconfig, option.toStdString().c_str(), &child);
-    if (ret != GP_OK) {
-      gp_widget_free(rootconfig);
-      throw runtime_error(QString("Config widget %1 not found").arg(option).toStdString());
-    }
+    findConfigWidget(option, &rootconfig, &child);
 
     // check rw/ro
     ret = gp_widget_get_readonly(child, &ro);
@@ -201,9 +290,11 @@ namespace timelapse {
         for (i = 0; i < cnt; i++) {
           const char *choice;
           ret = gp_widget_get_choice(child, i, &choice);
-          if (ret < GP_OK)
-            throw runtime_error(QString("Can't get %1. option for widget %1").arg(i).arg(option).toStdString());
-          QString s = QString::fromLatin1(choice);
+          if (ret < GP_OK) {
+            error = QString("Can't get %1. option for widget %1").arg(i).arg(option);
+            break;
+          }
+          QString s = QString::fromUtf8(choice);
           if (s.contains(value)) {
             //printf("setting %s to choice %d: %s\n", name, i, choice);
             ret = gp_widget_set_value(child, choice);
@@ -231,6 +322,17 @@ namespace timelapse {
 
     if (!success)
       throw runtime_error(error.toStdString());
+  }
+
+  QStringList Gphoto2Device::getShutterSpeedChoices() {
+    try {
+      QString option = "shutterspeed";
+      if (!isConfigRw(option))
+        return QStringList();
+      return getConfigRadioChoices(option);
+    } catch (std::exception &e) {
+      return QStringList();
+    }
   }
 
   /**
@@ -423,6 +525,10 @@ namespace timelapse {
 
   QString Gphoto2Device::toString() {
     return QString("%1\t\"%2\"").arg(port).arg(model);
+  }
+
+  QString Gphoto2Device::toShortString() {
+    return model;
   }
 
   QObject* Gphoto2Device::qObject() {

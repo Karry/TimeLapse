@@ -54,6 +54,7 @@ namespace timelapse {
     virtual void capture();
 
     virtual QString toString();
+    virtual QString toShortString();
     V4LDevice operator=(const timelapse::V4LDevice&);
 
     virtual QObject* qObject();

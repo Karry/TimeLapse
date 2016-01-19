@@ -106,6 +106,8 @@ namespace timelapse {
     virtual void capture();
 
     virtual QString toString();
+    virtual QString toShortString();
+
     Gphoto2Device operator=(const timelapse::Gphoto2Device&);
 
     virtual QObject* qObject();
@@ -114,20 +116,26 @@ namespace timelapse {
     static QList<Gphoto2Device> listDevices(QTextStream *verboseOut, QTextStream *errOut);
     static GPContext *initContext(QTextStream *verboseOut, QTextStream *errOut);
     static void releaseContext(GPContext *context);
-    
+    virtual QStringList getShutterSpeedChoices();
+
   signals:
     void imageCaptured(QString type, Magick::Blob blob, Magick::Geometry sizeHint);
-    
+
   protected slots:
     void pollingTimeout();
-    
+
   protected:
+    void findConfigWidget(QString option, CameraWidget **rootconfig, CameraWidget **child);
+    QString getConfigRadio(QString option);
+    bool isConfigRw(QString option);
+    QStringList getConfigRadioChoices(QString option);
     void setConfig(QString option, QString value, CameraWidgetType expectedType);
+
     void downloadAndEmitImage(CameraFilePath *path);
     void deleteImage(CameraFilePath *path);
     void waitAndHandleEvent(int waitMs, CameraEventType *type);
     void bulbWait(int bulbLengthMs);
-    bool tryToSetRamStorage();    
+    bool tryToSetRamStorage();
 
     GPContext *context;
     Camera *camera;

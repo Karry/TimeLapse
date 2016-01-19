@@ -44,6 +44,7 @@
 #include <QtCore/QProcess>
 
 #include <QtCore/QDir>
+#include <qt4/QtCore/qlist.h>
 
 #include "timelapse_capture.h"
 #include "timelapse_capture.moc"
@@ -144,6 +145,10 @@ namespace timelapse {
       QCoreApplication::translate("main", "Store all captured images in raw."));
     parser.addOption(rowOption);
 
+    QCommandLineOption getShutterSpeedOption(QStringList() << "s" << "get-shutterspeed",
+      QCoreApplication::translate("main", "Prints available shutterspeed setting choices."));
+    parser.addOption(getShutterSpeedOption);
+
     // Process the actual command line arguments given by the user
     parser.process(*this);
 
@@ -174,30 +179,6 @@ namespace timelapse {
       }
       std::exit(0);
     }
-
-    // output
-    if (!parser.isSet(outputOption))
-      die << "Output directory is not set";
-    output = QDir(parser.value(outputOption));
-    if (output.exists())
-      err << "Output directory exists already." << endl;
-    if (!output.mkpath("."))
-      die << QString("Can't create output directory %1 !").arg(output.path());
-
-    if (parser.isSet(intervalOption)) {
-      bool ok = false;
-      long i = parser.value(intervalOption).toLong(&ok);
-      if (!ok) die << "Cant parse interval.";
-      if (i <= 0) die << "Interval have to be possitive";
-      interval = i;
-    }
-    if (parser.isSet(cntOption)) {
-      bool ok = false;
-      int i = parser.value(cntOption).toInt(&ok);
-      if (!ok) die << "Cant parse count.";
-      cnt = i;
-    }
-
     // capture device
     bool assigned = false;
     if (!parser.isSet(deviceOption)) {
@@ -224,6 +205,43 @@ namespace timelapse {
       }
     }
     out << "Using device " << dev->toString() << endl;
+
+    // getShutterSpeedOption ?
+    if (parser.isSet(getShutterSpeedOption)) {
+      QStringList choices = dev->getShutterSpeedChoices();
+      if (choices.isEmpty()) {
+        err << "Device " << dev->toShortString() << " don't support shutterspeed setting" << endl;
+      } else {
+        out << "Device " << dev->toShortString() << " shutterspeed choices:" << endl;
+        for (QString ch : choices) {
+          out << "  " << ch << endl;
+        }
+      }
+      std::exit(0);
+    }
+
+    // output
+    if (!parser.isSet(outputOption))
+      die << "Output directory is not set";
+    output = QDir(parser.value(outputOption));
+    if (output.exists())
+      err << "Output directory exists already." << endl;
+    if (!output.mkpath("."))
+      die << QString("Can't create output directory %1 !").arg(output.path());
+
+    if (parser.isSet(intervalOption)) {
+      bool ok = false;
+      long i = parser.value(intervalOption).toLong(&ok);
+      if (!ok) die << "Cant parse interval.";
+      if (i <= 0) die << "Interval have to be possitive";
+      interval = i;
+    }
+    if (parser.isSet(cntOption)) {
+      bool ok = false;
+      int i = parser.value(cntOption).toInt(&ok);
+      if (!ok) die << "Cant parse count.";
+      cnt = i;
+    }
 
     return dev;
   }
@@ -299,7 +317,7 @@ namespace timelapse {
         file.write(headerBytes, headerLen);
         file.write((char*) blob.data(), blob.length());
         file.close();
-      }else{
+      } else {
         // convert RGB data to JPEG
         Magick::Image capturedImage;
         capturedImage.read(blob, sizeHint, 8, "RGB");
@@ -315,7 +333,7 @@ namespace timelapse {
         capturedImage.magick("JPEG");
         framePath += ".jpeg";
         capturedImage.write(framePath.toStdString());
-      
+
       }
     } else {
       // store other formats in device specific format 

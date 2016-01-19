@@ -71,6 +71,11 @@ namespace timelapse {
       .arg((v >> 16) & 0xff).arg((v >> 8) & 0xff).arg(v & 0xff);
   }
 
+  QString V4LDevice::toShortString() {
+    initialize();
+    return QString("%1").arg(dev);
+  }
+
   V4LDevice V4LDevice::operator=(const timelapse::V4LDevice& o) {
     initialized = o.initialized;
     dev = o.dev;

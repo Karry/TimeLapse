@@ -42,6 +42,8 @@ namespace timelapse {
 
     virtual void capture() = 0;
     virtual QString toString() = 0;
+    virtual QString toShortString(){return toString();}
+    virtual QStringList getShutterSpeedChoices(){ return QStringList();};
     virtual QObject *qObject() = 0;
     // signal: emit imageCaptured(QString type, Magick::Blob blob);
   };
@@ -52,8 +54,8 @@ namespace timelapse {
     Q_OBJECT
   public:
     PipelineCaptureSource(QSharedPointer<CaptureDevice> dev, uint64_t intervalMs, int32_t cnt,
-            QTextStream *verboseOutput, QTextStream *err);\
-        virtual ~PipelineCaptureSource();
+            QTextStream *verboseOutput, QTextStream *err);
+    virtual ~PipelineCaptureSource();
 
     virtual void process();
 

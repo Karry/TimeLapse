@@ -44,7 +44,6 @@
 #include <QtCore/QProcess>
 
 #include <QtCore/QDir>
-#include <qt4/QtCore/qlist.h>
 
 #include "timelapse_capture.h"
 #include "timelapse_capture.moc"

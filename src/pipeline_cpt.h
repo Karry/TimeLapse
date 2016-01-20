@@ -41,8 +41,8 @@ namespace timelapse {
     ShutterSpeedChoice(const QString str);
     virtual ~ShutterSpeedChoice();
     QString toString();
-    uint64_t toMs();
-    uint64_t toMicrosecond();
+    int64_t toMs();
+    int64_t toMicrosecond();
     bool isBulb();
 
   private:
@@ -64,6 +64,10 @@ namespace timelapse {
       return toString();
     }
 
+    virtual ShutterSpeedChoice currentShutterSpeed() {
+      return ShutterSpeedChoice();
+    }
+    
     virtual QList<ShutterSpeedChoice> getShutterSpeedChoices() {
       return QList<ShutterSpeedChoice>();
     };

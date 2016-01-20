@@ -86,18 +86,18 @@ namespace timelapse {
     }
   }
 
-  uint64_t ShutterSpeedChoice::toMs() {
-    uint64_t us = toMicrosecond();
+  int64_t ShutterSpeedChoice::toMs() {
+    int64_t us = toMicrosecond();
     if (us < 0)
       return us;
     return us / 1000;
   }
 
-  uint64_t ShutterSpeedChoice::toMicrosecond() {
-    uint64_t us = 1000000;
+  int64_t ShutterSpeedChoice::toMicrosecond() {
+    int64_t us = 1000000;
     if (bulb) {
       if (divident > 0) {
-        return ((uint64_t) divident) * us;
+        return ((int64_t) divident) * us;
       } else {
         return -1;
       }
@@ -105,7 +105,7 @@ namespace timelapse {
       if (divident <= 0 || factor <= 0) {
         return -1;
       } else {
-        return ( ((uint64_t) divident) * us) / factor;
+        return ( ((int64_t) divident) * us) / factor;
       }
     }
   }

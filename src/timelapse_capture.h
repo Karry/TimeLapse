@@ -29,7 +29,11 @@
 #include <QtCore/QTemporaryDir>
 #include <QtCore/QSharedPointer>
 
+#include <queue>
+#include <vector>
+#include <utility>
 #include <Magick++.h>
+#include <ImageMagick-6/Magick++/Color.h>
 
 #include "black_hole_device.h"
 #include "input_image_info.h"
@@ -71,8 +75,14 @@ namespace timelapse {
     QLocale frameNumberLocale;
     int capturedCnt;
     int capturedSubsequence;
+    
+    // automatic shutter speed controll
+    ShutterSpeedChoice currentShutterSpeed;
+    ShutterSpeedChoice minShutterSpeed;
+    ShutterSpeedChoice maxShutterSpeed;
+    QList< std::vector<std::pair < Magick::Color, size_t>> > lastHistograms;
+    int shutterSpeedChangeCnt;
 
-    bool dryRun;
     bool storeRawImages;
 
     int64_t interval;

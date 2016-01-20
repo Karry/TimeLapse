@@ -124,6 +124,7 @@ namespace timelapse {
     static GPContext *initContext(QTextStream *verboseOut, QTextStream *errOut);
     static void releaseContext(GPContext *context);
     virtual QList<ShutterSpeedChoice> getShutterSpeedChoices();
+    virtual ShutterSpeedChoice currentShutterSpeed();
 
   signals:
     void imageCaptured(QString type, Magick::Blob blob, Magick::Geometry sizeHint);

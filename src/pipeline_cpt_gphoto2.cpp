@@ -340,6 +340,14 @@ namespace timelapse {
     }
   }
 
+  ShutterSpeedChoice Gphoto2Device::currentShutterSpeed() {
+    try {
+      return ShutterSpeedChoice(getConfigRadio(SHUTTERSPEED_CONFIG));
+    } catch (std::exception &e) {
+      return ShutterSpeedChoice();
+    }
+  }
+
   /**
    * This method try to setup RAM storage in camera.
    * We download captured images, so we don't want to keep it in memory card...

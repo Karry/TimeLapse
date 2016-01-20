@@ -64,8 +64,9 @@ namespace timelapse {
   QCoreApplication(argc, argv),
   out(stdout), err(stderr),
   verboseOutput(stdout), blackHole(NULL),
-  output(), timer(), frameNumberLocale(QLocale::c()), capturedCnt(0),
-  dryRun(false), interval(10000), cnt(-1) {
+  output(), timer(), frameNumberLocale(QLocale::c()), capturedCnt(0), capturedSubsequence(0),
+  currentShutterSpeed(), minShutterSpeed(), maxShutterSpeed(), lastHistograms(), shutterSpeedChangeCnt(-1),
+  interval(10000), cnt(-1) {
 
     setApplicationName("TimeLapse capture tool");
     setApplicationVersion(VERSION_TIMELAPSE);
@@ -164,6 +165,23 @@ namespace timelapse {
     // raw?
     storeRawImages = parser.isSet(rowOption);
 
+    // interval
+    if (parser.isSet(intervalOption)) {
+      bool ok = false;
+      long i = parser.value(intervalOption).toLong(&ok);
+      if (!ok) die << "Cant parse interval.";
+      if (i <= 0) die << "Interval have to be possitive";
+      interval = i;
+    }
+
+    // count
+    if (parser.isSet(cntOption)) {
+      bool ok = false;
+      int i = parser.value(cntOption).toInt(&ok);
+      if (!ok) die << "Cant parse count.";
+      cnt = i;
+    }
+
     // list devices?
     QList<QSharedPointer < CaptureDevice>> devices = listDevices();
     QSharedPointer<CaptureDevice> dev;
@@ -206,8 +224,8 @@ namespace timelapse {
     out << "Using device " << dev->toString() << endl;
 
     // getShutterSpeedOption ?
+    QList<ShutterSpeedChoice> choices = dev->getShutterSpeedChoices();
     if (parser.isSet(getShutterSpeedOption)) {
-      QList<ShutterSpeedChoice> choices = dev->getShutterSpeedChoices();
       if (choices.isEmpty()) {
         err << "Device " << dev->toShortString() << " don't support shutterspeed setting" << endl;
       } else {
@@ -215,8 +233,37 @@ namespace timelapse {
         for (ShutterSpeedChoice ch : choices) {
           out << "  " << ch.toString() << endl;
         }
+        out << "Current shutter speed: " << dev->currentShutterSpeed().toString() << endl;
       }
       std::exit(0);
+    }
+
+    // experimental automatic chutter speed
+    if (!choices.isEmpty()) {
+      currentShutterSpeed = dev->currentShutterSpeed();
+      minShutterSpeed = choices.first();
+      for (ShutterSpeedChoice ch : choices) {
+        if ((!ch.isBulb()) && ch.toMicrosecond() > maxShutterSpeed.toMicrosecond())
+          maxShutterSpeed = ch;
+      }
+      if (minShutterSpeed.toMicrosecond() <= 0
+        || maxShutterSpeed.toMicrosecond() <= 0
+        || maxShutterSpeed.toMicrosecond() < minShutterSpeed.toMicrosecond())
+        die << "Invalid automatic shutter speed configurarion";
+
+      shutterSpeedChangeCnt = 5;
+
+      out << "Using automatic shutter speed:" << endl;
+      out << "  current shutter speed: " << currentShutterSpeed.toString() << endl;
+      out << "  min shutter speed:     " << minShutterSpeed.toString() << endl;
+      out << "  max shutter speed:     " << maxShutterSpeed.toString() << endl;
+      out << "  change threshold:      " << shutterSpeedChangeCnt << endl;
+
+      if (maxShutterSpeed.toMs() > interval) {
+        err << QString("Maximum shutter speed (%1 ms) is greater than capture interval (%2 ms)!")
+          .arg(maxShutterSpeed.toMs())
+          .arg(interval) << endl;
+      }
     }
 
     // output
@@ -227,20 +274,6 @@ namespace timelapse {
       err << "Output directory exists already." << endl;
     if (!output.mkpath("."))
       die << QString("Can't create output directory %1 !").arg(output.path());
-
-    if (parser.isSet(intervalOption)) {
-      bool ok = false;
-      long i = parser.value(intervalOption).toLong(&ok);
-      if (!ok) die << "Cant parse interval.";
-      if (i <= 0) die << "Interval have to be possitive";
-      interval = i;
-    }
-    if (parser.isSet(cntOption)) {
-      bool ok = false;
-      int i = parser.value(cntOption).toInt(&ok);
-      if (!ok) die << "Cant parse count.";
-      cnt = i;
-    }
 
     return dev;
   }

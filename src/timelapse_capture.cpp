@@ -42,8 +42,15 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QCommandLineParser>
 #include <QtCore/QProcess>
-
 #include <QtCore/QDir>
+
+#include <exception>
+#include <queue>
+#include <vector>
+#include <utility>
+#include <Magick++.h>
+#include <ImageMagick-6/Magick++/Color.h>
+#include <ImageMagick-6/magick/exception.h>
 
 #include "timelapse_capture.h"
 #include "timelapse_capture.moc"
@@ -60,12 +67,178 @@ using namespace timelapse;
 
 namespace timelapse {
 
+  AdaptiveShutterSpeedAlg::AdaptiveShutterSpeedAlg(
+    QList<ShutterSpeedChoice> shutterSpeedChoices,
+    ShutterSpeedChoice currentShutterSpeed,
+    ShutterSpeedChoice minShutterSpeed,
+    ShutterSpeedChoice maxShutterSpeed,
+    QTextStream *err,
+    QTextStream *verboseOutput) :
+
+  shutterSpeedChoices(shutterSpeedChoices),
+  currentShutterSpeed(currentShutterSpeed),
+  minShutterSpeed(minShutterSpeed),
+  maxShutterSpeed(maxShutterSpeed),
+  err(err), verboseOutput(verboseOutput) {
+  }
+
+  AdaptiveShutterSpeedAlg::~AdaptiveShutterSpeedAlg() {
+  }
+
+  MatrixMeteringAlg::MatrixMeteringAlg(
+    QList<ShutterSpeedChoice> shutterSpeedChoices,
+    ShutterSpeedChoice currentShutterSpeed,
+    ShutterSpeedChoice minShutterSpeed,
+    ShutterSpeedChoice maxShutterSpeed,
+    QTextStream *err,
+    QTextStream *verboseOutput,
+    int changeThreshold) :
+
+  AdaptiveShutterSpeedAlg(shutterSpeedChoices, currentShutterSpeed,
+  minShutterSpeed, maxShutterSpeed, err, verboseOutput),
+  changeThreshold(changeThreshold), greyHistograms() {
+  }
+
+  void MatrixMeteringAlg::clearHistograms() {
+    for (uint32_t *hist : greyHistograms) {
+      delete[] hist;
+    }
+    greyHistograms.clear();
+  }
+
+  MatrixMeteringAlg::~MatrixMeteringAlg() {
+    clearHistograms();
+  }
+
+#define GREY_HISTOGRAM_RESOLUTION 256
+#define UNDEREXPOSURE_GREY_LIMIT 13
+#define OVEREXPOSURE_GREY_LIMIT 242
+#define UNDEREXPOSURE_RATIO_LIMIT .05
+#define OVEREXPOSURE_RATIO_LIMIT .05
+#define BULB_CHANGE_us 5000000
+
+  void MatrixMeteringAlg::update(Magick::Image img) {
+    // remove old histograms
+    while (greyHistograms.size() >= changeThreshold) {
+      QList<uint32_t *>::Iterator it = greyHistograms.begin();
+      delete[] * it;
+      greyHistograms.removeFirst();
+    }
+
+    uint32_t *greyHistogram = new uint32_t[GREY_HISTOGRAM_RESOLUTION];
+
+    // get img histogram
+    std::vector<std::pair < Magick::Color, size_t>> histogram;
+    Magick::colorHistogram(&histogram, img);
+
+    // compute grey-scale histogram
+    for (std::pair<Magick::Color, size_t> p : histogram) {
+      double r = Magick::Color::scaleQuantumToDouble(p.first.redQuantum());
+      double g = Magick::Color::scaleQuantumToDouble(p.first.greenQuantum());
+      double b = Magick::Color::scaleQuantumToDouble(p.first.blueQuantum());
+      double grey = 0.299 * r + 0.587 * g + 0.114 * b;
+      int i = std::max(
+        std::min(GREY_HISTOGRAM_RESOLUTION, (int) grey * GREY_HISTOGRAM_RESOLUTION),
+        0);
+      greyHistogram[i] += 1;
+    }
+
+    greyHistograms.append(greyHistogram);
+  }
+
+  ShutterSpeedChoice MatrixMeteringAlg::adjustShutterSpeed() {
+    if (greyHistograms.size() < changeThreshold) {
+      return currentShutterSpeed;
+    }
+
+    int changeScore = 0;
+
+    for (uint32_t *histo : greyHistograms) {
+      uint32_t pixCnt = 0;
+      uint32_t underExposureCnt = 0;
+      uint32_t overExposureCnt = 0;
+      for (int ii = 0; ii < GREY_HISTOGRAM_RESOLUTION; ii++) {
+        pixCnt += histo[ii];
+        if (ii < UNDEREXPOSURE_GREY_LIMIT)
+          underExposureCnt += histo[ii];
+        if (ii > OVEREXPOSURE_GREY_LIMIT)
+          overExposureCnt += histo[ii];
+      }
+      //bool underExposured = 
+      double underExposure = (double) underExposureCnt / (double) pixCnt;
+      double overExposure = (double) overExposureCnt / (double) pixCnt;
+      if (underExposure > UNDEREXPOSURE_RATIO_LIMIT || overExposure > OVEREXPOSURE_RATIO_LIMIT) {
+        if (underExposure > overExposure)
+          changeScore += 1;
+        else
+          changeScore -= 1;
+      }
+    }
+
+    if (changeScore <= 1) {
+      return currentShutterSpeed;
+    }
+    if ((changeScore > 0 && currentShutterSpeed.toMicrosecond() >= maxShutterSpeed.toMicrosecond())
+      || (changeScore < 0 && currentShutterSpeed.toMicrosecond() <= minShutterSpeed.toMicrosecond())) {
+      return currentShutterSpeed;
+    }
+
+    // TODO: change adjustShutterSpeed
+    ShutterSpeedChoice prev = currentShutterSpeed;
+    if (currentShutterSpeed.isBulb()) {
+      if (changeScore > 0) {
+        currentShutterSpeed = ShutterSpeedChoice(true, std::min(currentShutterSpeed.toMicrosecond() + BULB_CHANGE_us, maxShutterSpeed.toMicrosecond()), 1000000);
+      } else {
+        currentShutterSpeed = ShutterSpeedChoice(true, std::min(currentShutterSpeed.toMicrosecond() - BULB_CHANGE_us, maxShutterSpeed.toMicrosecond()), 1000000);
+        // if current bulb time is less than some regular speed, use it
+        for (ShutterSpeedChoice ch : shutterSpeedChoices) {
+          if ((!ch.isBulb()) && ch.toMicrosecond() >= currentShutterSpeed.toMicrosecond()) {
+            currentShutterSpeed = ch;
+            break;
+          }
+        }
+      }
+    } else {
+      if (changeScore > 0) {
+        for (ShutterSpeedChoice ch : shutterSpeedChoices) {
+          if ((!ch.isBulb()) && ch.toMicrosecond() > currentShutterSpeed.toMicrosecond()) {
+            currentShutterSpeed = ch;
+            break;
+          }
+        }
+        if (prev.toMicrosecond() == currentShutterSpeed.toMicrosecond() && maxShutterSpeed.isBulb()) {
+          currentShutterSpeed = ShutterSpeedChoice(true, std::min(currentShutterSpeed.toMicrosecond() + BULB_CHANGE_us, maxShutterSpeed.toMicrosecond()), 1000000);
+        }
+      } else {
+        QList<ShutterSpeedChoice> reverse = shutterSpeedChoices;
+        std::reverse(reverse.begin(), reverse.end());
+        for (ShutterSpeedChoice ch : reverse) {
+          if ((!ch.isBulb()) && ch.toMicrosecond() < currentShutterSpeed.toMicrosecond()) {
+            currentShutterSpeed = ch;
+            break;
+          }
+        }
+      }
+    }
+
+    // print verbose informations
+    *verboseOutput << "Some of previous frames was "
+      << (changeScore > 0 ? "underexposure" : "overexposure")
+      << " (score " << changeScore << "). Changing shutter speed from "
+      << prev.toString() << " to " << currentShutterSpeed.toString()
+      << endl;
+
+    clearHistograms();
+
+    return currentShutterSpeed;
+  }
+
   TimeLapseCapture::TimeLapseCapture(int &argc, char **argv) :
   QCoreApplication(argc, argv),
   out(stdout), err(stderr),
   verboseOutput(stdout), blackHole(NULL),
   output(), timer(), frameNumberLocale(QLocale::c()), capturedCnt(0), capturedSubsequence(0),
-  currentShutterSpeed(), minShutterSpeed(), maxShutterSpeed(), lastHistograms(), shutterSpeedChangeCnt(-1),
+  shutterSpdAlg(NULL),
   interval(10000), cnt(-1) {
 
     setApplicationName("TimeLapse capture tool");
@@ -82,6 +255,10 @@ namespace timelapse {
       verboseOutput.setDevice(NULL);
       delete blackHole;
       blackHole = NULL;
+    }
+    if (shutterSpdAlg != NULL) {
+      delete shutterSpdAlg;
+      shutterSpdAlg = NULL;
     }
   }
 
@@ -240,6 +417,10 @@ namespace timelapse {
 
     // experimental automatic chutter speed
     if (!choices.isEmpty()) {
+      ShutterSpeedChoice currentShutterSpeed;
+      ShutterSpeedChoice minShutterSpeed;
+      ShutterSpeedChoice maxShutterSpeed;
+
       currentShutterSpeed = dev->currentShutterSpeed();
       minShutterSpeed = choices.first();
       for (ShutterSpeedChoice ch : choices) {
@@ -251,7 +432,7 @@ namespace timelapse {
         || maxShutterSpeed.toMicrosecond() < minShutterSpeed.toMicrosecond())
         die << "Invalid automatic shutter speed configurarion";
 
-      shutterSpeedChangeCnt = 5;
+      int shutterSpeedChangeCnt = 5;
 
       out << "Using automatic shutter speed:" << endl;
       out << "  current shutter speed: " << currentShutterSpeed.toString() << endl;
@@ -264,6 +445,8 @@ namespace timelapse {
           .arg(maxShutterSpeed.toMs())
           .arg(interval) << endl;
       }
+      shutterSpdAlg = new MatrixMeteringAlg(choices, currentShutterSpeed, minShutterSpeed, maxShutterSpeed,
+        &err, &verboseOutput);
     }
 
     // output
@@ -314,7 +497,10 @@ namespace timelapse {
     try {
       capturedSubsequence = 0;
       capturedCnt++;
-      dev->capture();
+      ShutterSpeedChoice shutterSpeed;
+      if (shutterSpdAlg != NULL)
+        shutterSpeed = shutterSpdAlg->adjustShutterSpeed();
+      dev->capture(shutterSpeed);
     } catch (std::exception &e) {
       err << "Capturing failed: " << e.what() << endl;
       onError(e.what());
@@ -337,11 +523,17 @@ namespace timelapse {
 
     if (format == "RGB") {
       if (storeRawImages) {
-        // store RAW RGB data in PGM format
+        // store RAW RGB data in PPM format
         QString pgmHeader = QString("P6\n%1 %2\n255\n").arg(sizeHint.width()).arg(sizeHint.height());
         std::string headerStr = pgmHeader.toStdString();
         const char *headerBytes = headerStr.c_str();
         size_t headerLen = strlen(headerBytes);
+
+        if (shutterSpdAlg != NULL && capturedSubsequence == 0) {
+          Magick::Image capturedImage;
+          capturedImage.read(blob, sizeHint, 8, "RGB");
+          shutterSpdAlg->update(capturedImage);
+        }
 
         framePath += ".ppm";
         QFile file(framePath);
@@ -353,6 +545,11 @@ namespace timelapse {
         // convert RGB data to JPEG
         Magick::Image capturedImage;
         capturedImage.read(blob, sizeHint, 8, "RGB");
+
+        if (shutterSpdAlg != NULL && capturedSubsequence == 0) {
+          shutterSpdAlg->update(capturedImage);
+        }
+
         QDateTime now = QDateTime::currentDateTime();
         QString exifDateTime = now.toString("yyyy:MM:dd HH:mm:ss");\
 
@@ -368,6 +565,17 @@ namespace timelapse {
 
       }
     } else {
+      
+      if (shutterSpdAlg != NULL && capturedSubsequence == 0) {
+        try {
+          Magick::Image capturedImage;
+          capturedImage.read(blob, format.toStdString());
+          shutterSpdAlg->update(capturedImage);
+        } catch (const std::exception &e) {
+          err << "Failed to decode captured image (" << format << "): " << e.what() << endl;
+        }
+      }
+
       // store other formats in device specific format 
       framePath += "." + format;
       QFile file(framePath);
@@ -375,6 +583,7 @@ namespace timelapse {
       file.write((char*) blob.data(), blob.length());
       file.close();
     }
+
     verboseOutput << "Captured frame saved to " << framePath << endl;
 
     capturedSubsequence++;

@@ -29,6 +29,7 @@
 #include <QtCore/QTemporaryDir>
 #include <QtCore/QSharedPointer>
 
+#include <exception>
 #include <queue>
 #include <vector>
 #include <utility>
@@ -41,6 +42,52 @@
 #include "pipeline_cpt.h"
 
 namespace timelapse {
+
+  class AdaptiveShutterSpeedAlg {
+  public:
+    AdaptiveShutterSpeedAlg(
+            QList<ShutterSpeedChoice> shutterSpeedChoices,
+            ShutterSpeedChoice currentShutterSpeed,
+            ShutterSpeedChoice minShutterSpeed,
+            ShutterSpeedChoice maxShutterSpeed,
+            QTextStream *err,
+            QTextStream *verboseOutput
+            );
+
+    virtual ~AdaptiveShutterSpeedAlg();
+    virtual void update(Magick::Image img) = 0;
+    virtual ShutterSpeedChoice adjustShutterSpeed() = 0;
+  protected:
+    QList<ShutterSpeedChoice> shutterSpeedChoices;
+    ShutterSpeedChoice currentShutterSpeed;
+    ShutterSpeedChoice minShutterSpeed;
+    ShutterSpeedChoice maxShutterSpeed;
+
+    QTextStream *err;
+    QTextStream *verboseOutput;
+  };
+
+  class MatrixMeteringAlg : public AdaptiveShutterSpeedAlg {
+  public:
+    MatrixMeteringAlg(
+            QList<ShutterSpeedChoice> shutterSpeedChoices,
+            ShutterSpeedChoice currentShutterSpeed,
+            ShutterSpeedChoice minShutterSpeed,
+            ShutterSpeedChoice maxShutterSpeed,
+            QTextStream *err,
+            QTextStream *verboseOutput,
+            int changeThreshold = 5);
+
+    virtual ~MatrixMeteringAlg();
+    virtual void update(Magick::Image img);
+    virtual ShutterSpeedChoice adjustShutterSpeed();
+
+  protected:
+    void clearHistograms();
+
+    int changeThreshold;
+    QList< uint32_t * > greyHistograms;
+  };
 
   class TimeLapseCapture : public QCoreApplication {
     Q_OBJECT
@@ -75,13 +122,9 @@ namespace timelapse {
     QLocale frameNumberLocale;
     int capturedCnt;
     int capturedSubsequence;
-    
+
     // automatic shutter speed controll
-    ShutterSpeedChoice currentShutterSpeed;
-    ShutterSpeedChoice minShutterSpeed;
-    ShutterSpeedChoice maxShutterSpeed;
-    QList< std::vector<std::pair < Magick::Color, size_t>> > lastHistograms;
-    int shutterSpeedChangeCnt;
+    AdaptiveShutterSpeedAlg *shutterSpdAlg;
 
     bool storeRawImages;
 

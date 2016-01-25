@@ -33,6 +33,11 @@ namespace timelapse {
   bulb(o.bulb), divident(o.divident), factor(o.factor) {
   }
 
+  ShutterSpeedChoice::ShutterSpeedChoice(bool bulb, int divident, int factor) :
+  bulb(bulb), divident(divident), factor(factor) {
+    normalize();
+  }
+
   ShutterSpeedChoice::ShutterSpeedChoice(const QString str) : bulb(false), divident(-1), factor(-1) {
     bool ok;
 
@@ -61,9 +66,32 @@ namespace timelapse {
           throw std::invalid_argument("Can't parse shutter speed");
       }
     }
+    normalize();
   }
 
   ShutterSpeedChoice::~ShutterSpeedChoice() {
+  }
+
+  int ShutterSpeedChoice::gcd(int a, int b) {
+    int c;
+    while (b != 0) {
+      c = b;
+      b = a % b;
+      a = c;
+    }
+    return a;
+  }
+
+  void ShutterSpeedChoice::normalize() {
+    if (toMicrosecond() > 0) {
+      if (factor > 1) {
+        int gcd = ShutterSpeedChoice::gcd(divident, factor);
+        if (gcd > 1) {
+          divident /= gcd;
+          factor /= gcd;
+        }
+      }
+    }
   }
 
   QString ShutterSpeedChoice::toString() {

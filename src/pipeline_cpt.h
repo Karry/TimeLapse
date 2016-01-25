@@ -38,6 +38,7 @@ namespace timelapse {
   public:
     ShutterSpeedChoice();
     ShutterSpeedChoice(const ShutterSpeedChoice &o);
+    ShutterSpeedChoice(bool bulb, int divident, int factor);
     ShutterSpeedChoice(const QString str);
     virtual ~ShutterSpeedChoice();
     QString toString();
@@ -46,6 +47,9 @@ namespace timelapse {
     bool isBulb();
 
   private:
+    static int gcd(int a, int b);
+    void normalize();
+
     bool bulb;
     int divident;
     int factor;
@@ -67,7 +71,7 @@ namespace timelapse {
     virtual ShutterSpeedChoice currentShutterSpeed() {
       return ShutterSpeedChoice();
     }
-    
+
     virtual QList<ShutterSpeedChoice> getShutterSpeedChoices() {
       return QList<ShutterSpeedChoice>();
     };

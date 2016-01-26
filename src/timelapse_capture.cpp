@@ -183,7 +183,7 @@ namespace timelapse {
       return currentShutterSpeed;
     }
 
-    // TODO: change adjustShutterSpeed
+    // adjust ShutterSpeed
     ShutterSpeedChoice prev = currentShutterSpeed;
     if (currentShutterSpeed.isBulb()) {
       if (changeScore > 0) {
@@ -392,6 +392,7 @@ namespace timelapse {
         if (d->toString().contains(devVal, Qt::CaseInsensitive)) {
           assigned = true;
           dev = d;
+          break;
         }
       }
       if (!assigned) {

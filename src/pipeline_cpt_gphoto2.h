@@ -23,6 +23,7 @@
 
 #include <gphoto2/gphoto2-file.h>
 #include <gphoto2/gphoto2-camera.h>
+#include <gphoto2/gphoto2-port-log.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QDebug>

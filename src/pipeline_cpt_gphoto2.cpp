@@ -43,8 +43,6 @@ using namespace timelapse;
 
 namespace timelapse {
 
-  //GPParams gp_params;
-
   /** GPhoto2 rutines */
 
   int _get_portinfo_list(GPPortInfoList **portinfo_list) {
@@ -84,6 +82,23 @@ namespace timelapse {
     *((QTextStream *) data) << "GPhoto2: " << QString::fromUtf8(text) << endl;
   }
 
+  /**
+   * \brief Logging function hook
+   * 
+   * This is the function frontends can use to receive logging information
+   * from the libgphoto2 framework. It is set using gp_log_add_func() and 
+   * removed using gp_log_remove_func() and will then receive the logging
+   * messages of the level specified.
+   *
+   * \param level the log level of the passed message, as set by the camera driver or libgphoto2
+   * \param domain the logging domain as set by the camera driver, or libgphoto2 function
+   * \param str the logmessage, without linefeed
+   * \param data the caller private data that was passed to gp_log_add_func()
+   */
+  void _gp_port_debug(GPLogLevel level, const char *domain, const char *str, void *data) {
+    *((QTextStream *) data) << "GPhoto2 - " << QString::fromUtf8(domain) << ": " << QString::fromUtf8(str) << endl;
+  }
+
   Gphoto2Device::Gphoto2Device(GPContext *context, Camera *camera, QString port, QString model) :
   context(context), camera(camera), port(port), model(model), timer(),
   pollingScheduled(false), deviceLocked(false) {
@@ -96,11 +111,19 @@ namespace timelapse {
   context(other.context), camera(other.camera), port(other.port), model(other.model), timer(),
   pollingScheduled(false), deviceLocked(false) {
 
+    if (other.deviceLocked)
+      throw std::logic_error("Creating copy of locked camera is not implemented!");
+
     gp_camera_ref(camera);
     gp_context_ref(context);
   }
 
   Gphoto2Device::~Gphoto2Device() {
+    if (deviceLocked) {
+      gp_camera_exit(camera, context);
+      deviceLocked = false;
+    }
+
     gp_camera_unref(camera);
     gp_context_unref(context);
   }
@@ -381,7 +404,10 @@ namespace timelapse {
     ret = gp_camera_file_get(camera, filePath->folder, filePath->name, GP_FILE_TYPE_NORMAL, file, context);
     if (ret < GP_OK) {
       gp_file_free(file);
-      throw std::runtime_error(QString("Failed to get file from camera %1: %2").arg(model).arg(ret).toStdString());
+      throw std::runtime_error(QString("Failed to get file from camera %1: %2")
+        .arg(model)
+        .arg(gp_result_as_string(ret))
+        .toStdString());
     }
 
     const char* data;
@@ -400,7 +426,10 @@ namespace timelapse {
     int ret;
     ret = gp_camera_file_delete(camera, path->folder, path->name, context);
     if (ret < GP_OK) {
-      throw std::runtime_error(QString("Failed to delete file from camera %1: %2").arg(model).arg(ret).toStdString());
+      throw std::runtime_error(QString("Failed to delete file from camera %1: %2")
+        .arg(model)
+        .arg(gp_result_as_string(ret))
+        .toStdString());
     }
   }
 
@@ -443,6 +472,10 @@ namespace timelapse {
   }
 
   void Gphoto2Device::pollingTimeout() {
+    if (!deviceLocked) {
+      throw std::logic_error("Polling without camera lock!");
+      //return;
+    }
     pollingScheduled = false;
     CameraEventType evtype;
     int pollingInterval = 200;
@@ -482,13 +515,15 @@ namespace timelapse {
 
   void Gphoto2Device::capture(ShutterSpeedChoice shutterSpeed) {
     int ret;
-    //int bulbLengthMs = 0; // TODO: add support for time setting and bulb modes
 
     // init camera
     if (!deviceLocked) {
       ret = gp_camera_init(camera, context);
       if (ret < GP_OK) {
-        throw std::invalid_argument(QString("Can't init camera on port %1: %2").arg(port).arg(ret).toStdString());
+        throw std::invalid_argument(QString("Can't init camera on port %1: %2")
+          .arg(port)
+          .arg(gp_result_as_string(ret))
+          .toStdString());
       }
       deviceLocked = true;
     }
@@ -519,7 +554,11 @@ namespace timelapse {
       ret = gp_camera_capture(camera, GP_CAPTURE_IMAGE, &filePath, context);
       if (ret < GP_OK) {
         gp_camera_exit(camera, context);
-        throw std::runtime_error(QString("Failed to capture frame with camera %1: %2").arg(model).arg(ret).toStdString());
+        deviceLocked = false;
+        throw std::runtime_error(QString("Failed to capture frame with camera %1: %2")
+          .arg(model)
+          .arg(gp_result_as_string(ret))
+          .toStdString());
       }
       downloadAndEmitImage(&filePath);
       if (deleteImageAfterDownload)
@@ -579,6 +618,10 @@ namespace timelapse {
     gp_context_set_cancel_func(context, 0, NULL);
     gp_context_set_message_func(context, _gp_context_msg_func, verboseOut);
 
+#ifdef gp_log_add_func
+    gp_log_add_func(GPLogLevel::GP_LOG_VERBOSE, _gp_port_debug, verboseOut);
+#endif
+    
     return context;
   }
 
@@ -634,7 +677,10 @@ namespace timelapse {
     if (r < 0) {
       gp_camera_unref(camera);
       gp_port_info_list_free(portinfo_list);
-      throw std::invalid_argument(QString("Can't init camera on port %1").arg(port).toStdString());
+      throw std::invalid_argument(QString("Can't init camera on port %1: %2")
+        .arg(port)
+        .arg(gp_result_as_string(r))
+        .toStdString());
     }
 
 
@@ -678,6 +724,14 @@ namespace timelapse {
 
     // exit camera, we don't want hold camera connection for long time
     r = gp_camera_exit(camera, context);
+    if (r < 0) {
+      gp_camera_unref(camera);
+      gp_port_info_list_free(portinfo_list);
+      throw std::invalid_argument(QString("Can't release camera %1: %2")
+        .arg(port)
+        .arg(gp_result_as_string(r))
+        .toStdString());
+    }
 
     if ((abilities.operations & GP_OPERATION_TRIGGER_CAPTURE) == 0
       || (abilities.operations & GP_OPERATION_CAPTURE_IMAGE) == 0) {

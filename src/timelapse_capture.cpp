@@ -126,6 +126,7 @@ namespace timelapse {
     }
 
     uint32_t *greyHistogram = new uint32_t[GREY_HISTOGRAM_RESOLUTION];
+    CLEAR(greyHistogram);
 
     // get img histogram
     std::vector<std::pair < Magick::Color, size_t>> histogram;

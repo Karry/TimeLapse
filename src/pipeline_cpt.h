@@ -42,12 +42,13 @@ namespace timelapse {
     ShutterSpeedChoice(const QString str);
     virtual ~ShutterSpeedChoice();
     QString toString();
+    int64_t toSecond();
     int64_t toMs();
     int64_t toMicrosecond();
     bool isBulb();
 
   private:
-    static int gcd(int a, int b);
+    //static int gcd(int a, int b);
     void normalize();
 
     bool bulb;

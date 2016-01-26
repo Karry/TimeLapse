@@ -115,7 +115,7 @@ namespace timelapse {
 #define OVEREXPOSURE_GREY_LIMIT 242
 #define UNDEREXPOSURE_RATIO_LIMIT .05
 #define OVEREXPOSURE_RATIO_LIMIT .05
-#define BULB_CHANGE_us 5000000
+#define BULB_CHANGE_s 5
 
   void MatrixMeteringAlg::update(Magick::Image img) {
     // remove old histograms
@@ -164,7 +164,7 @@ namespace timelapse {
         if (ii > OVEREXPOSURE_GREY_LIMIT)
           overExposureCnt += histo[ii];
       }
-      //bool underExposured = 
+
       double underExposure = (double) underExposureCnt / (double) pixCnt;
       double overExposure = (double) overExposureCnt / (double) pixCnt;
       if (underExposure > UNDEREXPOSURE_RATIO_LIMIT || overExposure > OVEREXPOSURE_RATIO_LIMIT) {
@@ -187,9 +187,9 @@ namespace timelapse {
     ShutterSpeedChoice prev = currentShutterSpeed;
     if (currentShutterSpeed.isBulb()) {
       if (changeScore > 0) {
-        currentShutterSpeed = ShutterSpeedChoice(true, std::min(currentShutterSpeed.toMicrosecond() + BULB_CHANGE_us, maxShutterSpeed.toMicrosecond()), 1000000);
+        currentShutterSpeed = ShutterSpeedChoice(true, std::min(currentShutterSpeed.toSecond() + BULB_CHANGE_s, maxShutterSpeed.toSecond()), 1);
       } else {
-        currentShutterSpeed = ShutterSpeedChoice(true, std::min(currentShutterSpeed.toMicrosecond() - BULB_CHANGE_us, maxShutterSpeed.toMicrosecond()), 1000000);
+        currentShutterSpeed = ShutterSpeedChoice(true, std::min(currentShutterSpeed.toSecond() - BULB_CHANGE_s, maxShutterSpeed.toSecond()), 1);
         // if current bulb time is less than some regular speed, use it
         for (ShutterSpeedChoice ch : shutterSpeedChoices) {
           if ((!ch.isBulb()) && ch.toMicrosecond() >= currentShutterSpeed.toMicrosecond()) {
@@ -207,7 +207,7 @@ namespace timelapse {
           }
         }
         if (prev.toMicrosecond() == currentShutterSpeed.toMicrosecond() && maxShutterSpeed.isBulb()) {
-          currentShutterSpeed = ShutterSpeedChoice(true, std::min(currentShutterSpeed.toMicrosecond() + BULB_CHANGE_us, maxShutterSpeed.toMicrosecond()), 1000000);
+          currentShutterSpeed = ShutterSpeedChoice(true, std::min(currentShutterSpeed.toSecond() + BULB_CHANGE_s, maxShutterSpeed.toSecond()), 1);
         }
       } else {
         QList<ShutterSpeedChoice> reverse = shutterSpeedChoices;
@@ -501,6 +501,7 @@ namespace timelapse {
       verboseOutput << "Camera is busy, postpone capturing by " << BUSY_CAPTURE_POSTPONE_MS << " ms" << endl;
       timer.stop();
       QTimer::singleShot(BUSY_CAPTURE_POSTPONE_MS, this, SLOT(capture()));
+      return;
     }
     if (!timer.isActive()){
       timer.start(interval);      

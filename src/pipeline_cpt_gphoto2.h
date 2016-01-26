@@ -72,6 +72,7 @@ namespace timelapse {
     static void releaseContext(GPContext *context);
     virtual QList<ShutterSpeedChoice> getShutterSpeedChoices();
     virtual ShutterSpeedChoice currentShutterSpeed();
+    virtual bool isBusy() ;
 
   signals:
     void imageCaptured(QString type, Magick::Blob blob, Magick::Geometry sizeHint);
@@ -80,6 +81,8 @@ namespace timelapse {
     void pollingTimeout();
 
   protected:
+    bool lock();
+    bool unlock();
     void findConfigWidget(QString option, CameraWidget **rootconfig, CameraWidget **child);
     QString getConfigRadio(QString option);
     bool isConfigRw(QString option);

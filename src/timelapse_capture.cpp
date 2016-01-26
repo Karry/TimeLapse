@@ -484,15 +484,26 @@ namespace timelapse {
       this, SLOT(imageCaptured(QString, Magick::Blob, Magick::Geometry)));
 
     verboseOutput << "Start timer with interval " << interval << " ms" << endl;
-    timer.start(interval);
+    //timer.start(interval);
     capture();
   }
+
+#define BUSY_CAPTURE_POSTPONE_MS 100
 
   void TimeLapseCapture::capture() {
     if (cnt >= 0 && capturedCnt >= cnt) {
       timer.stop();
       done();
       return;
+    }
+
+    if (dev->isBusy()) {
+      verboseOutput << "Camera is busy, postpone capturing by " << BUSY_CAPTURE_POSTPONE_MS << " ms" << endl;
+      timer.stop();
+      QTimer::singleShot(BUSY_CAPTURE_POSTPONE_MS, this, SLOT(capture()));
+    }
+    if (!timer.isActive()){
+      timer.start(interval);      
     }
 
     try {
@@ -566,7 +577,7 @@ namespace timelapse {
 
       }
     } else {
-      
+
       if (shutterSpdAlg != NULL && capturedSubsequence == 0) {
         try {
           Magick::Image capturedImage;

@@ -75,6 +75,11 @@ namespace timelapse {
     virtual QList<ShutterSpeedChoice> getShutterSpeedChoices() {
       return QList<ShutterSpeedChoice>();
     };
+
+    virtual bool isBusy() {
+      return false;
+    }
+
     virtual QObject *qObject() = 0;
     // signal: emit imageCaptured(QString type, Magick::Blob blob);
   };

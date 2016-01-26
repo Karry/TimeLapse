@@ -119,13 +119,44 @@ namespace timelapse {
   }
 
   Gphoto2Device::~Gphoto2Device() {
-    if (deviceLocked) {
-      gp_camera_exit(camera, context);
-      deviceLocked = false;
-    }
+    unlock();
 
     gp_camera_unref(camera);
     gp_context_unref(context);
+  }
+
+  bool Gphoto2Device::lock() {
+    if (deviceLocked) {
+      return false;
+    }
+
+    int ret;
+    ret = gp_camera_init(camera, context);
+    if (ret < GP_OK) {
+      throw std::invalid_argument(QString("Can't init camera on port %1: %2")
+        .arg(port)
+        .arg(gp_result_as_string(ret))
+        .toStdString());
+    }
+    deviceLocked = true;
+    return true;
+  }
+
+  bool Gphoto2Device::unlock() {
+    if (!deviceLocked) {
+      return false;
+    }
+
+    int ret;
+    ret = gp_camera_exit(camera, context);
+    if (ret < GP_OK) {
+      throw std::invalid_argument(QString("Can't unlock camera on port %1: %2")
+        .arg(port)
+        .arg(gp_result_as_string(ret))
+        .toStdString());
+    }
+    deviceLocked = false;
+    return true;
   }
 
   void Gphoto2Device::findConfigWidget(QString option, CameraWidget **rootconfig, CameraWidget **child) {
@@ -349,6 +380,7 @@ namespace timelapse {
 
   QList<ShutterSpeedChoice> Gphoto2Device::getShutterSpeedChoices() {
     try {
+      bool shouldUnlock = lock();
       QString option = SHUTTERSPEED_CONFIG;
       if (!isConfigRw(option))
         return QList<ShutterSpeedChoice>();
@@ -357,6 +389,8 @@ namespace timelapse {
       for (QString s : strList) {
         result.append(ShutterSpeedChoice(s));
       }
+      if (shouldUnlock)
+        unlock();
       return result;
     } catch (std::exception &e) {
       return QList<ShutterSpeedChoice>();
@@ -365,10 +399,18 @@ namespace timelapse {
 
   ShutterSpeedChoice Gphoto2Device::currentShutterSpeed() {
     try {
-      return ShutterSpeedChoice(getConfigRadio(SHUTTERSPEED_CONFIG));
+      bool shouldUnlock = lock();
+      ShutterSpeedChoice res = ShutterSpeedChoice(getConfigRadio(SHUTTERSPEED_CONFIG));
+      if (shouldUnlock)
+        unlock();
+      return res;
     } catch (std::exception &e) {
       return ShutterSpeedChoice();
     }
+  }
+
+  bool Gphoto2Device::isBusy() {
+    return deviceLocked;
   }
 
   /**
@@ -478,7 +520,7 @@ namespace timelapse {
     }
     pollingScheduled = false;
     CameraEventType evtype;
-    int pollingInterval = 200;
+    int pollingInterval = 200; // TODO: configurable
     waitAndHandleEvent(pollingInterval /* ms */, &evtype);
     if (evtype != GP_EVENT_TIMEOUT) {
       timer.start();
@@ -487,11 +529,10 @@ namespace timelapse {
       pollingScheduled = true;
       QTimer::singleShot(0, this, SLOT(pollingTimeout()));
     } else {
-      if (timer.elapsed() > 3000) { // TODO: configurable
+      if (timer.elapsed() > 1500) { // TODO: configurable
         //printf("Stop polling %d\n", timer.elapsed());
         // if we don't get any event for 3000 ms, stop polling and exit camera
-        gp_camera_exit(camera, context);
-        deviceLocked = false;
+        unlock();
       } else {
         pollingScheduled = true;
         QTimer::singleShot(pollingInterval, this, SLOT(pollingTimeout()));
@@ -517,16 +558,7 @@ namespace timelapse {
     int ret;
 
     // init camera
-    if (!deviceLocked) {
-      ret = gp_camera_init(camera, context);
-      if (ret < GP_OK) {
-        throw std::invalid_argument(QString("Can't init camera on port %1: %2")
-          .arg(port)
-          .arg(gp_result_as_string(ret))
-          .toStdString());
-      }
-      deviceLocked = true;
-    }
+    lock();
 
     //printf("capture\n");
 
@@ -553,8 +585,7 @@ namespace timelapse {
       CameraFilePath filePath;
       ret = gp_camera_capture(camera, GP_CAPTURE_IMAGE, &filePath, context);
       if (ret < GP_OK) {
-        gp_camera_exit(camera, context);
-        deviceLocked = false;
+        unlock();
         throw std::runtime_error(QString("Failed to capture frame with camera %1: %2")
           .arg(model)
           .arg(gp_result_as_string(ret))
@@ -592,6 +623,11 @@ namespace timelapse {
   }
 
   Gphoto2Device Gphoto2Device::operator=(const timelapse::Gphoto2Device& o) {
+    if (deviceLocked)
+      throw std::logic_error("Assing to locked camera is not implemented!");
+    if (o.deviceLocked)
+      throw std::logic_error("Assing of locked camera is not implemented!");
+
     gp_camera_unref(camera);
     gp_context_unref(context);
 
@@ -621,7 +657,7 @@ namespace timelapse {
 #ifdef gp_log_add_func
     gp_log_add_func(GPLogLevel::GP_LOG_VERBOSE, _gp_port_debug, verboseOut);
 #endif
-    
+
     return context;
   }
 

@@ -125,7 +125,7 @@ namespace timelapse {
       greyHistograms.removeFirst();
     }
 
-    uint32_t *greyHistogram = new uint32_t[GREY_HISTOGRAM_RESOLUTION]();    
+    uint32_t *greyHistogram = new uint32_t[GREY_HISTOGRAM_RESOLUTION]();
 
     // get img histogram
     std::vector<std::pair < Magick::Color, size_t>> histogram;
@@ -138,7 +138,7 @@ namespace timelapse {
       double b = Magick::Color::scaleQuantumToDouble(p.first.blueQuantum());
       double grey = 0.299 * r + 0.587 * g + 0.114 * b;
       int i = std::max(
-        std::min(GREY_HISTOGRAM_RESOLUTION, (int)(grey * ((double)GREY_HISTOGRAM_RESOLUTION)) ),
+        std::min(GREY_HISTOGRAM_RESOLUTION, (int) (grey * ((double) GREY_HISTOGRAM_RESOLUTION))),
         0);
       greyHistogram[i] += p.second;
     }
@@ -153,8 +153,8 @@ namespace timelapse {
 
     // iterate over last grey histograms and compute how many images was 
     // under exposured (possitive score) and how many over exposured (negative score)
-    // then, change shutter speed if abs(score) > 1
-    int changeScore = 0; 
+    // then, change shutter speed if abs(score) > (changeThreshold / 3)
+    int changeScore = 0;
 
     for (uint32_t *histo : greyHistograms) {
       uint32_t pixCnt = 0;
@@ -178,7 +178,7 @@ namespace timelapse {
       }
     }
 
-    if (std::abs(changeScore) <= 1) { // ignore low score
+    if (std::abs(changeScore) <= changeThreshold / 3) { // ignore low score
       return currentShutterSpeed;
     }
     if ((changeScore > 0 && currentShutterSpeed.toMicrosecond() >= maxShutterSpeed.toMicrosecond())
@@ -285,6 +285,27 @@ namespace timelapse {
     return result;
   }
 
+  ShutterSpeedChoice TimeLapseCapture::getShutterSpeed(QString optStr, QList<ShutterSpeedChoice> choices, ErrorMessageHelper *die) {
+    try {
+      ShutterSpeedChoice requested(optStr);
+      // check if this option is available
+      bool found = false;
+      for (ShutterSpeedChoice ch : choices) {
+        if ((ch.toString() == requested.toString()) || (ch.isBulb() && requested.isBulb())) {
+          found = true;
+          break;
+        }
+      }
+      if (!found)
+        *die << QString("Camera don't support requested shutterspeed \"%1\".").arg(optStr);
+      return requested;
+    } catch (std::exception &e) {
+      *die << QString("Can't parse shutterspeed option \"%1\": %2").arg(optStr).arg(e.what());
+    }
+
+    throw std::logic_error("Unreachable statement - should not happen!");
+  }
+
   QSharedPointer<CaptureDevice> TimeLapseCapture::parseArguments() {
     QCommandLineParser parser;
     ErrorMessageHelper die(err.device(), &parser);
@@ -326,8 +347,30 @@ namespace timelapse {
     parser.addOption(rowOption);
 
     QCommandLineOption getShutterSpeedOption(QStringList() << "s" << "get-shutterspeed",
-      QCoreApplication::translate("main", "Prints available shutterspeed setting choices."));
+      QCoreApplication::translate("main", "Prints available shutterspeed setting choices and exits."));
     parser.addOption(getShutterSpeedOption);
+
+    QCommandLineOption adaptiveShutterSpeedOption(QStringList() << "a" << "adaptive-shutterspeed",
+      QCoreApplication::translate("main",
+      "Camera shutterspeed will be adaptively changed after exposure metering.\n"
+      "This option setup how many images should be used for exposure metering. \n"
+      "Default value is 0 - it means that shutterspeed will not be changed by capture tool."
+      ),
+      QCoreApplication::translate("main", "count"));
+    parser.addOption(adaptiveShutterSpeedOption);
+
+    QCommandLineOption minShutterSpeedOption(QStringList() << "min-shutterspeed",
+      QCoreApplication::translate("main", "Minimum shutterspeed (fastest shutter) used by adaptive shutterspeed"),
+      QCoreApplication::translate("main", "count"));
+    parser.addOption(minShutterSpeedOption);
+
+    QCommandLineOption maxShutterSpeedOption(QStringList() << "max-shutterspeed",
+      QCoreApplication::translate("main",
+      "Maximum shutterspeed (slowest shutter) used by adaptive shutterspeed.\n"
+      "If camera supports BULB shutterspeed, it can be defined as \"BULB:XX\" here (it means bulb with XX s exposure)."
+      ),
+      QCoreApplication::translate("main", "count"));
+    parser.addOption(maxShutterSpeedOption);
 
     // Process the actual command line arguments given by the user
     parser.process(*this);
@@ -419,38 +462,59 @@ namespace timelapse {
       std::exit(0);
     }
 
-    // experimental automatic chutter speed
-    if (!choices.isEmpty()) {
-      ShutterSpeedChoice currentShutterSpeed;
-      ShutterSpeedChoice minShutterSpeed;
-      ShutterSpeedChoice maxShutterSpeed;
+    // automatic chutter speed
+    // this functionality is experimental!
+    if (parser.isSet(adaptiveShutterSpeedOption)) {
+      bool ok = false;
+      int changeThreshold = parser.value(adaptiveShutterSpeedOption).toInt(&ok);
+      if (!ok) die << "Cant parse adaptive shutterspeed option.";
 
-      currentShutterSpeed = dev->currentShutterSpeed();
-      minShutterSpeed = choices.first();
-      for (ShutterSpeedChoice ch : choices) {
-        if ((!ch.isBulb()) && ch.toMicrosecond() > maxShutterSpeed.toMicrosecond())
-          maxShutterSpeed = ch;
+      if (changeThreshold > 0) {
+
+        if (choices.isEmpty()) {
+          die << "Camera don't support shutterspeed setting.";
+        } else {
+
+          ShutterSpeedChoice currentShutterSpeed;
+          ShutterSpeedChoice minShutterSpeed;
+          ShutterSpeedChoice maxShutterSpeed;
+
+          currentShutterSpeed = dev->currentShutterSpeed();
+          minShutterSpeed = choices.first();
+          for (ShutterSpeedChoice ch : choices) {
+            if ((!ch.isBulb()) && ch.toMicrosecond() > maxShutterSpeed.toMicrosecond())
+              maxShutterSpeed = ch;
+          }
+
+          if (parser.isSet(minShutterSpeedOption)) {
+            QString optStr = parser.value(minShutterSpeedOption);
+            minShutterSpeed = getShutterSpeed(optStr, choices, &die);
+          }
+          if (parser.isSet(maxShutterSpeedOption)) {
+            QString optStr = parser.value(maxShutterSpeedOption);
+            maxShutterSpeed = getShutterSpeed(optStr, choices, &die);
+          }
+
+          out << "Using automatic shutter speed:" << endl;
+          out << "  current shutter speed: " << currentShutterSpeed.toString() << endl;
+          out << "  min shutter speed:     " << minShutterSpeed.toString() << endl;
+          out << "  max shutter speed:     " << maxShutterSpeed.toString() << endl;
+          out << "  change threshold:      " << changeThreshold << endl;
+
+          if (minShutterSpeed.toMicrosecond() <= 0
+            || maxShutterSpeed.toMicrosecond() <= 0
+            || maxShutterSpeed.toMicrosecond() < minShutterSpeed.toMicrosecond())
+            die << "Invalid shutter speed configurarion";
+
+          if (maxShutterSpeed.toMs() > interval) {
+            err << QString("Warning: Maximum shutter speed (%1 ms) is greater than capture interval (%2 ms)!")
+              .arg(maxShutterSpeed.toMs())
+              .arg(interval) << endl;
+          }
+          shutterSpdAlg = new MatrixMeteringAlg(choices, currentShutterSpeed, minShutterSpeed, maxShutterSpeed,
+            &err, &verboseOutput, changeThreshold);
+        }
       }
-      if (minShutterSpeed.toMicrosecond() <= 0
-        || maxShutterSpeed.toMicrosecond() <= 0
-        || maxShutterSpeed.toMicrosecond() < minShutterSpeed.toMicrosecond())
-        die << "Invalid automatic shutter speed configurarion";
-
-      int shutterSpeedChangeCnt = 5;
-
-      out << "Using automatic shutter speed:" << endl;
-      out << "  current shutter speed: " << currentShutterSpeed.toString() << endl;
-      out << "  min shutter speed:     " << minShutterSpeed.toString() << endl;
-      out << "  max shutter speed:     " << maxShutterSpeed.toString() << endl;
-      out << "  change threshold:      " << shutterSpeedChangeCnt << endl;
-
-      if (maxShutterSpeed.toMs() > interval) {
-        err << QString("Maximum shutter speed (%1 ms) is greater than capture interval (%2 ms)!")
-          .arg(maxShutterSpeed.toMs())
-          .arg(interval) << endl;
-      }
-      shutterSpdAlg = new MatrixMeteringAlg(choices, currentShutterSpeed, minShutterSpeed, maxShutterSpeed,
-        &err, &verboseOutput);
     }
 
     // output
@@ -506,8 +570,8 @@ namespace timelapse {
       QTimer::singleShot(BUSY_CAPTURE_POSTPONE_MS, this, SLOT(capture()));
       return;
     }
-    if (!timer.isActive()){
-      timer.start(interval);      
+    if (!timer.isActive()) {
+      timer.start(interval);
     }
 
     try {

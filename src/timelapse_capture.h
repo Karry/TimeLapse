@@ -36,6 +36,7 @@
 #include <Magick++.h>
 #include <ImageMagick-6/Magick++/Color.h>
 
+#include "timelapse.h"
 #include "black_hole_device.h"
 #include "input_image_info.h"
 #include "pipeline.h"
@@ -108,6 +109,7 @@ namespace timelapse {
   protected:
     QList<QSharedPointer<CaptureDevice>> listDevices();
     QSharedPointer<CaptureDevice> parseArguments();
+    ShutterSpeedChoice getShutterSpeed(QString optStr, QList<ShutterSpeedChoice> choices, ErrorMessageHelper *die);
 
   protected:
     QTextStream out;

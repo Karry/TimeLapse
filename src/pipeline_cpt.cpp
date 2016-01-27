@@ -41,7 +41,7 @@ namespace timelapse {
   ShutterSpeedChoice::ShutterSpeedChoice(const QString str) : bulb(false), divident(-1), factor(-1) {
     bool ok;
 
-    if (str.toUpper().startsWith("BULB")) {
+    if (str.startsWith("BULB", Qt::CaseInsensitive)) {
       bulb = true;
       QStringList list = str.split(':', QString::SkipEmptyParts);
       if (list.size() >= 2) {

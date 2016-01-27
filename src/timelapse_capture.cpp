@@ -361,7 +361,7 @@ namespace timelapse {
 
     QCommandLineOption minShutterSpeedOption(QStringList() << "min-shutterspeed",
       QCoreApplication::translate("main", "Minimum shutterspeed (fastest shutter) used by adaptive shutterspeed"),
-      QCoreApplication::translate("main", "count"));
+      QCoreApplication::translate("main", "shutterspeed"));
     parser.addOption(minShutterSpeedOption);
 
     QCommandLineOption maxShutterSpeedOption(QStringList() << "max-shutterspeed",
@@ -369,7 +369,7 @@ namespace timelapse {
       "Maximum shutterspeed (slowest shutter) used by adaptive shutterspeed.\n"
       "If camera supports BULB shutterspeed, it can be defined as \"BULB:XX\" here (it means bulb with XX s exposure)."
       ),
-      QCoreApplication::translate("main", "count"));
+      QCoreApplication::translate("main", "shutterspeed"));
     parser.addOption(maxShutterSpeedOption);
 
     // Process the actual command line arguments given by the user

@@ -118,15 +118,14 @@ namespace timelapse {
 #define BULB_CHANGE_s 5
 
   void MatrixMeteringAlg::update(Magick::Image img) {
-    // remove old histograms
+    // remove old histograms, keep last (changeThreshold) histograms
     while (greyHistograms.size() >= changeThreshold) {
       QList<uint32_t *>::Iterator it = greyHistograms.begin();
       delete[] * it;
       greyHistograms.removeFirst();
     }
 
-    uint32_t *greyHistogram = new uint32_t[GREY_HISTOGRAM_RESOLUTION];
-    CLEAR(greyHistogram);
+    uint32_t *greyHistogram = new uint32_t[GREY_HISTOGRAM_RESOLUTION]();    
 
     // get img histogram
     std::vector<std::pair < Magick::Color, size_t>> histogram;
@@ -139,9 +138,9 @@ namespace timelapse {
       double b = Magick::Color::scaleQuantumToDouble(p.first.blueQuantum());
       double grey = 0.299 * r + 0.587 * g + 0.114 * b;
       int i = std::max(
-        std::min(GREY_HISTOGRAM_RESOLUTION, (int) grey * GREY_HISTOGRAM_RESOLUTION),
+        std::min(GREY_HISTOGRAM_RESOLUTION, (int)(grey * ((double)GREY_HISTOGRAM_RESOLUTION)) ),
         0);
-      greyHistogram[i] += 1;
+      greyHistogram[i] += p.second;
     }
 
     greyHistograms.append(greyHistogram);
@@ -152,7 +151,10 @@ namespace timelapse {
       return currentShutterSpeed;
     }
 
-    int changeScore = 0;
+    // iterate over last grey histograms and compute how many images was 
+    // under exposured (possitive score) and how many over exposured (negative score)
+    // then, change shutter speed if abs(score) > 1
+    int changeScore = 0; 
 
     for (uint32_t *histo : greyHistograms) {
       uint32_t pixCnt = 0;
@@ -176,7 +178,7 @@ namespace timelapse {
       }
     }
 
-    if (changeScore <= 1) {
+    if (std::abs(changeScore) <= 1) { // ignore low score
       return currentShutterSpeed;
     }
     if ((changeScore > 0 && currentShutterSpeed.toMicrosecond() >= maxShutterSpeed.toMicrosecond())
@@ -224,7 +226,7 @@ namespace timelapse {
 
     // print verbose informations
     *verboseOutput << "Some of previous frames was "
-      << (changeScore > 0 ? "underexposure" : "overexposure")
+      << (changeScore > 0 ? "underexposured" : "overexposured")
       << " (score " << changeScore << "). Changing shutter speed from "
       << prev.toString() << " to " << currentShutterSpeed.toString()
       << endl;

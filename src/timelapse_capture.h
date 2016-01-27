@@ -76,7 +76,7 @@ namespace timelapse {
             ShutterSpeedChoice maxShutterSpeed,
             QTextStream *err,
             QTextStream *verboseOutput,
-            int changeThreshold = 5);
+            int changeThreshold = 3);
 
     virtual ~MatrixMeteringAlg();
     virtual void update(Magick::Image img);

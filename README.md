@@ -5,20 +5,20 @@ Goal of this project is to create set of tools for creating timelapse videos.
 From capturing series of images by some camera (V4L or gphoto2), 
 process them and assembly "time-lapse" video from them.
 
- - *[Capture](wiki/Capture)* - 
+ - *[Capture](https://github.com/Karry/TimeLapse/wiki/Capture)* - 
     Tool for capture sequence of images from digital camera (V4L or GPhoto2 API).
     This tool support automatic shutter speed configuration with some gphoto2 cameras.
     It is useful when light conditions are changing during timelapse capturing.
 
- - *[Deflickering](wiki/Deflickering)* - 
+ - *[Deflickering](https://github.com/Karry/TimeLapse/wiki/Deflickering)* - 
     Tool for "average" luminance of series of images.
 
- - *[Stabilize](wiki/Stabilize)* - 
+ - *[Stabilize](https://github.com/Karry/TimeLapse/wiki/Stabilize)* - 
     Tool for stabilize movements in sequence of images.
     It uses vid.stab library for stabilizing. Results are not perfect, 
     but it depens on conditions. Just try it :-)
 
- - *[Assembly](wiki/Assembly)* - 
+ - *[Assembly](https://github.com/Karry/TimeLapse/wiki/Assembly)* - 
     Tool for build timelapse video from series of images. It support deflickering 
     as part of processing pipeline. Final video assembly is processed by 
     [avconv](https://libav.org/avconv.html) or [ffmpeg](https://www.ffmpeg.org/ffmpeg.html) tool.

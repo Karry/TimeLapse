@@ -634,6 +634,7 @@ namespace timelapse {
   }
 
   void TimeLapseCapture::imageCaptured(QString format, Magick::Blob blob, Magick::Geometry sizeHint) {
+    bool readRawFromFile = false;
 
     QString framePath = output.path() + QDir::separator()
       + leadingZeros(capturedCnt, FRAME_FILE_LEADING_ZEROS) + "_" + leadingZeros(capturedSubsequence, 2);
@@ -690,6 +691,7 @@ namespace timelapse {
           shutterSpdAlg->update(capturedImage);
         } catch (const std::exception &e) {
           err << "Failed to decode captured image (" << format << "): " << e.what() << endl;
+          readRawFromFile = true;
         }
       }
 
@@ -699,6 +701,20 @@ namespace timelapse {
       file.open(QIODevice::WriteOnly);
       file.write((char*) blob.data(), blob.length());
       file.close();
+
+      if (readRawFromFile && shutterSpdAlg != NULL && capturedSubsequence == 0) {
+        /* I don't understand ImageMagick correctly, but it fails with reading RAW files
+         * from memory blob, but reading from file works (sometimes). 
+         * Maybe, it don't support delegating (dcraw, ufraw...) with memory data...
+         */
+        try {
+          Magick::Image capturedImage;
+          capturedImage.read(framePath.toStdString());
+          shutterSpdAlg->update(capturedImage);
+        } catch (const std::exception &e) {
+          err << "Failed to decode captured image (" << framePath << "): " << e.what() << endl;
+        }
+      }
     }
 
     verboseOutput << "Captured frame saved to " << framePath << endl;

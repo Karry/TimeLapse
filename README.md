@@ -1,8 +1,27 @@
-# TimeLapse
+
+## TimeLapse Tools
 
 Goal of this project is to create set of tools for creating timelapse videos.
 From capturing series of images by some camera (V4L or gphoto2), 
 process them and assembly "time-lapse" video from them.
+
+ - *Capture* - 
+    Tool for capture sequence of images from digital camera (V4L or GPhoto2 API).
+    This tool support automatic shutter speed configuration with some gphoto2 cameras.
+    It is useful when light conditions are changing during timelapse capturing.
+
+ - *Deflickering* - 
+    Tool for "average" luminance of series of images.
+
+ - *Stabilize* - 
+    Tool for stabilize movements in sequence of images.
+    It uses vid.stab library for stabilizing. Results are not perfect, 
+    but it depens on conditions. Just try it :-)
+
+ - *Assembly* - 
+    Tool for build timelapse video from series of images. It support deflickering 
+    as part of processing pipeline. Final video assembly is processed by 
+    [avconv](https://libav.org/avconv.html) or [ffmpeg](https://www.ffmpeg.org/ffmpeg.html) tool.
 
 ## Build
 
@@ -47,26 +66,6 @@ sudo ldconfig
 
 If you want help me with bug fixing, recompile tools with `cmake -DCMAKE_BUILD_TYPE=DebugFull`, 
 reproduce bug inside `gdb` and post stacktrace to github issue...
-
-## TimeLapse Tools
-
- - *Capture* - 
-    Tool for capture sequence of images from digital camera (V4L or GPhoto2 API).
-    This tool support automatic shutter speed configuration with some gphoto2 cameras.
-    It is useful when light conditions are changing during timelapse capturing.
-
- - *Deflickering* - 
-    Tool for "average" luminance of series of images.
-
- - *Stabilize* - 
-    Tool for stabilize movements in sequence of images.
-    It uses vid.stab library for stabilizing. Results are not perfect, 
-    but it depens on conditions. Just try it :-)
-
- - *Assembly* - 
-    Tool for build timelapse video from series of images. It support deflickering 
-    as part of processing pipeline. Final video assembly is processed by 
-    [avconv](https://libav.org/avconv.html) or [ffmpeg](https://www.ffmpeg.org/ffmpeg.html) tool.
 
 ## External tools
 

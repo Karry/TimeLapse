@@ -89,8 +89,10 @@ namespace timelapse {
     parser.addOption(outputOption);
 
     QCommandLineOption wmaCountOption(QStringList() << "wm-average",
-      QCoreApplication::translate("main", "Use weighted moving average for luminance."
-      "Argument specified count of previous images for compute average."),
+      QCoreApplication::translate("main",
+      "Use weighted moving average for luminance.\n"
+      "Argument specified count of previous images for compute average."
+      ),
       QCoreApplication::translate("main", "count"));
     parser.addOption(wmaCountOption);
 
@@ -99,7 +101,9 @@ namespace timelapse {
     parser.addOption(dryRunOption);
 
     QCommandLineOption debugViewOption(QStringList() << "w" << "debug-view",
-      QCoreApplication::translate("main", "Composite one half of output image from original and second half from updated image."));
+      QCoreApplication::translate("main",
+      "Composite one half of output image from original and second half from updated image."
+      ));
     parser.addOption(debugViewOption);
 
     QCommandLineOption verboseOption(QStringList() << "V" << "verbose",

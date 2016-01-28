@@ -87,7 +87,7 @@ namespace timelapse {
     QString getConfigRadio(QString option);
     bool isConfigRw(QString option);
     QStringList getConfigRadioChoices(QString option);
-    void setConfig(QString option, QString value, CameraWidgetType expectedType);
+    void setConfig(QString option, QString value, bool exactMatch, CameraWidgetType expectedType);
 
     void downloadAndEmitImage(CameraFilePath *path);
     void deleteImage(CameraFilePath *path);

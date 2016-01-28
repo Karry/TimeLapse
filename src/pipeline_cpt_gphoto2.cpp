@@ -258,7 +258,7 @@ namespace timelapse {
     return choices;
   }
 
-  void Gphoto2Device::setConfig(QString option, QString value, CameraWidgetType expectedType) {
+  void Gphoto2Device::setConfig(QString option, QString value, bool exactMatch, CameraWidgetType expectedType) {
     CameraWidget *rootconfig, *child;
     int ret, ro;
 
@@ -349,15 +349,25 @@ namespace timelapse {
             break;
           }
           QString s = QString::fromUtf8(choice);
-          if (s.contains(value)) {
+          if ((exactMatch && s == value) || ((!exactMatch) && s.contains(value))) {
             //printf("setting %s to choice %d: %s\n", name, i, choice);
             ret = gp_widget_set_value(child, choice);
-            if (ret == GP_OK)
+            if (ret == GP_OK) {
               success = true;
-            else
+              break;
+            } else {
               error = QString("%1 is not property of widget %2").arg(value).arg(option);
+            }
           }
         }
+        if (!success) {
+          /* Lets just try setting the value directly, in case we have flexible setters,
+           * like PTP shutterspeed. */
+          ret = gp_widget_set_value(child, value.toStdString().c_str());
+          if (ret == GP_OK)
+            success = true;
+        }
+
         break;
       }
 
@@ -370,6 +380,15 @@ namespace timelapse {
         break;
       }
 
+    }
+
+    if (success) {
+      ret = gp_camera_set_config(camera, rootconfig, context);
+      if (ret != GP_OK) {
+        success = false;
+        error = QString("Failed to set new configuration value %1 for configuration entry %2.")
+          .arg(value).arg(option);
+      }
     }
 
     gp_widget_free(rootconfig);
@@ -431,7 +450,7 @@ namespace timelapse {
 
     //const char *name = "capturetarget";
     try {
-      setConfig(CAPTURETARGET_CONFIG, INTERNALRAM_VALUE, GP_WIDGET_RADIO);
+      setConfig(CAPTURETARGET_CONFIG, INTERNALRAM_VALUE, false, GP_WIDGET_RADIO);
       return true;
     } catch (std::exception &e) {
       return false;
@@ -572,14 +591,14 @@ namespace timelapse {
     /* Now handle the different capture methods */
     if (shutterSpeed.isBulb() && shutterSpeed.toMs() > 0) {
       /* Bulb mode is special ... we enable it, wait disable it */
-      setConfig(BULB_CONFIG, ON_VALUE, GP_WIDGET_RADIO); // TODO: is bulb radio?
+      setConfig(BULB_CONFIG, ON_VALUE, false, GP_WIDGET_RADIO); // TODO: is bulb radio?
 
       bulbWait(shutterSpeed.toMs());
 
-      setConfig(BULB_CONFIG, OFF_VALUE, GP_WIDGET_RADIO); // TODO: is bulb radio?
+      setConfig(BULB_CONFIG, OFF_VALUE, false, GP_WIDGET_RADIO); // TODO: is bulb radio?
     } else {
       if (shutterSpeed.toMs() > 0) {
-        setConfig(SHUTTERSPEED_CONFIG, shutterSpeed.toString(), GP_WIDGET_RADIO);
+        setConfig(SHUTTERSPEED_CONFIG, shutterSpeed.toString(), true, GP_WIDGET_RADIO);
       }
 
       CameraFilePath filePath;

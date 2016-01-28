@@ -74,7 +74,7 @@ namespace timelapse {
     QCommandLineParser parser;
     ErrorMessageHelper die(err.device(), &parser);
 
-    parser.setApplicationDescription("Tool for deflicker sequence of images.");
+    parser.setApplicationDescription("Tool for stabilize movements in sequence of images.");
     parser.addHelpOption();
     parser.addVersionOption();
 

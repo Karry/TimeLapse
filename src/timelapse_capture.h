@@ -77,7 +77,8 @@ namespace timelapse {
             ShutterSpeedChoice maxShutterSpeed,
             QTextStream *err,
             QTextStream *verboseOutput,
-            int changeThreshold = 3);
+            int changeThreshold = 3, 
+            int step = 1);
 
     virtual ~MatrixMeteringAlg();
     virtual void update(Magick::Image img);
@@ -88,6 +89,7 @@ namespace timelapse {
 
     int changeThreshold;
     QList< uint32_t * > greyHistograms;
+    int step;
   };
 
   class TimeLapseCapture : public QCoreApplication {

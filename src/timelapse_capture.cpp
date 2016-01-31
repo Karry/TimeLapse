@@ -300,7 +300,7 @@ namespace timelapse {
         result.push_back(QSharedPointer<Gphoto2Device>(new Gphoto2Device(gp2Dev)));
       }
     } catch (std::exception &e) {
-      err << "Can't get Gphoto2 devices. " << e.what() << endl;
+      err << "Can't get Gphoto2 devices. " << QString::fromUtf8(e.what()) << endl;
     }
 
     return result;
@@ -619,7 +619,7 @@ namespace timelapse {
         shutterSpeed = shutterSpdAlg->adjustShutterSpeed();
       dev->capture(shutterSpeed);
     } catch (std::exception &e) {
-      err << "Capturing failed: " << e.what() << endl;
+      err << "Capturing failed: " << QString::fromUtf8(e.what()) << endl;
       onError(e.what());
     }
   }
@@ -690,7 +690,7 @@ namespace timelapse {
           capturedImage.read(blob, format.toStdString());
           shutterSpdAlg->update(capturedImage);
         } catch (const std::exception &e) {
-          err << "Failed to decode captured image (" << format << "): " << e.what() << endl;
+          err << "Failed to decode captured image (" << format << "): " << QString::fromUtf8(e.what()) << endl;
           readRawFromFile = true;
         }
       }
@@ -712,7 +712,7 @@ namespace timelapse {
           capturedImage.read(framePath.toStdString());
           shutterSpdAlg->update(capturedImage);
         } catch (const std::exception &e) {
-          err << "Failed to decode captured image (" << framePath << "): " << e.what() << endl;
+          err << "Failed to decode captured image (" << framePath << "): " << QString::fromUtf8(e.what()) << endl;
         }
       }
     }

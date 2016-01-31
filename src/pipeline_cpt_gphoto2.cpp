@@ -835,7 +835,7 @@ namespace timelapse {
         //d.capture();
         devices.append(d);
       } catch (std::exception &e) {
-        *verboseOut << "GPhoto2 device " << port << " / " << model << " can't be used for capturing: " << e.what() << endl;
+        *verboseOut << "GPhoto2 device " << port << " / " << model << " can't be used for capturing: " << QString::fromUtf8(e.what()) << endl;
       }
 
       //printf("%-30s %-16s\n", model, port);

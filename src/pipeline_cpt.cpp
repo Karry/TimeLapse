@@ -187,7 +187,7 @@ namespace timelapse {
       dev->capture();
       capturedCnt++;
     } catch (std::exception &e) {
-      *err << "Capturing failed: " << e.what() << endl;
+      *err << "Capturing failed: " << QString::fromUtf8(e.what()) << endl;
       emit error(e.what());
     }
   }

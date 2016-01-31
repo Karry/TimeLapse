@@ -65,11 +65,11 @@ namespace timelapse {
       usableImage = true;
     } catch (Magick::WarningCoder &warning) {
       // Process coder warning while loading
-      *err << "Coder Warning: " << warning.what() << endl;
+      *err << "Coder Warning: " << QString::fromUtf8(warning.what()) << endl;
       usableImage = true;
     } catch (Magick::Warning &warning) {
       // Handle any other Magick++ warning. 
-      *err << "Warning: " << warning.what() << endl;
+      *err << "Warning: " << QString::fromUtf8(warning.what()) << endl;
       usableImage = true;
     } catch (Magick::Error &e) {
       // Process other Magick++ 

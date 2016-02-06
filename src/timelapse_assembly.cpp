@@ -218,10 +218,14 @@ namespace timelapse {
     if (parser.isSet(widthOption)) {
       _width = parser.value(widthOption).toInt(&ok);
       if (!ok) die << "Can't parse width";
+      if (_width % 2 != 0)
+        err << "Width is not divisible by 2, some video codecs can fails" << endl;
     }
     if (parser.isSet(heightOption)) {
       _height = parser.value(heightOption).toInt(&ok);
       if (!ok) die << "Can't parse height";
+      if (_height % 2 != 0)
+        err << "Height is not divisible by 2, some video codecs can fails" << endl;
     }
     if (parser.isSet(fpsOption)) {
       _fps = parser.value(fpsOption).toFloat(&ok);
@@ -284,7 +288,7 @@ namespace timelapse {
     QStringList inputArguments = parseArguments();
 
     // build processing pipeline
-    pipeline = Pipeline::createWithFileSource (inputArguments, false, &_verboseOutput, &_err);
+    pipeline = Pipeline::createWithFileSource(inputArguments, false, &_verboseOutput, &_err);
 
     if (deflickerAvg) {
       *pipeline << new ComputeLuminance(&_verboseOutput);

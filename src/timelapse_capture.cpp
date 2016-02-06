@@ -617,7 +617,7 @@ namespace timelapse {
       ShutterSpeedChoice shutterSpeed;
       if (shutterSpdAlg != NULL)
         shutterSpeed = shutterSpdAlg->adjustShutterSpeed();
-      dev->capture(shutterSpeed);
+      dev->capture(&verboseOutput, shutterSpeed);
     } catch (std::exception &e) {
       err << "Capturing failed: " << QString::fromUtf8(e.what()) << endl;
       onError(e.what());

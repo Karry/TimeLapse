@@ -51,7 +51,7 @@ namespace timelapse {
     V4LDevice(const timelapse::V4LDevice& other);
     virtual ~V4LDevice();
 
-    virtual void capture(ShutterSpeedChoice shutterSpeed = ShutterSpeedChoice());
+    virtual void capture(QTextStream *verboseOut, ShutterSpeedChoice shutterSpeed = ShutterSpeedChoice());
 
     virtual QString toString();
     virtual QString toShortString();

@@ -62,7 +62,7 @@ namespace timelapse {
     virtual ~CaptureDevice() {
     };
 
-    virtual void capture(ShutterSpeedChoice shutterSpeed = ShutterSpeedChoice()) = 0;
+    virtual void capture(QTextStream *verboseOut, ShutterSpeedChoice shutterSpeed = ShutterSpeedChoice()) = 0;
     virtual QString toString() = 0;
 
     virtual QString toShortString() {

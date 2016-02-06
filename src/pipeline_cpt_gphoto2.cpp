@@ -174,7 +174,7 @@ namespace timelapse {
     }
   }
 
-  QString Gphoto2Device::getConfigRadio(QString option) {
+  QString Gphoto2Device::getConfigValue(QString option) {
     CameraWidget *rootconfig, *child;
     int ret;
 
@@ -419,7 +419,7 @@ namespace timelapse {
   ShutterSpeedChoice Gphoto2Device::currentShutterSpeed() {
     try {
       bool shouldUnlock = lock();
-      ShutterSpeedChoice res = ShutterSpeedChoice(getConfigRadio(SHUTTERSPEED_CONFIG));
+      ShutterSpeedChoice res = ShutterSpeedChoice(getConfigValue(SHUTTERSPEED_CONFIG));
       if (shouldUnlock)
         unlock();
       return res;
@@ -573,7 +573,7 @@ namespace timelapse {
     }
   }
 
-  void Gphoto2Device::capture(ShutterSpeedChoice shutterSpeed) {
+  void Gphoto2Device::capture(QTextStream *verboseOut, ShutterSpeedChoice shutterSpeed) {
     int ret;
 
     // init camera
@@ -585,7 +585,12 @@ namespace timelapse {
     // if it fails, we should delete images in camera storage after download
     deleteImageAfterDownload = !tryToSetRamStorage();
 
-    //QByteArray result;
+    try {
+      QString val = getConfigValue(BATTERYLEVEL_CONFIG);
+      *verboseOut << "Battery level: " << val << endl;
+    } catch (std::exception &e) {
+      *verboseOut << "Can't read bettery level: " << e.what() << endl;
+    }
 
     // Capture the frame from camera
     /* Now handle the different capture methods */
@@ -832,7 +837,6 @@ namespace timelapse {
 
       try {
         Gphoto2Device d = createDevice(context, port, verboseOut);
-        //d.capture();
         devices.append(d);
       } catch (std::exception &e) {
         *verboseOut << "GPhoto2 device " << port << " / " << model << " can't be used for capturing: " << QString::fromUtf8(e.what()) << endl;

@@ -45,6 +45,7 @@ namespace timelapse {
 
 #define SHUTTERSPEED_CONFIG "shutterspeed2"
 #define CAPTURETARGET_CONFIG "capturetarget"
+#define BATTERYLEVEL_CONFIG "batterylevel"
 #define INTERNALRAM_VALUE "Internal RAM"
 #define BULB_CONFIG "bulb"
 #define ON_VALUE "1"
@@ -57,7 +58,7 @@ namespace timelapse {
     Gphoto2Device(const timelapse::Gphoto2Device& other);
     virtual ~Gphoto2Device();
 
-    virtual void capture(ShutterSpeedChoice shutterSpeed = ShutterSpeedChoice());
+    virtual void capture(QTextStream *verboseOut, ShutterSpeedChoice shutterSpeed = ShutterSpeedChoice());
 
     virtual QString toString();
     virtual QString toShortString();
@@ -84,7 +85,7 @@ namespace timelapse {
     bool lock();
     bool unlock();
     void findConfigWidget(QString option, CameraWidget **rootconfig, CameraWidget **child);
-    QString getConfigRadio(QString option);
+    QString getConfigValue(QString option);
     bool isConfigRw(QString option);
     QStringList getConfigRadioChoices(QString option);
     void setConfig(QString option, QString value, bool exactMatch, CameraWidgetType expectedType);

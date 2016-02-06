@@ -123,7 +123,7 @@ namespace timelapse {
   }
 
   void WMALuminance::onLast() {
-    std::list<double> queue; 
+    std::list<double> queue;
     for (InputImageInfo in : inputs) {
       queue.push_back(in.luminance);
       if (queue.size() > count)
@@ -131,13 +131,13 @@ namespace timelapse {
       double sum = 0;
       double sumWeight = 0;
       size_t i = 1;
-      for (double d: queue){
-        double w = (double)i / (double)queue.size();
+      for (double d : queue) {
+        double w = (double) i / (double) queue.size();
         sum += w * d;
         sumWeight += w;
         i++;
       }
-      
+
       in.luminanceChange = (sum / sumWeight) - in.luminance;
       emit input(in);
     }
@@ -178,12 +178,13 @@ namespace timelapse {
 
       expectedLuminance = ComputeLuminance::computeLuminance(histogram, gamma);
 
-      *verboseOutput << QString("%1 iteration %2 changing gamma to %3 (expected luminance: %4, target %5)")
+      *verboseOutput << QString("%1 iteration %2 changing gamma to %3 (expected luminance: %4, target %5, abs(diff) %6)")
         .arg(info.file.filePath())
         .arg(iteration)
         .arg(gamma)
         .arg(expectedLuminance)
         .arg(targetLuminance)
+        .arg(std::abs(expectedLuminance - targetLuminance))
         << endl;
     }
 

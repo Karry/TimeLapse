@@ -57,12 +57,12 @@ namespace timelapse {
     QProcess avconv;
     avconv.setProcessChannelMode(QProcess::MergedChannels);
     avconv.start("avconv", QStringList() << "-version");
-    if (!avconv.waitForFinished()) {
+    if (!avconv.waitForFinished() || avconv.exitCode() != 0) {
       *verboseOutput << "avconv exited with error, try to use ffmpeg" << endl;
       QProcess ffmpeg;
       ffmpeg.setProcessChannelMode(QProcess::MergedChannels);
       ffmpeg.start("ffmpeg", QStringList() << "-version");
-      if (!ffmpeg.waitForFinished()) {
+      if (!ffmpeg.waitForFinished() || ffmpeg.exitCode() != 0) {
         *err << "Both commands (avconv, ffmpeg) fails! Try to use ffmpeg.";
       }
       cmd = "ffmpeg";

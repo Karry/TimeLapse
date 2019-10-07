@@ -58,8 +58,9 @@ build & install TimeLapse tools:
 ```
 git clone https://github.com/Karry/TimeLapse.git timelapse-tools
 cd timelapse-tools
-cmake . 
-make -j `nproc`
+mkdir -p build && cd build
+cmake ..
+make -j $(nproc)
 sudo make install
 sudo ldconfig
 ```

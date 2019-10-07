@@ -17,9 +17,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             
  */
 
-
-#ifndef PIPELINECPTGPHOTO2_H
-#define	PIPELINECPTGPHOTO2_H
+#pragma once
 
 #include <gphoto2/gphoto2-file.h>
 #include <gphoto2/gphoto2-camera.h>
@@ -106,6 +104,3 @@ namespace timelapse {
     bool deviceLocked;
   };
 }
-
-#endif	/* PIPELINECPTGPHOTO2_H */
-

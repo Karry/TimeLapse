@@ -17,8 +17,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             
  */
 
-#ifndef BLACKHOLEDEVICE_H
-#define	BLACKHOLEDEVICE_H
+#pragma once
 
 #include <QtCore/QObject>
 #include <QtCore/QIODevice>
@@ -44,5 +43,3 @@ namespace timelapse {
 
   };
 }
-#endif	/* BLACKHOLEDEVICE_H */
-

@@ -17,8 +17,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             
  */
 
-#ifndef TIMELAPSE_DEFLICKER_H
-#define	TIMELAPSE_DEFLICKER_H
+#pragma once
 
 #include <QtCore/QObject>
 #include <QtCore/QDebug>
@@ -72,6 +71,3 @@ namespace timelapse {
   };
 
 }
-
-#endif	/* TIMELAPSE_DEFLICKER_H */
-

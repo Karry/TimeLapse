@@ -17,8 +17,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             
  */
 
-#ifndef PIPELINE_FRAME_MAPPING_H
-#define	PIPELINE_FRAME_MAPPING_H
+#pragma once
 
 #include <QtCore/QObject>
 #include <QtCore/QDebug>
@@ -68,7 +67,3 @@ namespace timelapse {
 
 
 }
-
-
-#endif	/* PIPELINE_FRAME_MAPPING_H */
-

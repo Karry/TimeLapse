@@ -17,8 +17,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             
  */
 
-#ifndef PIPELINECPTV4L_H
-#define	PIPELINECPTV4L_H
+#pragma once
 
 #include <libv4l2.h>
 //#include <libv4lconvert.h>
@@ -79,6 +78,3 @@ namespace timelapse {
 
 
 }
-
-#endif	/* PIPELINECPTV4L_H */
-

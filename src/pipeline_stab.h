@@ -17,6 +17,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             
  */
 
+#pragma once
+
 #include <QtCore/QObject>
 #include <QtCore/QDebug>
 #include <QtCore/QTemporaryDir>
@@ -31,9 +33,6 @@
 #include "timelapse.h"
 #include "input_image_info.h"
 #include "pipeline_handler.h"
-
-#ifndef PIPELINESTAB_H
-#define	PIPELINESTAB_H
 
 namespace timelapse {
 
@@ -154,5 +153,3 @@ namespace timelapse {
   };
 
 }
-#endif	/* PIPELINESTAB_H */
-

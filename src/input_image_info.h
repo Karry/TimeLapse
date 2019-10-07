@@ -17,8 +17,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             
  */
 
-#ifndef INPUTIMAGEINFO_H
-#define	INPUTIMAGEINFO_H
+#pragma once
 
 #include <QtCore/QObject>
 #include <QtCore/QDateTime>
@@ -48,6 +47,3 @@ public:
   double luminance{-1};
   double luminanceChange{0};
 };
-
-#endif	/* INPUTIMAGEINFO_H */
-

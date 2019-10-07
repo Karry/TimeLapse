@@ -17,8 +17,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             
  */
 
-#ifndef TIMELAPSECAPTURE_H
-#define	TIMELAPSECAPTURE_H
+#pragma once
 
 #include <QtCore/QObject>
 #include <QtCore/QDebug>
@@ -136,6 +135,3 @@ namespace timelapse {
     int32_t cnt;
   };
 }
-
-#endif	/* TIMELAPSECAPTURE_H */
-

@@ -17,12 +17,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             
  */
 
+#pragma once
+
 #ifndef VERSION_TIMELAPSE
 #define VERSION_TIMELAPSE "0.0.0"
 #endif
-
-#ifndef TIMELAPSE_H
-#define	TIMELAPSE_H
 
 using namespace std;
 
@@ -117,7 +116,3 @@ namespace timelapse {
   typedef Some<double> SomeDouble;
 #define NoneDouble None<double>()
 }
-
-
-#endif	/* TIMELAPSE_H */
-

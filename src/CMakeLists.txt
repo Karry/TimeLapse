@@ -28,6 +28,15 @@ include_directories(
 
 # enable warnings
 ADD_DEFINITIONS( -Wall -pedantic -std=c++11 -fPIC)
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANGXX OR CMAKE_COMPILER_IS_GNUCC)
+  set(TIMELAPS_WARNING_FLAGS "-Wall -pedantic -Winit-self -Wno-overloaded-virtual -Wcast-qual -Wwrite-strings -Wextra -Wno-long-long")
+  if(EMSCRIPTEN)
+    set(TIMELAPS_WARNING_FLAGS "${TIMELAPS_WARNING_FLAGS} -Wno-warn-absolute-paths")
+  elseif(NOT APPLE)
+    set(TIMELAPS_WARNING_FLAGS "${TIMELAPS_WARNING_FLAGS} -Wno-unused-but-set-parameter")
+  endif()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TIMELAPS_WARNING_FLAGS}")
+endif()
 
 # QT5 definitions
 ADD_DEFINITIONS(${Qt5Core_DEFINITIONS})
@@ -148,8 +157,6 @@ set(timelapse_capture_SRCS
 
 # QT5_AUTOMOC(${timelapse_assembly_SRCS})
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-
 ADD_LIBRARY(timelapse SHARED 
 			${timelapse_SRCS}
 			)
@@ -167,10 +174,10 @@ add_executable (timelapse_capture
 				${timelapse_capture_SRCS}
 )
 
-SET_TARGET_PROPERTIES(timelapse_assembly PROPERTIES COMPILE_FLAGS "-g")
-SET_TARGET_PROPERTIES(timelapse_deflicker PROPERTIES COMPILE_FLAGS "-g")
-SET_TARGET_PROPERTIES(timelapse_stabilize PROPERTIES COMPILE_FLAGS "-g")
-SET_TARGET_PROPERTIES(timelapse_capture PROPERTIES COMPILE_FLAGS "-g")
+set_property(TARGET timelapse_assembly PROPERTY CXX_STANDARD 17)
+set_property(TARGET timelapse_deflicker PROPERTY CXX_STANDARD 17)
+set_property(TARGET timelapse_stabilize PROPERTY CXX_STANDARD 17)
+set_property(TARGET timelapse_capture PROPERTY CXX_STANDARD 17)
 
 #Link the timelapse_assembly executable to the Qt 5 libraries.
 target_link_libraries(	timelapse

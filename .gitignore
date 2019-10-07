@@ -9,6 +9,8 @@ install_manifest.txt
 /notes
 # netbeans project
 /nbproject
+# CLion project
+/.idea
 
 # QT moc
 *.moc_parameters

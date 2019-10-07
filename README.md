@@ -37,7 +37,7 @@ Install build tools and libraries:
 
 ```
 sudo apt-get install cmake cmake-data build-essential libmagick++-dev qtbase5-dev \
-  libav-tools git libv4l-dev libgphoto2-dev
+  ffmpeg git libv4l-dev libgphoto2-dev
 ```
 
 build & install libvidstab*:

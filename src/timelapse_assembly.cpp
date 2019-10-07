@@ -266,7 +266,7 @@ namespace timelapse {
     return inputArgs;
   }
 
-  void TimeLapseAssembly::onError(QString msg) {
+  void TimeLapseAssembly::onError([[maybe_unused]] const QString &msg) {
     emit cleanup(1);
   }
 

@@ -41,6 +41,7 @@ namespace timelapse {
     ShutterSpeedChoice(bool bulb, int divident, int factor);
     ShutterSpeedChoice(const QString str);
     virtual ~ShutterSpeedChoice();
+    ShutterSpeedChoice &operator=(const ShutterSpeedChoice &o);
     QString toString();
     int64_t toSecond();
     int64_t toMs();

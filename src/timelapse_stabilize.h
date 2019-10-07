@@ -71,9 +71,10 @@ namespace timelapse {
 
   public slots:
     void run();
-    void onError(QString msg);
+    void onError(const QString &msg);
     void cleanup(int exitCode = 0);
-    //signals:
+
+  //signals:
 
   protected:
     QStringList parseArguments();

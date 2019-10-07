@@ -38,6 +38,14 @@ namespace timelapse {
     //normalize();
   }
 
+  ShutterSpeedChoice &ShutterSpeedChoice::operator=(const ShutterSpeedChoice &o)
+  {
+    bulb=o.bulb;
+    divident=o.divident;
+    factor=o.factor;
+    return *this;
+  }
+
   ShutterSpeedChoice::ShutterSpeedChoice(const QString str) : bulb(false), divident(-1), factor(-1) {
     bool ok;
 
@@ -218,7 +226,7 @@ namespace timelapse {
     emit input(ii, capturedImage);
   }
 
-  void PipelineCaptureSource::onInput(InputImageInfo info, Magick::Image img) {
+  void PipelineCaptureSource::onInput([[maybe_unused]] InputImageInfo info, [[maybe_unused]] Magick::Image img) {
     // ignore, we are the source
   }
 

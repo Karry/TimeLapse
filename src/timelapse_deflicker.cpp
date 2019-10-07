@@ -152,7 +152,7 @@ namespace timelapse {
     return inputArgs;
   }
 
-  void TimeLapseDeflicker::onError(QString msg) {
+  void TimeLapseDeflicker::onError([[maybe_unused]] const QString &msg) {
     emit cleanup(1);
   }
 

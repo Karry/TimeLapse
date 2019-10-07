@@ -27,9 +27,7 @@
 #include <Magick++.h>
 #include <vector>
 
-class InputImageInfo : QObject {
-  Q_OBJECT
-
+class InputImageInfo {
 public:
   InputImageInfo();
   InputImageInfo(QFileInfo &f);

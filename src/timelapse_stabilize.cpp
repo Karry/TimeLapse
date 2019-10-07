@@ -141,7 +141,7 @@ namespace timelapse {
     return inputArgs;
   }
 
-  void TimeLapseStabilize::onError(QString msg) {
+  void TimeLapseStabilize::onError([[maybe_unused]] const QString &msg) {
     emit cleanup(1);
   }
 

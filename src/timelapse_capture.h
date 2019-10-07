@@ -81,8 +81,8 @@ namespace timelapse {
             int step = 1);
 
     virtual ~MatrixMeteringAlg();
-    virtual void update(Magick::Image img);
-    virtual ShutterSpeedChoice adjustShutterSpeed();
+    virtual void update(Magick::Image img) override;
+    virtual ShutterSpeedChoice adjustShutterSpeed() override;
 
   protected:
     void clearHistograms();
@@ -103,7 +103,7 @@ namespace timelapse {
     void run();
     void done();
     void cleanup(int exitCode = 0);
-    void onError(QString msg);
+    void onError(const QString &msg);
     virtual void capture();
     void imageCaptured(QString format, Magick::Blob blob, Magick::Geometry sizeHint);
     QString leadingZeros(int i, int leadingZeros);

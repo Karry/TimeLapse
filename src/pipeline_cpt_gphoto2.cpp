@@ -76,7 +76,7 @@ namespace timelapse {
    * @param text - message in utf8 
    * @param data - QTextStream pointer for printing messages
    */
-  void _gp_context_msg_func(GPContext *context, const char *text, void *data) {
+  void _gp_context_msg_func([[maybe_unused]] GPContext *context, const char *text, void *data) {
 
     *((QTextStream *) data) << "GPhoto2: " << QString::fromUtf8(text) << endl;
   }
@@ -94,7 +94,7 @@ namespace timelapse {
    * \param str the logmessage, without linefeed
    * \param data the caller private data that was passed to gp_log_add_func()
    */
-  void _gp_port_debug(GPLogLevel level, const char *domain, const char *str, void *data) {
+  void _gp_port_debug([[maybe_unused]] GPLogLevel level, const char *domain, const char *str, void *data) {
     *((QTextStream *) data) << "GPhoto2 - " << QString::fromUtf8(domain) << ": " << QString::fromUtf8(str) << endl;
   }
 

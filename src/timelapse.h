@@ -61,9 +61,9 @@ namespace timelapse {
 
   template<typename T> class Option {
   public:
-    virtual const bool isDefined() const = 0;
+    virtual bool isDefined() const = 0;
 
-    virtual const bool isEmpty() const {
+    virtual bool isEmpty() const {
       return !isDefined();
     };
     virtual const T operator*() const = 0;
@@ -73,11 +73,11 @@ namespace timelapse {
   template<typename T> class None : public Option<T> {
   public:
 
-    virtual const bool isDefined() const {
+    virtual bool isDefined() const override {
       return false;
     };
 
-    virtual const T operator*() const {
+    virtual const T operator*() const override {
       throw runtime_error("Not defined");
     };
 
@@ -89,18 +89,18 @@ namespace timelapse {
   template<typename T> class Some : public Option<T> {
   public:
 
-    Some(const T &v) : val(v) {
+    explicit Some(const T &v) : val(v) {
     }
 
-    virtual const bool isDefined() const {
+    virtual bool isDefined() const override  {
       return true;
     }
 
-    virtual const T operator*() const {
+    virtual const T operator*() const override {
       return val;
     };
 
-    virtual const T getOrElse(const T def) const {
+    virtual const T getOrElse([[maybe_unused]] const T def) const override {
       return val;
     };
   private:

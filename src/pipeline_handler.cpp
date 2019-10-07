@@ -46,7 +46,7 @@ namespace timelapse {
     emit last();
   }
 
-  void ImageLoader::onInput(InputImageInfo info, Magick::Image img) {
+  void ImageLoader::onInput(InputImageInfo info, [[maybe_unused]] Magick::Image img) {
     // load image again
     onInput(info);
   }
@@ -85,7 +85,7 @@ namespace timelapse {
     emit input(info);
   }
 
-  void ImageTrash::onInput(InputImageInfo info, Magick::Image img) {
+  void ImageTrash::onInput(InputImageInfo info, [[maybe_unused]] Magick::Image img) {
     emit input(info);
   }
 

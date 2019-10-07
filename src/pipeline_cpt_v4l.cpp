@@ -207,7 +207,7 @@ namespace timelapse {
     initialized = true;
   }
 
-  void V4LDevice::capture(QTextStream *verboseOut, ShutterSpeedChoice shutterSpeed) {
+  void V4LDevice::capture([[maybe_unused]] QTextStream *verboseOut, [[maybe_unused]] ShutterSpeedChoice shutterSpeed) {
     initialize();
 
     struct v4l2_buffer buf;

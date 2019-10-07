@@ -31,10 +31,10 @@ namespace timelapse {
    */
   class BlackHoleDevice : public QIODevice {
     Q_OBJECT
+    Q_DISABLE_COPY(BlackHoleDevice)
 
   public:
     BlackHoleDevice();
-    BlackHoleDevice(const BlackHoleDevice& orig);
     virtual ~BlackHoleDevice();
 
     virtual qint64 readData(char *data, qint64 maxlen);

@@ -35,7 +35,7 @@ namespace timelapse {
     Q_OBJECT
   public:
     VideoAssembly(QDir tempDir, QTextStream *verboseOutput, QTextStream *err, bool dryRun,
-            QFileInfo output, int width, int height, float fps, QString bitrate, QString codec);
+                  QFileInfo output, int width, int height, float fps, QString bitrate, QString codec);
 
   public slots:
     virtual void onInput(InputImageInfo info);

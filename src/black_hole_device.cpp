@@ -26,18 +26,14 @@ namespace timelapse {
     open(WriteOnly);
   }
 
-  BlackHoleDevice::BlackHoleDevice(const BlackHoleDevice& orig) {
-    open(WriteOnly);
-  }
-
   BlackHoleDevice::~BlackHoleDevice() {
   }
 
-  qint64 BlackHoleDevice::readData(char *data, qint64 maxlen) {
+  qint64 BlackHoleDevice::readData([[maybe_unused]] char *data, [[maybe_unused]] qint64 maxlen) {
     return -1;
   }
 
-  qint64 BlackHoleDevice::writeData(const char *data, qint64 len) {
+  qint64 BlackHoleDevice::writeData([[maybe_unused]] const char *data, qint64 len) {
     return len;
   }
 }

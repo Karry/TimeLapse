@@ -47,7 +47,7 @@ namespace timelapse {
   verboseOutput(_verboseOutput), prevImage(NULL), prevInfo() {
   }
 
-  void FramePrepare::blend(InputImageInfo info1, const Magick::Image *img1, InputImageInfo info2, const Magick::Image *img2) {
+  void FramePrepare::blend(InputImageInfo info1, const Magick::Image *img1, InputImageInfo info2, [[maybe_unused]] const Magick::Image *img2) {
     for (int f = info1.frame; f < info2.frame; f++) {
       InputImageInfo i = info1;
       i.frame = f;

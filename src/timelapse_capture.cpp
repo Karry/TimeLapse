@@ -566,7 +566,7 @@ namespace timelapse {
     return dev;
   }
 
-  void TimeLapseCapture::onError(QString msg) {
+  void TimeLapseCapture::onError([[maybe_unused]] const QString &msg) {
     emit cleanup(1);
   }
 
@@ -615,8 +615,9 @@ namespace timelapse {
       capturedSubsequence = 0;
       capturedCnt++;
       ShutterSpeedChoice shutterSpeed;
-      if (shutterSpdAlg != NULL)
+      if (shutterSpdAlg != nullptr) {
         shutterSpeed = shutterSpdAlg->adjustShutterSpeed();
+      }
       dev->capture(&verboseOutput, shutterSpeed);
     } catch (std::exception &e) {
       err << "Capturing failed: " << QString::fromUtf8(e.what()) << endl;

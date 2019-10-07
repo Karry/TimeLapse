@@ -43,12 +43,17 @@ namespace timelapse {
     Q_OBJECT
   public:
     PipelineFileSource(QStringList inputArguments, bool recursive, QTextStream *verboseOutput, QTextStream *err);
-    virtual void process();
+    virtual void process() override;
   protected:
     QList<InputImageInfo> listDirectory(QDir d);
     QList<InputImageInfo> parseArguments();
   public slots:
     virtual void onInput(InputImageInfo info);
+  private slots:
+    void takeNext(QList<InputImageInfo> inputs);
+  signals:
+    void processNext(QList<InputImageInfo> inputs);
+
   private:
     QStringList inputArguments;
     bool recursive;

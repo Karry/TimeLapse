@@ -45,6 +45,7 @@ namespace timelapse {
   inputArguments(_inputArguments), recursive(_recursive),
   verboseOutput(_verboseOutput), err(_err) {
 
+    connect(this, &PipelineFileSource::processNext, this, &PipelineFileSource::takeNext, Qt::QueuedConnection);
   }
 
   QList<InputImageInfo> PipelineFileSource::listDirectory(QDir d) {
@@ -91,10 +92,10 @@ namespace timelapse {
     bool first = true;
     for (InputImageInfo in : inputs) {
       if (first) {
-        suffix = in.file.completeSuffix();
+        suffix = in.fileInfo().completeSuffix();
         first = false;
       } else {
-        if (suffix != in.file.completeSuffix()) {
+        if (suffix != in.fileInfo().completeSuffix()) {
           *err << "Input files with multiple suffixes. Are you sure that this is one sequence?" << endl;
           break;
         }
@@ -108,12 +109,17 @@ namespace timelapse {
     // just ignore, we are the source
   }
 
-  void PipelineFileSource::process() {
-    QList<InputImageInfo> inputs = parseArguments();
-    for (InputImageInfo info : inputs) {
-      emit input(info);
+  void PipelineFileSource::takeNext(QList<InputImageInfo> inputs) {
+    if (inputs.empty()) {
+      emit last();
+    } else {
+      emit input(inputs.takeFirst());
+      emit processNext(inputs);
     }
-    emit last();
+  }
+
+  void PipelineFileSource::process() {
+    emit processNext(parseArguments());
   }
 
 

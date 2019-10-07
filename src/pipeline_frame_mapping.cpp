@@ -83,13 +83,13 @@ namespace timelapse {
     for (InputImageInfo inf : inputs) {
       inf.frame = currentFrame;
       if (inf.frame > lastFrame) {
-        *verboseOutput << "Mapping " << inf.file.fileName() << " to frame " << inf.frame
+        *verboseOutput << "Mapping " << inf.fileInfo().fileName() << " to frame " << inf.frame
           << " (step " << (lastFrame < 0 ? 0 : inf.frame - lastFrame) << ")" << endl;
         //inputList.append(input);
         emit input(inf);
         emited++;
       } else {
-        *verboseOutput << "Skip " << inf.file.fileName() << endl;
+        *verboseOutput << "Skip " << inf.fileInfo().fileName() << endl;
       }
       lastFrame = inf.frame;
       currentFrame += frameStep;
@@ -123,7 +123,7 @@ namespace timelapse {
       //Magick::Image image(input.file.filePath().toStdString());
 
       if (!first && lastTimestamp > inf.timestamp) {
-        *err << "Images are not sorted by its time! Skip " << inf.file.fileName() << endl;
+        *err << "Images are not sorted by its time! Skip " << inf.fileInfo().fileName() << endl;
       } else {
         inputList.append(inf);
         if (first || inf.timestamp < startTimestamp)
@@ -158,13 +158,13 @@ namespace timelapse {
         inf.frame = frameCount - 1;
 
       int step = (lastFrame < 0 ? 0 : inf.frame - lastFrame);
-      *verboseOutput << inf.file.fileName() << " " << inf.timestamp.toString(Qt::ISODate)
+      *verboseOutput << inf.fileInfo().fileName() << " " << inf.timestamp.toString(Qt::ISODate)
         << " > frame " << inf.frame << " (step " << step << ")" << endl;
       if (step > maxStep)
         maxStep = step;
 
       if (lastFrame >= inf.frame) {
-        *err << "Skip image " << inf.file.fileName() << ", it is too early after previous." << endl
+        *err << "Skip image " << inf.fileInfo().fileName() << ", it is too early after previous." << endl
           << "You can try to increase output length or fps." << endl;
       } else {
         //inputList.append(input);

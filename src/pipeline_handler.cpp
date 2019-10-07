@@ -56,12 +56,12 @@ namespace timelapse {
   }
 
   void ImageLoader::onInput(InputImageInfo info) {
-    *verboseOutput << "Loading " << info.file.filePath() << endl;
+    *verboseOutput << "Loading " << info.fileInfo().filePath() << endl;
     
     Magick::Image image;
     bool usableImage = false;
     try {
-      image.read(info.file.filePath().toStdString());
+      image.read(info.filePath);
       usableImage = true;
     } catch (Magick::WarningCoder &warning) {
       // Process coder warning while loading
@@ -74,7 +74,7 @@ namespace timelapse {
     } catch (Magick::Error &e) {
       // Process other Magick++ 
       emit error(QString("Failed to load file as image (%1). Reason: %2")
-        .arg(info.file.filePath())
+        .arg(info.fileInfo().filePath())
         .arg(e.what()));
     }
     if (usableImage)
@@ -112,13 +112,13 @@ namespace timelapse {
     // read timestamp
     QString exifDateTime = QString::fromStdString(image.attribute("EXIF:DateTime"));
     if (exifDateTime.length() == 0) {
-      *err << "Image " << info.file.fileName() << " don't have EXIF:DateTime property. Using file modification time." << endl;
-      info.timestamp = info.file.lastModified();
+      *err << "Image " << info.fileInfo().fileName() << " don't have EXIF:DateTime property. Using file modification time." << endl;
+      info.timestamp = info.fileInfo().lastModified();
     } else {
       // 2015:09:15 07:00:28
       info.timestamp = QDateTime::fromString(exifDateTime, QString("yyyy:MM:dd HH:mm:ss"));
     }
-    *verboseOutput << info.file.fileName() << " EXIF:DateTime : " << exifDateTime
+    *verboseOutput << info.fileInfo().fileName() << " EXIF:DateTime : " << exifDateTime
       << " (" << info.timestamp.toString(Qt::ISODate) << ")" << endl;
 
     emit input(info, image);

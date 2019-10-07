@@ -462,7 +462,7 @@ namespace timelapse {
         init(image);
       }
       if (image.rows() != height || image.columns() != width) {
-        throw runtime_error(QString("Not uniform image size! %").arg(info.file.fileName()).toStdString());
+        throw runtime_error(QString("Not uniform image size! %").arg(info.fileInfo().fileName()).toStdString());
       }
 
 
@@ -580,7 +580,7 @@ namespace timelapse {
         init(image);
       }
       if (image.rows() != height || image.columns() != width) {
-        throw runtime_error(QString("Not uniform image size! %").arg(info.file.fileName()).toStdString());
+        throw runtime_error(QString("Not uniform image size! %").arg(info.fileInfo().fileName()).toStdString());
       }
 
       Q_ASSERT(image.baseColumns() == width && image.baseRows() == height);

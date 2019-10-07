@@ -338,6 +338,8 @@ int main(int argc, char** argv) {
   TimeLapseAssembly app(argc, argv);
   Magick::InitializeMagick(*argv);
 
+  qRegisterMetaType<QList<InputImageInfo>>("QList<InputImageInfo>");
+
   // This will run the task from the application event loop.
   QTimer::singleShot(0, &app, SLOT(run()));
 

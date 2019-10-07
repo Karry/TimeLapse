@@ -41,7 +41,7 @@ namespace timelapse {
 
   protected:
     Pipeline(PipelineSource *src, InputHandler *firstInputHandler,
-            QTextStream *verboseOutput, QTextStream *err);
+             QTextStream *verboseOutput, QTextStream *err);
     Pipeline(PipelineSource *src, ImageHandler *firstImageHandler,
             QTextStream *verboseOutput, QTextStream *err);
 

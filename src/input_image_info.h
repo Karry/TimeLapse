@@ -27,23 +27,26 @@
 #include <Magick++.h>
 #include <vector>
 
-class InputImageInfo {
+struct InputImageInfo {
 public:
-  InputImageInfo();
-  InputImageInfo(QFileInfo &f);
-  InputImageInfo(const InputImageInfo& orig);
-  virtual ~InputImageInfo();
+  InputImageInfo() = default;
+  InputImageInfo(const InputImageInfo &) = default;
+  InputImageInfo(InputImageInfo &&) = default;
+  InputImageInfo &operator=(const InputImageInfo &) = default;
+  InputImageInfo &operator=(InputImageInfo &&) = default;
 
-  InputImageInfo& operator=(const InputImageInfo&);
+  explicit InputImageInfo(const QFileInfo &f);
+
+  QFileInfo fileInfo() const;
 
 public:
-  QFileInfo file;
-  int width;
-  int height;
-  int frame;
+  std::string filePath;
+  int width{-1};
+  int height{-1};
+  int frame{-1};
   QDateTime timestamp;
-  double luminance;
-  double luminanceChange;
+  double luminance{-1};
+  double luminanceChange{0};
 };
 
 #endif	/* INPUTIMAGEINFO_H */

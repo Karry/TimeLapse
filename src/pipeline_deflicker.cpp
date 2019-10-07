@@ -82,7 +82,7 @@ namespace timelapse {
     // We use the following formula to get the perceived luminance.
     info.luminance = 0.299 * stat.red.mean + 0.587 * stat.green.mean + 0.114 * stat.blue.mean;
 
-    *verboseOutput << info.file.filePath()
+    *verboseOutput << info.fileInfo().filePath()
       << " luminance: " << info.luminance
       << endl;
 
@@ -179,7 +179,7 @@ namespace timelapse {
       expectedLuminance = ComputeLuminance::computeLuminance(histogram, gamma);
 
       *verboseOutput << QString("%1 iteration %2 changing gamma to %3 (expected luminance: %4, target %5, abs(diff) %6)")
-        .arg(info.file.filePath())
+        .arg(info.fileInfo().filePath())
         .arg(iteration)
         .arg(gamma)
         .arg(expectedLuminance)

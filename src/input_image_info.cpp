@@ -20,32 +20,11 @@
 #include "input_image_info.h"
 #include "input_image_info.moc"
 
-InputImageInfo::InputImageInfo() :
-file(), width(-1), height(-1), frame(-1), timestamp(),
+InputImageInfo::InputImageInfo(const QFileInfo &f) :
+filePath(f.absoluteFilePath().toStdString()), width(-1), height(-1), frame(-1), timestamp(),
 luminance(-1), luminanceChange(0) {
 }
 
-InputImageInfo::InputImageInfo(QFileInfo &f) :
-file(f), width(-1), height(-1), frame(-1), timestamp(),
-luminance(-1), luminanceChange(0) {
+QFileInfo InputImageInfo::fileInfo() const {
+  return QFileInfo(QString::fromStdString(filePath));
 }
-
-InputImageInfo& InputImageInfo::operator=(const InputImageInfo& i) {
-  file = i.file;
-  width = i.width;
-  height = i.height;
-  frame = i.frame;
-  timestamp = i.timestamp;
-  luminance = i.luminance;
-  luminanceChange = i.luminanceChange;
-  return *this;
-}
-
-InputImageInfo::InputImageInfo(const InputImageInfo& i) :
-file(i.file), width(i.width), height(i.height), frame(i.frame), timestamp(i.timestamp),
-luminance(i.luminance), luminanceChange(i.luminanceChange) {
-}
-
-InputImageInfo::~InputImageInfo() {
-}
-

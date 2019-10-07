@@ -69,7 +69,7 @@ namespace timelapse {
       img.write(framePath.toStdString());
     }
     // update image location & emit signal
-    info.file = QFileInfo(framePath);
+    info.filePath = framePath.toStdString();
     emit input(info, img);
   }
 

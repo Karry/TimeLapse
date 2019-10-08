@@ -40,7 +40,7 @@ namespace timelapse {
             double gamma = 1.0);
 
   public slots:
-    virtual void onInput2(InputImageInfo info, Magick::Image img);
+    virtual void onInput2(InputImageInfo info, Magick::Image img) override;
   private:
     QTextStream *verboseOutput;
   };
@@ -81,7 +81,7 @@ namespace timelapse {
   public:
     AdjustLuminance(QTextStream *verboseOutput, bool debugView);
   public slots:
-    virtual void onInput2(InputImageInfo info, Magick::Image img);
+    virtual void onInput2(InputImageInfo info, Magick::Image img) override;
   private:
     QTextStream *verboseOutput;
     bool debugView;

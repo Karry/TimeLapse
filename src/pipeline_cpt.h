@@ -102,12 +102,9 @@ namespace timelapse {
 
   public slots:
     virtual void capture();
-    virtual void onInput2(InputImageInfo info, Magick::Image img);
+    virtual void onInput2(InputImageInfo info, Magick::Image img) override;
     void imageCaptured(QString format, Magick::Blob blob, Magick::Geometry sizeHint);
 
-  signals:
-    void input(InputImageInfo info, Magick::Image img);
-    void last();
   private:
     QSharedPointer<CaptureDevice> dev;
     uint64_t intervalMs;

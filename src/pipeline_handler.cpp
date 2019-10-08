@@ -77,8 +77,9 @@ namespace timelapse {
         .arg(info.fileInfo().filePath())
         .arg(e.what()));
     }
-    if (usableImage)
+    if (usableImage) {
       emit input(info, image);
+    }
   }
 
   void ImageTrash::onInput1(InputImageInfo info) {

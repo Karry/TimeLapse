@@ -36,7 +36,7 @@ namespace timelapse {
     WriteFrame(QDir outputDir, QTextStream *verboseOutput, bool dryRun);
     QString leadingZeros(int i, int leadingZeros);
   public slots:
-    virtual void onInput2(InputImageInfo info, Magick::Image img);
+    virtual void onInput2(InputImageInfo info, Magick::Image img) override;
   private:
     QDir outputDir;
     QLocale frameNumberLocale;

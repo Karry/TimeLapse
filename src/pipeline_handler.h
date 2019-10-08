@@ -66,8 +66,6 @@ namespace timelapse {
   public slots:
     virtual void onInput2(InputImageInfo info, Magick::Image img) override;
     virtual void onInput1(InputImageInfo info);
-  signals:
-    void input(InputImageInfo info, Magick::Image img);
   private:
     QTextStream *verboseOutput;
     QTextStream *err;
@@ -99,7 +97,7 @@ namespace timelapse {
   public:
     ImageMetadataReader(QTextStream *verboseOutput, QTextStream *err);
   public slots:
-    virtual void onInput2(InputImageInfo info, Magick::Image img);
+    virtual void onInput2(InputImageInfo info, Magick::Image img) override;
   private:
     QTextStream *verboseOutput;
     QTextStream *err;

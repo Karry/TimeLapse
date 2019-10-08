@@ -583,16 +583,16 @@ namespace timelapse {
 
     dev = parseArguments();
 
-    connect(&timer, SIGNAL(timeout()), this, SLOT(capture()));
-    connect(dev->qObject(), SIGNAL(imageCaptured(QString, Magick::Blob, Magick::Geometry)),
-      this, SLOT(imageCaptured(QString, Magick::Blob, Magick::Geometry)));
+    connect(&timer, &QTimer::timeout, this, &TimeLapseCapture::capture);
+    connect(dev.get(), &CaptureDevice::imageCaptured,
+      this, &TimeLapseCapture::imageCaptured);
 
     verboseOutput << "Start timer with interval " << interval << " ms" << endl;
     //timer.start(interval);
     capture();
   }
 
-#define BUSY_CAPTURE_POSTPONE_MS 100
+constexpr int BUSY_CAPTURE_POSTPONE_MS = 100;
 
   void TimeLapseCapture::capture() {
     if (cnt >= 0 && capturedCnt >= cnt) {
@@ -604,7 +604,7 @@ namespace timelapse {
     if (dev->isBusy()) {
       verboseOutput << "Camera is busy, postpone capturing by " << BUSY_CAPTURE_POSTPONE_MS << " ms" << endl;
       timer.stop();
-      QTimer::singleShot(BUSY_CAPTURE_POSTPONE_MS, this, SLOT(capture()));
+      QTimer::singleShot(BUSY_CAPTURE_POSTPONE_MS, this, &TimeLapseCapture::capture);
       return;
     }
     if (!timer.isActive()) {

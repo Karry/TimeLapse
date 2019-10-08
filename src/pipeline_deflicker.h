@@ -40,7 +40,7 @@ namespace timelapse {
             double gamma = 1.0);
 
   public slots:
-    virtual void onInput(InputImageInfo info, Magick::Image img);
+    virtual void onInput2(InputImageInfo info, Magick::Image img);
   private:
     QTextStream *verboseOutput;
   };
@@ -53,8 +53,8 @@ namespace timelapse {
   public:
     ComputeAverageLuminance(QTextStream *verboseOutput);
   public slots:
-    virtual void onInput(InputImageInfo info);
-    void onLast();
+    virtual void onInput1(InputImageInfo info) override;
+    void onLast() override;
   private:
     QTextStream *verboseOutput;
     QList<InputImageInfo> inputs;
@@ -68,8 +68,8 @@ namespace timelapse {
   public:
     WMALuminance(QTextStream *verboseOutput, size_t count);
   public slots:
-    virtual void onInput(InputImageInfo info);
-    void onLast();
+    virtual void onInput1(InputImageInfo info) override;
+    void onLast() override;
   private:
     size_t count;
     QTextStream *verboseOutput;
@@ -81,7 +81,7 @@ namespace timelapse {
   public:
     AdjustLuminance(QTextStream *verboseOutput, bool debugView);
   public slots:
-    virtual void onInput(InputImageInfo info, Magick::Image img);
+    virtual void onInput2(InputImageInfo info, Magick::Image img);
   private:
     QTextStream *verboseOutput;
     bool debugView;

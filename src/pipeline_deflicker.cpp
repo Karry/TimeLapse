@@ -74,7 +74,7 @@ namespace timelapse {
       + 0.114 * ((double) sumB / (double) pixelCount);
   }
 
-  void ComputeLuminance::onInput(InputImageInfo info, Magick::Image img) {
+  void ComputeLuminance::onInput2(InputImageInfo info, Magick::Image img) {
 
     Magick::Image::ImageStatistics stat;
     img.statistics(&stat);
@@ -93,7 +93,7 @@ namespace timelapse {
   verboseOutput(_verboseOutput), inputs() {
   }
 
-  void ComputeAverageLuminance::onInput(InputImageInfo info) {
+  void ComputeAverageLuminance::onInput1(InputImageInfo info) {
     inputs.append(info);
   }
 
@@ -118,7 +118,7 @@ namespace timelapse {
       throw std::logic_error("Count for weighted moving average have to be greater than 0.");
   }
 
-  void WMALuminance::onInput(InputImageInfo info) {
+  void WMALuminance::onInput1(InputImageInfo info) {
     inputs.append(info);
   }
 
@@ -148,7 +148,7 @@ namespace timelapse {
   verboseOutput(_verboseOutput), debugView(_debugView) {
   }
 
-  void AdjustLuminance::onInput(InputImageInfo info, Magick::Image img) {
+  void AdjustLuminance::onInput2(InputImageInfo info, Magick::Image img) {
     std::vector<std::pair < Magick::Color, size_t>> histogram;
     Magick::colorHistogram(&histogram, img);
     Magick::Image original = img;

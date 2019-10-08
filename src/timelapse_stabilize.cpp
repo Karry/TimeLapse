@@ -142,10 +142,14 @@ namespace timelapse {
   }
 
   void TimeLapseStabilize::onError([[maybe_unused]] const QString &msg) {
-    emit cleanup(1);
+    emit cleanup2(1);
   }
 
-  void TimeLapseStabilize::cleanup(int exitCode) {
+  void TimeLapseStabilize::cleanup() {
+    cleanup2(0);
+  }
+
+  void TimeLapseStabilize::cleanup2(int exitCode) {
     if (pipeline != NULL) {
       delete pipeline;
       pipeline = NULL;
@@ -178,8 +182,8 @@ namespace timelapse {
     *pipeline << new PipelineStabTransform(stabConf, &verboseOutput, &err);
     *pipeline << new WriteFrame(output, &verboseOutput, dryRun);
 
-    connect(pipeline, SIGNAL(done()), this, SLOT(cleanup()));
-    connect(pipeline, SIGNAL(error(QString)), this, SLOT(onError(QString)));
+    connect(pipeline, &Pipeline::done, this, &TimeLapseStabilize::cleanup);
+    connect(pipeline, &Pipeline::error, this, &TimeLapseStabilize::onError);
 
     // startup pipeline
     emit pipeline->process();

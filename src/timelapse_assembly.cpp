@@ -267,10 +267,14 @@ namespace timelapse {
   }
 
   void TimeLapseAssembly::onError([[maybe_unused]] const QString &msg) {
-    emit cleanup(1);
+    emit cleanup2(1);
   }
 
-  void TimeLapseAssembly::cleanup(int exitCode) {
+  void TimeLapseAssembly::cleanup() {
+    cleanup2(0);
+  }
+
+  void TimeLapseAssembly::cleanup2(int exitCode) {
     if (pipeline != NULL) {
       delete pipeline;
       pipeline = NULL;
@@ -322,8 +326,8 @@ namespace timelapse {
     * pipeline << new VideoAssembly(QDir(_tempDir->path()), &_verboseOutput, &_err, _dryRun,
       _output, _width, _height, _fps, _bitrate, _codec);
 
-    connect(pipeline, SIGNAL(done()), this, SLOT(cleanup()));
-    connect(pipeline, SIGNAL(error(QString)), this, SLOT(onError(QString)));
+    connect(pipeline, &Pipeline::done, this, &TimeLapseAssembly::cleanup);
+    connect(pipeline, &Pipeline::error, this, &TimeLapseAssembly::onError);
 
     // startup pipeline
     emit pipeline->process();

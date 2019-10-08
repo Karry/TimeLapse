@@ -84,9 +84,9 @@ namespace timelapse {
     return *this;
   }
 
-  QObject* V4LDevice::qObject() {
-    return this;
-  }
+  // PipelineCaptureSource* V4LDevice::qObject() {
+  //   return this;
+  // }
 
   QList<V4LDevice> V4LDevice::listDevices(QTextStream *verboseOut, QDir devDir) {
     QList<V4LDevice> result;

@@ -46,16 +46,16 @@ namespace timelapse {
     emit last();
   }
 
-  void ImageLoader::onInput(InputImageInfo info, [[maybe_unused]] Magick::Image img) {
+  void ImageLoader::onInput2(InputImageInfo info, [[maybe_unused]] Magick::Image img) {
     // load image again
-    onInput(info);
+    onInput1(info);
   }
 
   ImageLoader::ImageLoader(QTextStream *_verboseOutput, QTextStream *_err) :
   verboseOutput(_verboseOutput), err(_err) {
   }
 
-  void ImageLoader::onInput(InputImageInfo info) {
+  void ImageLoader::onInput1(InputImageInfo info) {
     *verboseOutput << "Loading " << info.fileInfo().filePath() << endl;
     
     Magick::Image image;
@@ -81,15 +81,15 @@ namespace timelapse {
       emit input(info, image);
   }
 
-  void ImageTrash::onInput(InputImageInfo info) {
+  void ImageTrash::onInput1(InputImageInfo info) {
     emit input(info);
   }
 
-  void ImageTrash::onInput(InputImageInfo info, [[maybe_unused]] Magick::Image img) {
+  void ImageTrash::onInput2(InputImageInfo info, [[maybe_unused]] Magick::Image img) {
     emit input(info);
   }
 
-  void StageSeparator::onInput(InputImageInfo info) {
+  void StageSeparator::onInput1(InputImageInfo info) {
     inputs.append(info);
   }
 
@@ -104,7 +104,7 @@ namespace timelapse {
   verboseOutput(_verboseOutput), err(_err) {
   }
 
-  void ImageMetadataReader::onInput(InputImageInfo info, Magick::Image image) {
+  void ImageMetadataReader::onInput2(InputImageInfo info, Magick::Image image) {
     // read dimensions
     info.width = image.baseColumns();
     info.height = image.baseRows();

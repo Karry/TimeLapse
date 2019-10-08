@@ -56,7 +56,8 @@ namespace timelapse {
     int factor;
   };
 
-  class CaptureDevice {
+  class CaptureDevice : public QObject {
+    Q_OBJECT
   public:
 
     virtual ~CaptureDevice() {
@@ -81,7 +82,10 @@ namespace timelapse {
       return false;
     }
 
-    virtual QObject *qObject() = 0;
+  signals:
+    void imageCaptured(QString type, Magick::Blob blob, Magick::Geometry sizeHint);
+
+    // virtual PipelineCaptureSource *qObject() = 0;
     // signal: emit imageCaptured(QString type, Magick::Blob blob);
   };
 
@@ -98,7 +102,7 @@ namespace timelapse {
 
   public slots:
     virtual void capture();
-    virtual void onInput(InputImageInfo info, Magick::Image img);
+    virtual void onInput2(InputImageInfo info, Magick::Image img);
     void imageCaptured(QString format, Magick::Blob blob, Magick::Geometry sizeHint);
 
   signals:

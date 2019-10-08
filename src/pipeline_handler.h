@@ -45,7 +45,7 @@ namespace timelapse {
   public:
 
   public slots:
-    virtual void onInput(InputImageInfo info) = 0;
+    virtual void onInput1(InputImageInfo info) = 0;
   signals:
     void input(InputImageInfo info);
   };
@@ -54,7 +54,7 @@ namespace timelapse {
     Q_OBJECT
   public:
   public slots:
-    virtual void onInput(InputImageInfo info, Magick::Image img) = 0;
+    virtual void onInput2(InputImageInfo info, Magick::Image img) = 0;
   signals:
     void input(InputImageInfo info, Magick::Image img);
   };
@@ -64,8 +64,8 @@ namespace timelapse {
   public:
     ImageLoader(QTextStream *verboseOutput, QTextStream *err);
   public slots:
-    virtual void onInput(InputImageInfo info, Magick::Image img);
-    virtual void onInput(InputImageInfo info);
+    virtual void onInput2(InputImageInfo info, Magick::Image img) override;
+    virtual void onInput1(InputImageInfo info);
   signals:
     void input(InputImageInfo info, Magick::Image img);
   private:
@@ -77,8 +77,8 @@ namespace timelapse {
     Q_OBJECT
   public:
   public slots:
-    virtual void onInput(InputImageInfo info);
-    virtual void onInput(InputImageInfo info, Magick::Image img);
+    virtual void onInput1(InputImageInfo info) override;
+    virtual void onInput2(InputImageInfo info, Magick::Image img);
   signals:
     void input(InputImageInfo info);
   };
@@ -87,8 +87,8 @@ namespace timelapse {
     Q_OBJECT
   public:
   public slots:
-    virtual void onInput(InputImageInfo info);
-    virtual void onLast();
+    virtual void onInput1(InputImageInfo info) override;
+    virtual void onLast() override;
   protected:
     QList<InputImageInfo> inputs;
 
@@ -99,7 +99,7 @@ namespace timelapse {
   public:
     ImageMetadataReader(QTextStream *verboseOutput, QTextStream *err);
   public slots:
-    virtual void onInput(InputImageInfo info, Magick::Image img);
+    virtual void onInput2(InputImageInfo info, Magick::Image img);
   private:
     QTextStream *verboseOutput;
     QTextStream *err;

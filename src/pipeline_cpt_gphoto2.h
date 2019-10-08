@@ -49,7 +49,7 @@ namespace timelapse {
 #define ON_VALUE "1"
 #define OFF_VALUE "0"
 
-  class Gphoto2Device : public QObject, public CaptureDevice {
+  class Gphoto2Device : public CaptureDevice {
     Q_OBJECT
   public:
     Gphoto2Device(GPContext *context, Camera *camera, QString port, QString model);
@@ -63,7 +63,7 @@ namespace timelapse {
 
     Gphoto2Device operator=(const timelapse::Gphoto2Device&);
 
-    virtual QObject* qObject();
+    //virtual QObject* qObject();
 
     static Gphoto2Device createDevice(GPContext *context, QString port, QTextStream *verboseOut);
     static QList<Gphoto2Device> listDevices(QTextStream *verboseOut, QTextStream *errOut);
@@ -72,9 +72,6 @@ namespace timelapse {
     virtual QList<ShutterSpeedChoice> getShutterSpeedChoices();
     virtual ShutterSpeedChoice currentShutterSpeed();
     virtual bool isBusy() ;
-
-  signals:
-    void imageCaptured(QString type, Magick::Blob blob, Magick::Geometry sizeHint);
 
   protected slots:
     void pollingTimeout();

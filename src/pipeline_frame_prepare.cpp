@@ -55,7 +55,7 @@ namespace timelapse {
     }
   }
 
-  void FramePrepare::onInput(InputImageInfo info, Magick::Image img) {
+  void FramePrepare::onInput2(InputImageInfo info, Magick::Image img) {
     if (prevImage != NULL) {
       blend(prevInfo, prevImage, info, &img);
       delete prevImage;

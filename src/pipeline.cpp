@@ -82,9 +82,9 @@ namespace timelapse {
 
   void Pipeline::append(PipelineHandler *handler) {
     *verboseOutput << "Pipeline append " << handler->metaObject()->className() << "" << endl;
-    connect(handler, SIGNAL(last()), this, SLOT(handlerFinished()));
-    connect(handler, SIGNAL(error(QString)), this, SLOT(onError(QString)));
-    connect(handler, SIGNAL(error(QString)), this, SIGNAL(error(QString)));
+    connect(handler, &PipelineHandler::last, this, &Pipeline::handlerFinished);
+    connect(handler, &PipelineHandler::error, this, &Pipeline::onError);
+    connect(handler, &PipelineHandler::error, this, &Pipeline::error);
     elements.append(handler);
   }
 
@@ -92,8 +92,8 @@ namespace timelapse {
 
     if (lastInputHandler != NULL) {
       ImageLoader *loader = new ImageLoader(verboseOutput, err);
-      connect(lastInputHandler, SIGNAL(input(InputImageInfo)), loader, SLOT(onInput(InputImageInfo)));
-      connect(lastInputHandler, SIGNAL(last()), loader, SLOT(onLast()));
+      connect(lastInputHandler, &InputHandler::input, loader, &ImageLoader::onInput1);
+      connect(lastInputHandler, &InputHandler::last, loader, &ImageLoader::onLast);
       append(loader);
 
       lastInputHandler = NULL;
@@ -102,8 +102,8 @@ namespace timelapse {
 
     if (lastImageHandler != NULL) {
 
-      connect(lastImageHandler, SIGNAL(input(InputImageInfo, Magick::Image)), handler, SLOT(onInput(InputImageInfo, Magick::Image)));
-      connect(lastImageHandler, SIGNAL(last()), handler, SLOT(onLast()));
+      connect(lastImageHandler, &ImageHandler::input, handler, &ImageHandler::onInput2);
+      connect(lastImageHandler, &InputHandler::last, handler, &ImageHandler::onLast);
       //*verboseOutput << "Connect " << lastImageHandler->metaObject()->className()
       //  << " to " << handler->metaObject()->className() << endl;
 
@@ -119,8 +119,8 @@ namespace timelapse {
   void Pipeline::operator<<(InputHandler *handler) {
     if (lastImageHandler != NULL) {
       ImageTrash *trash = new ImageTrash();
-      connect(lastImageHandler, SIGNAL(input(InputImageInfo, Magick::Image)), trash, SLOT(onInput(InputImageInfo, Magick::Image)));
-      connect(lastImageHandler, SIGNAL(last()), trash, SLOT(onLast()));
+      connect(lastImageHandler, &ImageHandler::input, trash, &ImageTrash::onInput2);
+      connect(lastImageHandler, &ImageHandler::last, trash, &ImageTrash::onLast);
       append(trash);
 
       lastImageHandler = NULL;
@@ -128,8 +128,8 @@ namespace timelapse {
     }
 
     if (lastInputHandler != NULL) {
-      connect(lastInputHandler, SIGNAL(input(InputImageInfo)), handler, SLOT(onInput(InputImageInfo)));
-      connect(lastInputHandler, SIGNAL(last()), handler, SLOT(onLast()));
+      connect(lastInputHandler, &InputHandler::input, handler, &InputHandler::onInput1);
+      connect(lastInputHandler, &InputHandler::last, handler, &InputHandler::onLast);
 
     } else {
       throw runtime_error("Weird pipeline state");
@@ -143,12 +143,11 @@ namespace timelapse {
   void Pipeline::process() {
     // listen when last element finish their job
     if (lastInputHandler != NULL) {
-      connect(lastInputHandler, SIGNAL(last()), this, SIGNAL(done()));
+      connect(lastInputHandler, &InputHandler::last, this, &Pipeline::done);
     } else if (lastImageHandler != NULL) {
-      connect(lastImageHandler, SIGNAL(last()), this, SIGNAL(done()));
+      connect(lastImageHandler, &ImageHandler::last, this, &Pipeline::done);
     } else {
       throw logic_error("No handler in pipeline");
-      //connect(src, SIGNAL(last()), this, SIGNAL(done()));
     }
 
     emit src->process();

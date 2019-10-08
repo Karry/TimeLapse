@@ -641,9 +641,9 @@ namespace timelapse {
     return model;
   }
 
-  QObject* Gphoto2Device::qObject() {
-    return this;
-  }
+  // QObject* Gphoto2Device::qObject() {
+  //   return this;
+  // }
 
   Gphoto2Device Gphoto2Device::operator=(const timelapse::Gphoto2Device& o) {
     if (deviceLocked)

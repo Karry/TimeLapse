@@ -47,7 +47,7 @@ namespace timelapse {
     QList<InputImageInfo> listDirectory(QDir d);
     QList<InputImageInfo> parseArguments();
   public slots:
-    virtual void onInput(InputImageInfo info);
+    virtual void onInput1(InputImageInfo info) override;
   private slots:
     void takeNext(QList<InputImageInfo> inputs);
   signals:

@@ -35,7 +35,7 @@ namespace timelapse {
   public:
     ResizeFrame(int w, int h);
   public slots:
-    virtual void onInput(InputImageInfo info, Magick::Image img);
+    virtual void onInput2(InputImageInfo info, Magick::Image img);
 
   private:
     int width;

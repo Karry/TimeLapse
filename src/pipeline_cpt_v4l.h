@@ -43,7 +43,7 @@ namespace timelapse {
     size_t length;
   };
 
-  class V4LDevice : public QObject, public CaptureDevice {
+  class V4LDevice : public CaptureDevice {
     Q_OBJECT
   public:
     V4LDevice(QString dev = "/dev/video0");
@@ -56,15 +56,12 @@ namespace timelapse {
     virtual QString toShortString();
     V4LDevice operator=(const timelapse::V4LDevice&);
 
-    virtual QObject* qObject();
+    //virtual PipelineCaptureSource* qObject();
 
     static void ioctl(int fh, unsigned long int request, void *arg);
     static QList<V4LDevice> listDevices(QTextStream *verboseOut, QDir devDir = QDir("/dev"));
 
     void initialize();
-
-  signals:
-    void imageCaptured(QString type, Magick::Blob blob, Magick::Geometry sizeHint);
 
   protected:
     int open();

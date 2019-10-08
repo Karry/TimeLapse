@@ -58,7 +58,7 @@ namespace timelapse {
     return s.prepend(QString(leadingZeros - s.length(), '0'));
   }
 
-  void WriteFrame::onInput(InputImageInfo info, Magick::Image img) {
+  void WriteFrame::onInput2(InputImageInfo info, Magick::Image img) {
     QString framePath = outputDir.path() + QDir::separator()
       + leadingZeros(info.frame, FRAME_FILE_LEADING_ZEROS) + QString(".jpeg");
 

@@ -456,7 +456,7 @@ namespace timelapse {
     emit last();
   }
 
-  void PipelineStabDetect::onInput(InputImageInfo info, Magick::Image image) {
+  void PipelineStabDetect::onInput2(InputImageInfo info, Magick::Image image) {
     try {
       if (!initialized) {
         init(image);
@@ -574,7 +574,7 @@ namespace timelapse {
     emit last();
   }
 
-  void PipelineStabTransform::onInput(InputImageInfo info, Magick::Image image) {
+  void PipelineStabTransform::onInput2(InputImageInfo info, Magick::Image image) {
     try {
       if (!initialized) {
         init(image);

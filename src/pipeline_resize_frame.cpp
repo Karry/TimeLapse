@@ -44,7 +44,7 @@ namespace timelapse {
   ResizeFrame::ResizeFrame(int w, int h) : width(w), height(h) {
   }
 
-  void ResizeFrame::onInput(InputImageInfo info, Magick::Image img) {
+  void ResizeFrame::onInput2(InputImageInfo info, Magick::Image img) {
     Magick::Image resized = img;
     Magick::Geometry g(width, height);
     g.aspect(true);

@@ -164,9 +164,9 @@ namespace timelapse {
   verboseOutput(verboseOutput), err(err), timer(NULL) {
 
     timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(capture()));
-    connect(dev->qObject(), SIGNAL(imageCaptured(QString, Magick::Blob, Magick::Geometry)),
-      this, SLOT(imageCaptured(QString, Magick::Blob, Magick::Geometry)));
+    connect(timer, &QTimer::timeout, this, &PipelineCaptureSource::capture);
+    connect(dev.get(), &CaptureDevice::imageCaptured,
+      this, &PipelineCaptureSource::imageCaptured);
   }
 
   PipelineCaptureSource::~PipelineCaptureSource() {
@@ -226,7 +226,7 @@ namespace timelapse {
     emit input(ii, capturedImage);
   }
 
-  void PipelineCaptureSource::onInput([[maybe_unused]] InputImageInfo info, [[maybe_unused]] Magick::Image img) {
+  void PipelineCaptureSource::onInput2([[maybe_unused]] InputImageInfo info, [[maybe_unused]] Magick::Image img) {
     // ignore, we are the source
   }
 

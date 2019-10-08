@@ -153,10 +153,14 @@ namespace timelapse {
   }
 
   void TimeLapseDeflicker::onError([[maybe_unused]] const QString &msg) {
-    emit cleanup(1);
+    emit cleanup2(1);
   }
 
-  void TimeLapseDeflicker::cleanup(int exitCode) {
+  void TimeLapseDeflicker::cleanup() {
+    cleanup2(0);
+  }
+
+  void TimeLapseDeflicker::cleanup2(int exitCode) {
     if (pipeline != NULL) {
       delete pipeline;
       pipeline = NULL;
@@ -182,8 +186,8 @@ namespace timelapse {
     //*pipeline << new ComputeLuminance(&verboseOutput);
     *pipeline << new WriteFrame(output, &verboseOutput, dryRun);
 
-    connect(pipeline, SIGNAL(done()), this, SLOT(cleanup()));
-    connect(pipeline, SIGNAL(error(QString)), this, SLOT(onError(QString)));
+    connect(pipeline, &Pipeline::done, this, &TimeLapseDeflicker::cleanup);
+    connect(pipeline, &Pipeline::error, this, &TimeLapseDeflicker::onError);
 
     // startup pipeline
     emit pipeline->process();

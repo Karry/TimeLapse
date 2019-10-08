@@ -44,7 +44,7 @@ namespace timelapse {
 
   }
 
-  void OneToOneFrameMapping::onInput(InputImageInfo info) {
+  void OneToOneFrameMapping::onInput1(InputImageInfo info) {
     info.frame = frame;
     emit input(info);
     frame++;
@@ -60,7 +60,7 @@ namespace timelapse {
     }
   }
 
-  void ConstIntervalFrameMapping::onInput(InputImageInfo info) {
+  void ConstIntervalFrameMapping::onInput1(InputImageInfo info) {
     inputs.append(info);
   }
 

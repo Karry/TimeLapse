@@ -20,6 +20,8 @@
 #include "pipeline_resize_frame.h"
 #include "pipeline_resize_frame.moc"
 
+#include "scope_log.h"
+
 #include <QtCore/QCoreApplication>
 
 using namespace std;
@@ -28,14 +30,18 @@ using namespace timelapse;
 
 namespace timelapse {
 
-  ResizeFrame::ResizeFrame(int w, int h) : width(w), height(h) {
+  ResizeFrame::ResizeFrame(QTextStream *verboseOutput, int w, int h) :
+    verboseOutput{verboseOutput}, width(w), height(h) {
   }
 
   void ResizeFrame::onInput2(InputImageInfo info, Magick::Image img) {
     Magick::Image resized = img;
-    Magick::Geometry g(width, height);
-    g.aspect(true);
-    resized.resize(g);
+    {
+      ScopeLogger resizeLogger(verboseOutput, QString("Resizing image to %1 x %2").arg(width).arg(height));
+      Magick::Geometry g(width, height);
+      g.aspect(true);
+      resized.resize(g);
+    }
     emit input(info, resized);
   }
 

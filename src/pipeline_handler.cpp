@@ -17,14 +17,16 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             
  */
 
-#include <QtCore/QTextStream>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QString>
+#include "pipeline_handler.h"
+#include "pipeline_handler.moc"
+
+#include "scope_log.h"
 
 #include <ImageMagick-6/Magick++/Exception.h>
 
-#include "pipeline_handler.h"
-#include "pipeline_handler.moc"
+#include <QtCore/QTextStream>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QString>
 
 using namespace std;
 using namespace timelapse;
@@ -47,11 +49,10 @@ namespace timelapse {
   }
 
   void ImageLoader::onInput1(InputImageInfo info) {
-    *verboseOutput << "Loading " << info.fileInfo().filePath() << endl;
-    
     Magick::Image image;
     bool usableImage = false;
     try {
+      ScopeLogger loadLogger(verboseOutput, QString("Loading %1").arg(info.fileInfo().filePath()));
       image.read(info.filePath);
       usableImage = true;
     } catch (Magick::WarningCoder &warning) {

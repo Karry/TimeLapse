@@ -20,6 +20,8 @@
 #include "pipeline_write_frame.h"
 #include "pipeline_write_frame.moc"
 
+#include "scope_log.h"
+
 #include <Magick++.h>
 
 #include <QtCore/QTextStream>
@@ -53,11 +55,13 @@ namespace timelapse {
     QString framePath = outputDir.path() + QDir::separator()
       + leadingZeros(info.frame, FRAME_FILE_LEADING_ZEROS) + QString(".jpeg");
 
-    *verboseOutput << "Write frame " << framePath << endl;
-    if (!dryRun) {
-      img.compressType(Magick::JPEGCompression);
-      img.magick( "JPEG" );
-      img.write(framePath.toStdString());
+    {
+      ScopeLogger loadLogger(verboseOutput, QString("Writing frame %1").arg(framePath));
+      if (!dryRun) {
+        img.compressType(Magick::JPEGCompression);
+        img.magick("JPEG");
+        img.write(framePath.toStdString());
+      }
     }
     // update image location & emit signal
     info.filePath = framePath.toStdString();

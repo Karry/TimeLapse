@@ -317,7 +317,7 @@ namespace timelapse {
     } else {
       *pipeline << new FramePrepare(&_verboseOutput);
     }
-    *pipeline << new ResizeFrame(_width, _height);
+    *pipeline << new ResizeFrame(&_verboseOutput, _width, _height);
     *pipeline << new WriteFrame(QDir(_tempDir->path()), &_verboseOutput, _dryRun);
 
     * pipeline << new VideoAssembly(QDir(_tempDir->path()), &_verboseOutput, &_err, _dryRun,

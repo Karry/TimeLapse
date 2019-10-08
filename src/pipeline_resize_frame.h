@@ -33,11 +33,12 @@ namespace timelapse {
   class ResizeFrame : public ImageHandler {
     Q_OBJECT
   public:
-    ResizeFrame(int w, int h);
+    ResizeFrame(QTextStream *verboseOutput, int w, int h);
   public slots:
     virtual void onInput2(InputImageInfo info, Magick::Image img) override;
 
   private:
+    QTextStream *verboseOutput;
     int width;
     int height;
   };

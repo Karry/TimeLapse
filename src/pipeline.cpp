@@ -73,7 +73,7 @@ namespace timelapse {
   void Pipeline::onError(QString msg) {
     QObject *sender = QObject::sender();
     if (sender != nullptr) {
-      *verboseOutput << "Error in pipeline handler " << sender->metaObject()->className() << " :" << endl;
+      *verboseOutput << "Error in pipeline handler " << sender->metaObject()->className() << " :" << msg << endl;
     } else {
       *verboseOutput << "onError slot called directly!" << endl;
     }

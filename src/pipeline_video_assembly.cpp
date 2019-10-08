@@ -87,10 +87,14 @@ namespace timelapse {
       proc.start(cmd, args);
       if (!proc.waitForFinished(-1 /* no timeout */)) {
         *err << cmd << " failed:" << proc.errorString() << endl;
-        exit(-2);
-        return;
+        emit error(cmd + " failed:" + proc.errorString());
+      } else {
+        *verboseOutput << cmd << " output:\n" << proc.readAll();
+        if (proc.exitCode() != 0) {
+          *err << cmd << " exited with " << proc.exitCode() << endl;
+          emit error(QString("%1 exited with %2").arg(cmd).arg(proc.exitCode()));
+        }
       }
-      *verboseOutput << cmd << " output:\n" << proc.readAll();
     }
     emit last();
   }

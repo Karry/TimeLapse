@@ -56,7 +56,7 @@ namespace timelapse {
 
     frameCount = length * fps;
     if (frameCount <= 0) {
-      throw invalid_argument("Frame count have to be possitive!");
+      throw invalid_argument("Frame count have to be positive!");
     }
   }
 

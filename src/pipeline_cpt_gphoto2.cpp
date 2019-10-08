@@ -46,7 +46,7 @@ namespace timelapse {
 
   int _get_portinfo_list(GPPortInfoList **portinfo_list) {
     int count, result;
-    GPPortInfoList *list = NULL;
+    GPPortInfoList *list = nullptr;
 
     if (*portinfo_list)
       return GP_OK; // list is created already 
@@ -495,7 +495,7 @@ namespace timelapse {
 
   void Gphoto2Device::waitAndHandleEvent(int waitMs, CameraEventType *evtype) {
     int ret;
-    void *data = NULL;
+    void *data = nullptr;
     ret = gp_camera_wait_for_event(camera, waitMs, evtype, &data, context);
     if (ret == GP_ERROR_NOT_SUPPORTED) {
       *evtype = GP_EVENT_TIMEOUT;
@@ -669,12 +669,12 @@ namespace timelapse {
     GPContext *context = gp_context_new();
     ALLOC_CHECK(context);
 
-    gp_context_set_idle_func(context, 0, NULL);
-    gp_context_set_progress_funcs(context, 0, 0, 0, NULL);
+    gp_context_set_idle_func(context, 0, nullptr);
+    gp_context_set_progress_funcs(context, 0, 0, 0, nullptr);
     gp_context_set_error_func(context, _gp_context_msg_func, errOut);
     gp_context_set_status_func(context, _gp_context_msg_func, verboseOut);
-    gp_context_set_question_func(context, 0, NULL);
-    gp_context_set_cancel_func(context, 0, NULL);
+    gp_context_set_question_func(context, 0, nullptr);
+    gp_context_set_cancel_func(context, 0, nullptr);
     gp_context_set_message_func(context, _gp_context_msg_func, verboseOut);
 
 #ifdef gp_log_add_func
@@ -693,7 +693,7 @@ namespace timelapse {
     GPPortInfo info;
 
     /* Create the list of ports and load it. */
-    GPPortInfoList *portinfo_list = NULL;
+    GPPortInfoList *portinfo_list = nullptr;
     CR(_get_portinfo_list(&portinfo_list));
 
     /* Search our port in the list. */
@@ -713,7 +713,7 @@ namespace timelapse {
     }
 
     // create camera
-    Camera *camera = NULL;
+    Camera *camera = nullptr;
     r = gp_camera_new(&camera);
     if (r < 0) {
       gp_port_info_list_free(portinfo_list);
@@ -812,18 +812,18 @@ namespace timelapse {
     QList<Gphoto2Device> devices;
 
     int x, count;
-    const char *model = NULL, *port = NULL;
+    const char *model = nullptr, *port = nullptr;
 
     GPContext *context = Gphoto2Device::initContext(verboseOut, errOut);
 
-    GPPortInfoList *portinfo_list = NULL;
+    GPPortInfoList *portinfo_list = nullptr;
     CR(_get_portinfo_list(&portinfo_list));
     count = gp_port_info_list_count(portinfo_list);
 
-    CameraList *list = NULL;
+    CameraList *list = nullptr;
     CR(gp_list_new(&list));
 
-    CameraAbilitiesList *abilities_list = NULL;
+    CameraAbilitiesList *abilities_list = nullptr;
     CR(gp_abilities_list_new(&abilities_list));
     gp_abilities_list_load(abilities_list, context);
     gp_abilities_list_detect(abilities_list, portinfo_list, list, context);

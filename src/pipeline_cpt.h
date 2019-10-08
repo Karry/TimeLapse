@@ -31,7 +31,7 @@
 namespace timelapse {
 
 #define CLEAR(x) memset(&(x), 0, sizeof(x))
-#define ALLOC_CHECK(ptr) { if (ptr==NULL) throw std::runtime_error("Allocation failure"); }
+#define ALLOC_CHECK(ptr) { if (ptr==nullptr) throw std::runtime_error("Allocation failure"); }
 
   class ShutterSpeedChoice {
   public:

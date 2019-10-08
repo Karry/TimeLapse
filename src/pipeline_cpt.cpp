@@ -161,7 +161,7 @@ namespace timelapse {
   PipelineCaptureSource::PipelineCaptureSource(QSharedPointer<CaptureDevice> dev, uint64_t intervalMs, int32_t cnt,
     QTextStream *verboseOutput, QTextStream *err) :
   dev(dev), intervalMs(intervalMs), capturedCnt(0), cnt(cnt),
-  verboseOutput(verboseOutput), err(err), timer(NULL) {
+  verboseOutput(verboseOutput), err(err), timer(nullptr) {
 
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &PipelineCaptureSource::capture);
@@ -171,10 +171,10 @@ namespace timelapse {
 
   PipelineCaptureSource::~PipelineCaptureSource() {
     //delete dev;
-    if (timer != NULL) {
+    if (timer != nullptr) {
       timer->stop();
       delete timer;
-      timer = NULL;
+      timer = nullptr;
     }
   }
 

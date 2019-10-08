@@ -64,28 +64,28 @@ namespace timelapse {
   }
 
   StabConfig::StabConfig() :
-  stabStateFile(NULL), dryRun(false),
+  stabStateFile(nullptr), dryRun(false),
 
-  threadsOption(NULL),
+  threadsOption(nullptr),
 
-  shakinessOption(NULL),
-  accuracyOption(NULL),
-  stepSizeOption(NULL),
-  minContrastOption(NULL),
-  tripodOption(NULL),
-  showOption(NULL),
+  shakinessOption(nullptr),
+  accuracyOption(nullptr),
+  stepSizeOption(nullptr),
+  minContrastOption(nullptr),
+  tripodOption(nullptr),
+  showOption(nullptr),
 
-  smoothingOption(NULL),
-  camPathAlgoOption(NULL),
-  maxShiftOption(NULL),
-  maxAngleOption(NULL),
-  cropBlackOption(NULL),
-  invertOption(NULL),
-  relativeOption(NULL),
-  zoomOption(NULL),
-  optZoomOption(NULL),
-  zoomSpeedOption(NULL),
-  interpolOption(NULL) {
+  smoothingOption(nullptr),
+  camPathAlgoOption(nullptr),
+  maxShiftOption(nullptr),
+  maxAngleOption(nullptr),
+  cropBlackOption(nullptr),
+  invertOption(nullptr),
+  relativeOption(nullptr),
+  zoomOption(nullptr),
+  optZoomOption(nullptr),
+  zoomSpeedOption(nullptr),
+  interpolOption(nullptr) {
 
     QTemporaryFile *tf = new QTemporaryFile();
     if (!tf->open()) { // just create temp file    
@@ -397,7 +397,7 @@ namespace timelapse {
   FILE* StabConfig::openStabStateFile(const char *mode) {
     std::string name = stabStateFile->fileName().toStdString();
     FILE *result = fopen(name.c_str(), mode);
-    if (result == NULL) {
+    if (result == nullptr) {
       throw runtime_error(QString("Cannot open transform file %1").arg(stabStateFile->fileName()).toStdString());
     }
 
@@ -405,9 +405,9 @@ namespace timelapse {
   }
 
   StabConfig::~StabConfig() {
-    if (stabStateFile != NULL) {
+    if (stabStateFile != nullptr) {
       delete stabStateFile;
-      stabStateFile = NULL;
+      stabStateFile = nullptr;
     }
 
     delete threadsOption;
@@ -435,7 +435,7 @@ namespace timelapse {
 
   PipelineStabDetect::PipelineStabDetect(StabConfig *stabConf, QTextStream *verboseOutput, QTextStream *err) :
   stabConf(stabConf),
-  initialized(false), width(-1), height(-1), f(NULL),
+  initialized(false), width(-1), height(-1), f(nullptr),
   verboseOutput(verboseOutput), err(err) {
 
     memset(&md, 0, sizeof (VSMotionDetect));
@@ -450,7 +450,7 @@ namespace timelapse {
     if (initialized) {
       *verboseOutput << "closing " << stabConf->stabStateFile->fileName() << endl;
       fclose(f);
-      f = NULL;
+      f = nullptr;
       vsMotionDetectionCleanup(&md);
     }
     emit last();
@@ -551,7 +551,7 @@ namespace timelapse {
 
   PipelineStabTransform::PipelineStabTransform(StabConfig *stabConf, QTextStream *verboseOutput, QTextStream *err) :
   stabConf(stabConf),
-  initialized(false), width(-1), height(-1), f(NULL),
+  initialized(false), width(-1), height(-1), f(nullptr),
   verboseOutput(verboseOutput), err(err) {
 
 
@@ -684,7 +684,7 @@ namespace timelapse {
     }
 
     fclose(f);
-    f = NULL;
+    f = nullptr;
 
     if (vsPreprocessTransforms(&td, &trans) != VS_OK) {
       throw runtime_error("error while preprocessing transforms");

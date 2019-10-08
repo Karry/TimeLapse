@@ -260,9 +260,9 @@ namespace timelapse {
   TimeLapseCapture::TimeLapseCapture(int &argc, char **argv) :
   QCoreApplication(argc, argv),
   out(stdout), err(stderr),
-  verboseOutput(stdout), blackHole(NULL),
+  verboseOutput(stdout), blackHole(nullptr),
   output(), timer(), frameNumberLocale(QLocale::c()), capturedCnt(0), capturedSubsequence(0),
-  shutterSpdAlg(NULL),
+  shutterSpdAlg(nullptr),
   interval(10000), cnt(-1) {
 
     setApplicationName("TimeLapse capture tool");
@@ -274,15 +274,15 @@ namespace timelapse {
 
     timer.stop();
 
-    if (blackHole != NULL) {
+    if (blackHole != nullptr) {
       verboseOutput.flush();
-      verboseOutput.setDevice(NULL);
+      verboseOutput.setDevice(nullptr);
       delete blackHole;
-      blackHole = NULL;
+      blackHole = nullptr;
     }
-    if (shutterSpdAlg != NULL) {
+    if (shutterSpdAlg != nullptr) {
       delete shutterSpdAlg;
-      shutterSpdAlg = NULL;
+      shutterSpdAlg = nullptr;
     }
   }
 
@@ -648,7 +648,7 @@ constexpr int BUSY_CAPTURE_POSTPONE_MS = 100;
         const char *headerBytes = headerStr.c_str();
         size_t headerLen = strlen(headerBytes);
 
-        if (shutterSpdAlg != NULL && capturedSubsequence == 0) {
+        if (shutterSpdAlg != nullptr && capturedSubsequence == 0) {
           Magick::Image capturedImage;
           capturedImage.read(blob, sizeHint, 8, "RGB");
           shutterSpdAlg->update(capturedImage);
@@ -665,7 +665,7 @@ constexpr int BUSY_CAPTURE_POSTPONE_MS = 100;
         Magick::Image capturedImage;
         capturedImage.read(blob, sizeHint, 8, "RGB");
 
-        if (shutterSpdAlg != NULL && capturedSubsequence == 0) {
+        if (shutterSpdAlg != nullptr && capturedSubsequence == 0) {
           shutterSpdAlg->update(capturedImage);
         }
 
@@ -685,7 +685,7 @@ constexpr int BUSY_CAPTURE_POSTPONE_MS = 100;
       }
     } else {
 
-      if (shutterSpdAlg != NULL && capturedSubsequence == 0) {
+      if (shutterSpdAlg != nullptr && capturedSubsequence == 0) {
         try {
           Magick::Image capturedImage;
           capturedImage.read(blob, format.toStdString());
@@ -703,7 +703,7 @@ constexpr int BUSY_CAPTURE_POSTPONE_MS = 100;
       file.write((char*) blob.data(), blob.length());
       file.close();
 
-      if (readRawFromFile && shutterSpdAlg != NULL && capturedSubsequence == 0) {
+      if (readRawFromFile && shutterSpdAlg != nullptr && capturedSubsequence == 0) {
         /* I don't understand ImageMagick correctly, but it fails with reading RAW files
          * from memory blob, but reading from file works (sometimes). 
          * Maybe, it don't support delegating (dcraw, ufraw...) with memory data...

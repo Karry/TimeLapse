@@ -56,19 +56,19 @@ namespace timelapse {
   out(stdout), err(stderr),
   dryRun(false), debugView(false),
   wmaCount(-1),
-  verboseOutput(stdout), blackHole(NULL),
-  pipeline(NULL), output() {
+  verboseOutput(stdout), blackHole(nullptr),
+  pipeline(nullptr), output() {
 
     setApplicationName("TimeLapse deflicker tool");
     setApplicationVersion(VERSION_TIMELAPSE);
   }
 
   TimeLapseDeflicker::~TimeLapseDeflicker() {
-    if (blackHole != NULL) {
+    if (blackHole != nullptr) {
       verboseOutput.flush();
-      verboseOutput.setDevice(NULL);
+      verboseOutput.setDevice(nullptr);
       delete blackHole;
-      blackHole = NULL;
+      blackHole = nullptr;
     }
   }
 
@@ -161,9 +161,9 @@ namespace timelapse {
   }
 
   void TimeLapseDeflicker::cleanup2(int exitCode) {
-    if (pipeline != NULL) {
+    if (pipeline != nullptr) {
       delete pipeline;
-      pipeline = NULL;
+      pipeline = nullptr;
     }
 
     exit(exitCode);

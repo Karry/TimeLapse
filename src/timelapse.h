@@ -35,7 +35,7 @@ namespace timelapse {
     }
 
     ErrorMessageHelper(QIODevice *errDev) :
-    _coloredTerm(true), _err(errDev), _parser(NULL) {
+    _coloredTerm(true), _err(errDev), _parser(nullptr) {
     }
 
     void operator<<(const QString &s) {
@@ -46,7 +46,7 @@ namespace timelapse {
       if (_coloredTerm)
         _err << "\033[0m";
       _err << endl << endl;
-      if (_parser != NULL)
+      if (_parser != nullptr)
         _parser->showHelp(-1);
       else
         exit(-1);

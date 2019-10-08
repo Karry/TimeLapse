@@ -47,26 +47,26 @@ namespace timelapse {
   TimeLapseStabilize::TimeLapseStabilize(int &argc, char **argv) :
   QCoreApplication(argc, argv),
   out(stdout), err(stderr),
-  verboseOutput(stdout), blackHole(NULL),
-  pipeline(NULL), stabConf(NULL), output(),
+  verboseOutput(stdout), blackHole(nullptr),
+  pipeline(nullptr), stabConf(nullptr), output(),
   dryRun(false),
-  tempDir(NULL) {
+  tempDir(nullptr) {
 
     setApplicationName("TimeLapse stabilize tool");
     setApplicationVersion(VERSION_TIMELAPSE);
   }
 
   TimeLapseStabilize::~TimeLapseStabilize() {
-    if (blackHole != NULL) {
+    if (blackHole != nullptr) {
       verboseOutput.flush();
-      verboseOutput.setDevice(NULL);
+      verboseOutput.setDevice(nullptr);
       delete blackHole;
-      blackHole = NULL;
+      blackHole = nullptr;
     }
 
-    if (tempDir != NULL) {
+    if (tempDir != nullptr) {
       delete tempDir;
-      tempDir = NULL;
+      tempDir = nullptr;
     }
   }
 
@@ -94,7 +94,7 @@ namespace timelapse {
       QCoreApplication::translate("main", "Verbose output."));
     parser.addOption(verboseOption);
 
-    if (stabConf != NULL) {
+    if (stabConf != nullptr) {
       delete stabConf;
     }
     stabConf = new StabConfig();
@@ -150,13 +150,13 @@ namespace timelapse {
   }
 
   void TimeLapseStabilize::cleanup2(int exitCode) {
-    if (pipeline != NULL) {
+    if (pipeline != nullptr) {
       delete pipeline;
-      pipeline = NULL;
+      pipeline = nullptr;
     }
-    if (stabConf != NULL) {
+    if (stabConf != nullptr) {
       delete stabConf;
-      stabConf = NULL;
+      stabConf = nullptr;
     }
 
     exit(exitCode);

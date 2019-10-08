@@ -44,7 +44,7 @@ using namespace timelapse;
 namespace timelapse {
 
   FramePrepare::FramePrepare(QTextStream *_verboseOutput) :
-  verboseOutput(_verboseOutput), prevImage(NULL), prevInfo() {
+  verboseOutput(_verboseOutput), prevImage(nullptr), prevInfo() {
   }
 
   void FramePrepare::blend(InputImageInfo info1, const Magick::Image *img1, InputImageInfo info2, [[maybe_unused]] const Magick::Image *img2) {
@@ -56,7 +56,7 @@ namespace timelapse {
   }
 
   void FramePrepare::onInput2(InputImageInfo info, Magick::Image img) {
-    if (prevImage != NULL) {
+    if (prevImage != nullptr) {
       blend(prevInfo, prevImage, info, &img);
       delete prevImage;
     }
@@ -65,8 +65,8 @@ namespace timelapse {
   }
 
   void FramePrepare::onLast() {
-    if (prevImage != NULL) {
-      blend(prevInfo, prevImage, prevInfo, NULL);
+    if (prevImage != nullptr) {
+      blend(prevInfo, prevImage, prevInfo, nullptr);
       delete prevImage;
     }
     emit last();

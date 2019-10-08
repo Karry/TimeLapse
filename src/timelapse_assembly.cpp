@@ -52,26 +52,26 @@ namespace timelapse {
   QCoreApplication(argc, argv),
   _out(stdout), _err(stderr),
   _dryRun(false), deflickerAvg(false), deflickerDebugView(false), wmaCount(-1),
-  _verboseOutput(stdout), _blackHole(NULL),
+  _verboseOutput(stdout), _blackHole(nullptr),
   _forceOverride(false),
   _tmpBaseDir(QDir::tempPath()),
-  _tempDir(NULL),
+  _tempDir(nullptr),
   _output("timelapse.mkv"),
   _width(1920), _height(1080),
   _fps(25), _length(-1), _frameCount(-1), _bitrate("40000k"), _codec("libx264"),
   _noStrictInterval(false), _blendFrames(false),
-  pipeline(NULL) {
+  pipeline(nullptr) {
 
     setApplicationName("TimeLapse assembly tool");
     setApplicationVersion(VERSION_TIMELAPSE);
   }
 
   TimeLapseAssembly::~TimeLapseAssembly() {
-    if (_blackHole != NULL) {
+    if (_blackHole != nullptr) {
       _verboseOutput.flush();
-      _verboseOutput.setDevice(NULL);
+      _verboseOutput.setDevice(nullptr);
       delete _blackHole;
-      _blackHole = NULL;
+      _blackHole = nullptr;
     }
   }
 
@@ -275,13 +275,13 @@ namespace timelapse {
   }
 
   void TimeLapseAssembly::cleanup2(int exitCode) {
-    if (pipeline != NULL) {
+    if (pipeline != nullptr) {
       delete pipeline;
-      pipeline = NULL;
+      pipeline = nullptr;
     }
-    if (_tempDir != NULL) {
+    if (_tempDir != nullptr) {
       delete _tempDir;
-      _tempDir = NULL;
+      _tempDir = nullptr;
     }
 
     exit(exitCode);

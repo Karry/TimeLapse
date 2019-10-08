@@ -43,7 +43,7 @@ namespace timelapse {
   Pipeline::Pipeline(PipelineSource *src, InputHandler *firstInputHandler,
     QTextStream *verboseOutput, QTextStream *err) :
   verboseOutput(verboseOutput), err(err),
-  elements(), src(src), lastInputHandler(firstInputHandler), lastImageHandler(NULL) {
+  elements(), src(src), lastInputHandler(firstInputHandler), lastImageHandler(nullptr) {
 
     append(firstInputHandler);
   }
@@ -51,7 +51,7 @@ namespace timelapse {
   Pipeline::Pipeline(PipelineSource *src, ImageHandler *firstImageHandler,
     QTextStream *verboseOutput, QTextStream *err) :
   verboseOutput(verboseOutput), err(err),
-  elements(), src(src), lastInputHandler(NULL), lastImageHandler(firstImageHandler) {
+  elements(), src(src), lastInputHandler(nullptr), lastImageHandler(firstImageHandler) {
 
     append(firstImageHandler);
   }
@@ -64,7 +64,7 @@ namespace timelapse {
 
   void Pipeline::handlerFinished() {
     QObject *sender = QObject::sender();
-    if (sender != NULL)
+    if (sender != nullptr)
       *verboseOutput << "Pipeline handler " << sender->metaObject()->className() << " finished" << endl;
     else
       *verboseOutput << "handlerFinished called directly!" << endl;
@@ -72,7 +72,7 @@ namespace timelapse {
 
   void Pipeline::onError(QString msg) {
     QObject *sender = QObject::sender();
-    if (sender != NULL) {
+    if (sender != nullptr) {
       *verboseOutput << "Error in pipeline handler " << sender->metaObject()->className() << " :" << endl;
     } else {
       *verboseOutput << "onError slot called directly!" << endl;
@@ -90,17 +90,17 @@ namespace timelapse {
 
   void Pipeline::operator<<(ImageHandler *handler) {
 
-    if (lastInputHandler != NULL) {
+    if (lastInputHandler != nullptr) {
       ImageLoader *loader = new ImageLoader(verboseOutput, err);
       connect(lastInputHandler, &InputHandler::input, loader, &ImageLoader::onInput1);
       connect(lastInputHandler, &InputHandler::last, loader, &ImageLoader::onLast);
       append(loader);
 
-      lastInputHandler = NULL;
+      lastInputHandler = nullptr;
       lastImageHandler = loader;
     }
 
-    if (lastImageHandler != NULL) {
+    if (lastImageHandler != nullptr) {
 
       connect(lastImageHandler, &ImageHandler::input, handler, &ImageHandler::onInput2);
       connect(lastImageHandler, &InputHandler::last, handler, &ImageHandler::onLast);
@@ -110,24 +110,24 @@ namespace timelapse {
     } else {
       throw runtime_error("Weird pipeline state");
     }
-    lastInputHandler = NULL;
+    lastInputHandler = nullptr;
     lastImageHandler = handler;
 
     append(handler);
   }
 
   void Pipeline::operator<<(InputHandler *handler) {
-    if (lastImageHandler != NULL) {
+    if (lastImageHandler != nullptr) {
       ImageTrash *trash = new ImageTrash();
       connect(lastImageHandler, &ImageHandler::input, trash, &ImageTrash::onInput2);
       connect(lastImageHandler, &ImageHandler::last, trash, &ImageTrash::onLast);
       append(trash);
 
-      lastImageHandler = NULL;
+      lastImageHandler = nullptr;
       lastInputHandler = trash;
     }
 
-    if (lastInputHandler != NULL) {
+    if (lastInputHandler != nullptr) {
       connect(lastInputHandler, &InputHandler::input, handler, &InputHandler::onInput1);
       connect(lastInputHandler, &InputHandler::last, handler, &InputHandler::onLast);
 
@@ -135,16 +135,16 @@ namespace timelapse {
       throw runtime_error("Weird pipeline state");
     }
     lastInputHandler = handler;
-    lastImageHandler = NULL;
+    lastImageHandler = nullptr;
 
     append(handler);
   }
 
   void Pipeline::process() {
     // listen when last element finish their job
-    if (lastInputHandler != NULL) {
+    if (lastInputHandler != nullptr) {
       connect(lastInputHandler, &InputHandler::last, this, &Pipeline::done);
-    } else if (lastImageHandler != NULL) {
+    } else if (lastImageHandler != nullptr) {
       connect(lastImageHandler, &ImageHandler::last, this, &Pipeline::done);
     } else {
       throw logic_error("No handler in pipeline");

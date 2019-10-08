@@ -218,7 +218,7 @@ namespace timelapse {
     int r, fd = -1;
     unsigned int i, n_buffers;
     struct buffer *buffers;
-    buffers = NULL;
+    buffers = nullptr;
     //Magick::Image capturedImage;
     unsigned int warmupFrames = 20; // TODO: configurable
 
@@ -257,7 +257,7 @@ namespace timelapse {
         V4LDevice::ioctl(fd, VIDIOC_QUERYBUF, &buf);
 
         buffers[n_buffers].length = buf.length;
-        buffers[n_buffers].start = v4l2_mmap(NULL, buf.length,
+        buffers[n_buffers].start = v4l2_mmap(nullptr, buf.length,
           PROT_READ | PROT_WRITE, MAP_SHARED,
           fd, buf.m.offset);
 
@@ -286,7 +286,7 @@ namespace timelapse {
           tv.tv_sec = 2;
           tv.tv_usec = 0;
 
-          r = select(fd + 1, &fds, NULL, NULL, &tv);
+          r = select(fd + 1, &fds, nullptr, nullptr, &tv);
         } while ((r == -1 && (errno = EINTR)));
         if (r == -1) {
           perror("select");
@@ -319,7 +319,7 @@ namespace timelapse {
       v4l2_close(fd);
     } catch (std::exception &e) {
       // cleanup
-      if (buffers != NULL)
+      if (buffers != nullptr)
         delete[] buffers;
       v4l2_close(fd);
       //QTextStream(stdout) << e.what() << endl;

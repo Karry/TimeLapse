@@ -19,6 +19,16 @@
 
 #pragma once
 
+
+#include "timelapse.h"
+#include "black_hole_device.h"
+#include "input_image_info.h"
+#include "pipeline.h"
+#include "pipeline_cpt.h"
+
+#include <Magick++.h>
+#include <ImageMagick-6/Magick++/Color.h>
+
 #include <QtCore/QObject>
 #include <QtCore/QDebug>
 #include <QtCore/QTimer>
@@ -32,14 +42,6 @@
 #include <queue>
 #include <vector>
 #include <utility>
-#include <Magick++.h>
-#include <ImageMagick-6/Magick++/Color.h>
-
-#include "timelapse.h"
-#include "black_hole_device.h"
-#include "input_image_info.h"
-#include "pipeline.h"
-#include "pipeline_cpt.h"
 
 namespace timelapse {
 

@@ -17,6 +17,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             
  */
 
+#include "pipeline_cpt_v4l.h"
+#include "pipeline_cpt_v4l.moc"
 
 #include <fcntl.h>
 #include <errno.h>
@@ -26,22 +28,11 @@
 #include <linux/videodev2.h>
 #include <libv4l2.h>
 
-
 #include <QtCore/QObject>
-#include <QtCore/QDebug>
-#include <QtCore/QTimer>
 #include <QtCore/QTextStream>
 #include <QtCore/QByteArray>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QCommandLineParser>
-#include <QtCore/QProcess>
 
 #include <QtCore/QDir>
-
-#include "pipeline_cpt_v4l.h"
-#include "pipeline_cpt_v4l.moc"
-
-
 
 using namespace std;
 using namespace timelapse;

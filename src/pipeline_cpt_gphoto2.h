@@ -19,6 +19,10 @@
 
 #pragma once
 
+#include "pipeline_cpt.h"
+
+#include <Magick++.h>
+
 #include <gphoto2/gphoto2-file.h>
 #include <gphoto2/gphoto2-camera.h>
 #include <gphoto2/gphoto2-port-log.h>
@@ -30,10 +34,6 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QFileInfo>
 #include <QtCore/QTemporaryDir>
-
-#include <Magick++.h>
-
-#include "pipeline_cpt.h"
 
 namespace timelapse {
   

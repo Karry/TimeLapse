@@ -17,24 +17,15 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             
  */
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QObject>
-#include <QtCore/QDebug>
-#include <QtCore/QTimer>
-#include <QtCore/QTextStream>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QFileInfo>
-#include <QtCore/QTemporaryDir>
-#include <QtCore/QString>
-#include <QtCore/QDir>
-#include <QtCore/QProcess>
-
-#include <exception>
+#include "pipeline_write_frame.h"
+#include "pipeline_write_frame.moc"
 
 #include <Magick++.h>
 
-#include "pipeline_write_frame.h"
-#include "pipeline_write_frame.moc"
+#include <QtCore/QTextStream>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QString>
+#include <QtCore/QDir>
 
 using namespace std;
 using namespace timelapse;

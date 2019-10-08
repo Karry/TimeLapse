@@ -19,20 +19,20 @@
 
 #pragma once
 
+#include "timelapse.h"
+#include "input_image_info.h"
+#include "pipeline_handler.h"
+
+#include <Magick++.h>
+
+#include "libvidstab.h"
+
 #include <QtCore/QObject>
 #include <QtCore/QDebug>
 #include <QtCore/QTemporaryDir>
 #include <QtCore/QTemporaryFile>
 #include <QtCore/QIODevice>
 #include <QtCore/QCommandLineParser>
-
-#include <Magick++.h>
-
-#include "libvidstab.h"
-
-#include "timelapse.h"
-#include "input_image_info.h"
-#include "pipeline_handler.h"
 
 namespace timelapse {
 

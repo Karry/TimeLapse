@@ -17,12 +17,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             
  */
 
-#include <QtCore/QCoreApplication>
-
 #include "pipeline_stab.h"
 #include "pipeline_stab.moc"
 #include "libvidstab.h"
-#include "timelapse_stabilize.h"
+
+#include <QtCore/QCoreApplication>
 
 using namespace std;
 using namespace timelapse;

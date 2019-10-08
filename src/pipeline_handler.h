@@ -19,16 +19,16 @@
 
 #pragma once
 
+#include "input_image_info.h"
+
+#include <Magick++.h>
+
 #include <QtCore/QObject>
 #include <QtCore/QDebug>
 #include <QtCore/QTemporaryDir>
 
-#include <Magick++.h>
-
-#include "input_image_info.h"
-
 namespace timelapse {
-#define FRAME_FILE_LEADING_ZEROS 9
+constexpr int FRAME_FILE_LEADING_ZEROS = 9;
 
   class PipelineHandler : public QObject {
     Q_OBJECT

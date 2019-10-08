@@ -19,16 +19,16 @@
 
 #pragma once
 
+#include "input_image_info.h"
+#include "pipeline_handler.h"
+#include "pipeline_source.h"
+#include "pipeline_cpt.h"
+
 #include <QtCore/QObject>
 #include <QtCore/QDebug>
 #include <QtCore/QSharedPointer>
 
 #include <Magick++.h>
-
-#include "input_image_info.h"
-#include "pipeline_handler.h"
-#include "pipeline_source.h"
-#include "pipeline_cpt.h"
 
 using namespace std;
 using namespace timelapse;

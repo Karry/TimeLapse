@@ -19,8 +19,12 @@
 
 #pragma once
 
+#include "black_hole_device.h"
+#include "pipeline_cpt.h"
+
+#include <Magick++.h>
+
 #include <libv4l2.h>
-//#include <libv4lconvert.h>
 #include <linux/videodev2.h>
 
 #include <QtCore/QObject>
@@ -30,11 +34,6 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QFileInfo>
 #include <QtCore/QTemporaryDir>
-
-#include <Magick++.h>
-
-#include "black_hole_device.h"
-#include "pipeline_cpt.h"
 
 namespace timelapse {
 

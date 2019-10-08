@@ -17,17 +17,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             
  */
 
-#include <QtCore/QObject>
-#include <QtCore/QDebug>
-#include <QtCore/QTimer>
-#include <QtCore/QTextStream>
-#include <QtCore/QByteArray>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QCommandLineParser>
-#include <QtCore/QProcess>
-
-#include <QtCore/QDir>
-
 #include "timelapse_stabilize.h"
 #include "timelapse_stabilize.moc"
 
@@ -38,6 +27,13 @@
 #include "pipeline_handler.h"
 #include "pipeline_frame_mapping.h"
 
+#include <QtCore/QObject>
+#include <QtCore/QTimer>
+#include <QtCore/QTextStream>
+#include <QtCore/QByteArray>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QCommandLineParser>
+#include <QtCore/QDir>
 
 using namespace std;
 using namespace timelapse;

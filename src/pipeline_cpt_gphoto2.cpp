@@ -29,13 +29,10 @@
  *    GPL 2, various authors
  */
 
-#include <unistd.h>
-#include <signal.h>
-#include <sys/time.h>
-
 #include "pipeline_cpt_gphoto2.h"
 #include "pipeline_cpt_gphoto2.moc"
 
+#include <unistd.h>
 
 using namespace std;
 using namespace timelapse;

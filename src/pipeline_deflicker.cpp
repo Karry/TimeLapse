@@ -17,27 +17,19 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             
  */
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QObject>
-#include <QtCore/QDebug>
-#include <QtCore/QTimer>
+#include "pipeline_deflicker.h"
+#include "pipeline_deflicker.moc"
+
 #include <QtCore/QTextStream>
 #include <QtCore/QCoreApplication>
-#include <QtCore/QFileInfo>
-#include <QtCore/QTemporaryDir>
 #include <QtCore/QString>
-#include <QtCore/QDir>
-#include <QtCore/QProcess>
 
-#include <exception>
-#include <queue>
-#include <vector>
-#include <utility>
 #include <Magick++.h>
 #include <ImageMagick-6/Magick++/Color.h>
 
-#include "pipeline_deflicker.h"
-#include "pipeline_deflicker.moc"
+#include <exception>
+#include <vector>
+#include <utility>
 
 using namespace std;
 using namespace timelapse;

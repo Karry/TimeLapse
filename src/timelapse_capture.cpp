@@ -33,25 +33,6 @@
  * 
  */
 
-
-#include <QtCore/QObject>
-#include <QtCore/QDebug>
-#include <QtCore/QTimer>
-#include <QtCore/QTextStream>
-#include <QtCore/QByteArray>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QCommandLineParser>
-#include <QtCore/QProcess>
-#include <QtCore/QDir>
-
-#include <exception>
-#include <queue>
-#include <vector>
-#include <utility>
-#include <Magick++.h>
-#include <ImageMagick-6/Magick++/Color.h>
-#include <ImageMagick-6/magick/exception.h>
-
 #include "timelapse_capture.h"
 #include "timelapse_capture.moc"
 
@@ -61,6 +42,22 @@
 #include "pipeline_cpt_v4l.h"
 #include "pipeline_cpt_gphoto2.h"
 #include "pipeline_write_frame.h"
+
+#include <Magick++.h>
+#include <ImageMagick-6/Magick++/Color.h>
+
+#include <QtCore/QObject>
+#include <QtCore/QDebug>
+#include <QtCore/QTimer>
+#include <QtCore/QTextStream>
+#include <QtCore/QByteArray>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QCommandLineParser>
+#include <QtCore/QDir>
+
+#include <exception>
+#include <vector>
+#include <utility>
 
 using namespace std;
 using namespace timelapse;

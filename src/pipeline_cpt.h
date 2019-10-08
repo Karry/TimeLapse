@@ -19,14 +19,14 @@
 
 #pragma once
 
-#include <QtCore/QObject>
-#include <QTimer>
-#include <QtCore/QSharedPointer>
+#include "input_image_info.h"
+#include "pipeline_source.h"
 
 #include <Magick++.h>
 
-#include "input_image_info.h"
-#include "pipeline_source.h"
+#include <QtCore/QObject>
+#include <QTimer>
+#include <QtCore/QSharedPointer>
 
 namespace timelapse {
 

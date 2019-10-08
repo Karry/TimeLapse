@@ -19,6 +19,10 @@
 
 #pragma once
 
+#include <QtCore/QCommandLineParser>
+#include <QtCore/QIODevice>
+#include <QtCore/QTextStream>
+
 #ifndef VERSION_TIMELAPSE
 #define VERSION_TIMELAPSE "0.0.0"
 #endif
@@ -34,7 +38,7 @@ namespace timelapse {
     _coloredTerm(true), _err(errDev), _parser(parser) {
     }
 
-    ErrorMessageHelper(QIODevice *errDev) :
+    explicit ErrorMessageHelper(QIODevice *errDev) :
     _coloredTerm(true), _err(errDev), _parser(nullptr) {
     }
 

@@ -27,7 +27,7 @@ include_directories(
 )
 
 # enable warnings
-ADD_DEFINITIONS( -Wall -pedantic -std=c++11 -fPIC)
+ADD_DEFINITIONS( -Wall -Wextra -pedantic -fPIC)
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANGXX OR CMAKE_COMPILER_IS_GNUCC)
   set(TIMELAPS_WARNING_FLAGS "-Wall -pedantic -Winit-self -Wno-overloaded-virtual -Wcast-qual -Wwrite-strings -Wextra -Wno-long-long")
   if(EMSCRIPTEN)
@@ -174,6 +174,7 @@ add_executable (timelapse_capture
 				${timelapse_capture_SRCS}
 )
 
+set_property(TARGET timelapse PROPERTY CXX_STANDARD 17)
 set_property(TARGET timelapse_assembly PROPERTY CXX_STANDARD 17)
 set_property(TARGET timelapse_deflicker PROPERTY CXX_STANDARD 17)
 set_property(TARGET timelapse_stabilize PROPERTY CXX_STANDARD 17)

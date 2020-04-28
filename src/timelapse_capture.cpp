@@ -655,7 +655,7 @@ constexpr int BUSY_CAPTURE_POSTPONE_MS = 100;
         QFile file(framePath);
         file.open(QIODevice::WriteOnly);
         file.write(headerBytes, headerLen);
-        file.write((char*) blob.data(), blob.length());
+        file.write((const char*) blob.data(), blob.length());
         file.close();
       } else {
         // convert RGB data to JPEG
@@ -697,7 +697,7 @@ constexpr int BUSY_CAPTURE_POSTPONE_MS = 100;
       framePath += "." + format;
       QFile file(framePath);
       file.open(QIODevice::WriteOnly);
-      file.write((char*) blob.data(), blob.length());
+      file.write((const char*) blob.data(), blob.length());
       file.close();
 
       if (readRawFromFile && shutterSpdAlg != nullptr && capturedSubsequence == 0) {

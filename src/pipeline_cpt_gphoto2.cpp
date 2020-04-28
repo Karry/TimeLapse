@@ -773,6 +773,8 @@ namespace timelapse {
         break; /**< \brief Direct IO to an usb mass storage device. */
       case GP_PORT_USB_SCSI: typestr = "SCSI USB";
         break; /**< \brief USB Mass Storage raw SCSI port. */
+      case GP_PORT_IP: typestr = "IP port";
+        break; /**< \brief generic IP address port. */
     }
     *verboseOut << "Create camera device " << model << " on port " << path <<
       " (" << typestr << ")" << endl;

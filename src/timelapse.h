@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "input_image_info.h"
+
 #include <QtCore/QCommandLineParser>
 #include <QtCore/QIODevice>
 #include <QtCore/QTextStream>
@@ -61,6 +63,10 @@ namespace timelapse {
     QTextStream _err;
     QCommandLineParser *_parser;
   };
+
+  inline void registerQtMetaTypes() {
+    qRegisterMetaType<QList<InputImageInfo>>("QList<InputImageInfo>");
+  }
 
   template<typename T> class Option {
   public:

@@ -116,23 +116,28 @@ namespace timelapse {
 
     // inputs
     QStringList inputArgs = parser.positionalArguments();
-    if (inputArgs.empty())
+    if (inputArgs.empty()) {
       die << "No input given";
+    }
 
     // output
-    if (!parser.isSet(outputOption))
+    if (!parser.isSet(outputOption)) {
       die << "Output directory is not set";
+    }
     output = QDir(parser.value(outputOption));
-    if (output.exists())
+    if (output.exists()) {
       err << "Output directory already exists." << endl;
-    if (!output.mkpath("."))
+    }
+    if (!output.mkpath(".")) {
       die << QString("Can't create output directory %1 !").arg(output.path());
+    }
 
     if (stabConf->mdConf.show > 0) {
       QString tmpBaseDir = QDir::tempPath();
       tempDir = new QTemporaryDir(tmpBaseDir + QDir::separator() + "timelapse_");
-      if (!tempDir->isValid())
+      if (!tempDir->isValid()) {
         die << "Can't create temp directory";
+      }
     }
     return inputArgs;
   }
@@ -190,6 +195,9 @@ namespace timelapse {
  * Main method
  */
 int main(int argc, char** argv) {
+
+  timelapse::registerQtMetaTypes();
+
   TimeLapseStabilize app(argc, argv);
   Magick::InitializeMagick(*argv);
 

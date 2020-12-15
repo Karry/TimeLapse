@@ -196,6 +196,8 @@ namespace timelapse {
  */
 int main(int argc, char** argv) {
 
+  timelapse::registerQtMetaTypes();
+
   TimeLapseDeflicker app(argc, argv);
   Magick::InitializeMagick(*argv);
 

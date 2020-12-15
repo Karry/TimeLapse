@@ -727,6 +727,8 @@ constexpr int BUSY_CAPTURE_POSTPONE_MS = 100;
  */
 int main(int argc, char** argv) {
 
+  timelapse::registerQtMetaTypes();
+
   TimeLapseCapture app(argc, argv);
   Magick::InitializeMagick(*argv);
 

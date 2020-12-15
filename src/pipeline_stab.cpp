@@ -33,7 +33,7 @@ namespace timelapse {
     // format message
     va_list valist;
     va_start(valist, format);
-    QString msg = QString().vsprintf(format, valist);
+    QString msg = QString().vasprintf(format, valist);
     va_end(valist);
 
     QTextStream * out = verboseOutput;
@@ -467,8 +467,9 @@ namespace timelapse {
 
       Magick::Blob blob;
       // set raw RGBS output format & convert it into a Blob  
-      if (image.depth() > 8)
+      if (image.depth() > 8) {
         *err << "Warning: we lost some information by converting to 8bit depth (now " << image.depth() << ")" << endl;
+      }
       image.depth(8);
       image.magick("RGB");
       image.write(&blob);
@@ -484,7 +485,7 @@ namespace timelapse {
         frame.data[0] = new uint8_t[dataLen];
         memcpy(frame.data[0], blob.data(), dataLen);
       } else {
-        frame.data[0] = (uint8_t*) blob.data();
+        frame.data[0] = static_cast<uint8_t*>(const_cast<void*>(blob.data()));
       }
       frame.linesize[0] = image.baseColumns() * 3;
 
@@ -585,8 +586,9 @@ namespace timelapse {
       Q_ASSERT(image.baseColumns() == width && image.baseRows() == height);
       Magick::Blob blob;
       // set raw RGBS output format & convert it into a Blob 
-      if (image.depth() > 8)
+      if (image.depth() > 8) {
         *err << "Warning: we lost some information by converting to 8bit depth (now " << image.depth() << ")" << endl;
+      }
       image.depth(8);
       image.magick("RGB");
       image.write(&blob);
@@ -597,7 +599,7 @@ namespace timelapse {
       // inframe
       VSFrame inframe;
       size_t dataLen = blob.length();
-      inframe.data[0] = (uint8_t*) blob.data();
+      inframe.data[0] = static_cast<uint8_t*>(const_cast<void*>(blob.data()));
       inframe.linesize[0] = image.baseColumns() * 3; // TODO: it is correct?
 
       // outframe

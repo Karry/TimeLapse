@@ -558,7 +558,7 @@ namespace timelapse {
   void Gphoto2Device::bulbWait(int bulbLengthMs) {
 
     // just wait specified time...
-    QTime timer;
+    QElapsedTimer timer;
     timer.start();
 
     while ((bulbLengthMs - timer.elapsed()) > 0) {

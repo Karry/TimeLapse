@@ -34,6 +34,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QFileInfo>
 #include <QtCore/QTemporaryDir>
+#include <QElapsedTimer>
 
 namespace timelapse {
   
@@ -95,7 +96,7 @@ namespace timelapse {
     Camera *camera;
     QString port;
     QString model;
-    QTime timer;
+    QElapsedTimer timer;
     bool pollingScheduled;
     bool deleteImageAfterDownload;
     bool deviceLocked;

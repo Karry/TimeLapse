@@ -77,8 +77,6 @@ constexpr int FRAME_FILE_LEADING_ZEROS = 9;
   public slots:
     virtual void onInput(InputImageInfo info) override;
     virtual void onInputImg(InputImageInfo info, Magick::Image img);
-  signals:
-    void input(InputImageInfo info);
   };
 
   class StageSeparator : public InputHandler {

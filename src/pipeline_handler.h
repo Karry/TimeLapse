@@ -45,7 +45,7 @@ constexpr int FRAME_FILE_LEADING_ZEROS = 9;
   public:
 
   public slots:
-    virtual void onInput1(InputImageInfo info) = 0;
+    virtual void onInput(InputImageInfo info) = 0;
   signals:
     void input(InputImageInfo info);
   };
@@ -54,9 +54,9 @@ constexpr int FRAME_FILE_LEADING_ZEROS = 9;
     Q_OBJECT
   public:
   public slots:
-    virtual void onInput2(InputImageInfo info, Magick::Image img) = 0;
+    virtual void onInputImg(InputImageInfo info, Magick::Image img) = 0;
   signals:
-    void input(InputImageInfo info, Magick::Image img);
+    void inputImg(InputImageInfo info, Magick::Image img);
   };
 
   class ImageLoader : public ImageHandler {
@@ -64,8 +64,8 @@ constexpr int FRAME_FILE_LEADING_ZEROS = 9;
   public:
     ImageLoader(QTextStream *verboseOutput, QTextStream *err);
   public slots:
-    virtual void onInput2(InputImageInfo info, Magick::Image img) override;
-    virtual void onInput1(InputImageInfo info);
+    virtual void onInputImg(InputImageInfo info, Magick::Image img) override;
+    virtual void onInput(InputImageInfo info);
   private:
     QTextStream *verboseOutput;
     QTextStream *err;
@@ -75,8 +75,8 @@ constexpr int FRAME_FILE_LEADING_ZEROS = 9;
     Q_OBJECT
   public:
   public slots:
-    virtual void onInput1(InputImageInfo info) override;
-    virtual void onInput2(InputImageInfo info, Magick::Image img);
+    virtual void onInput(InputImageInfo info) override;
+    virtual void onInputImg(InputImageInfo info, Magick::Image img);
   signals:
     void input(InputImageInfo info);
   };
@@ -85,7 +85,7 @@ constexpr int FRAME_FILE_LEADING_ZEROS = 9;
     Q_OBJECT
   public:
   public slots:
-    virtual void onInput1(InputImageInfo info) override;
+    virtual void onInput(InputImageInfo info) override;
     virtual void onLast() override;
   protected:
     QList<InputImageInfo> inputs;
@@ -97,7 +97,7 @@ constexpr int FRAME_FILE_LEADING_ZEROS = 9;
   public:
     ImageMetadataReader(QTextStream *verboseOutput, QTextStream *err);
   public slots:
-    virtual void onInput2(InputImageInfo info, Magick::Image img) override;
+    virtual void onInputImg(InputImageInfo info, Magick::Image img) override;
   private:
     QTextStream *verboseOutput;
     QTextStream *err;

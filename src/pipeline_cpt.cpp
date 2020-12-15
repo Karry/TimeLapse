@@ -223,10 +223,10 @@ namespace timelapse {
     ii.height = capturedImage.rows();
     ii.frame = capturedCnt;
 
-    emit input(ii, capturedImage);
+    emit inputImg(ii, capturedImage);
   }
 
-  void PipelineCaptureSource::onInput2([[maybe_unused]] InputImageInfo info, [[maybe_unused]] Magick::Image img) {
+  void PipelineCaptureSource::onInputImg([[maybe_unused]] InputImageInfo info, [[maybe_unused]] Magick::Image img) {
     // ignore, we are the source
   }
 

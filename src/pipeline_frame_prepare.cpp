@@ -41,11 +41,11 @@ namespace timelapse {
     for (int f = info1.frame; f < info2.frame; f++) {
       InputImageInfo i = info1;
       i.frame = f;
-      emit input(i, *img1);
+      emit inputImg(i, *img1);
     }
   }
 
-  void FramePrepare::onInput2(InputImageInfo info, Magick::Image img) {
+  void FramePrepare::onInputImg(InputImageInfo info, Magick::Image img) {
     if (prevImage != nullptr) {
       blend(prevInfo, prevImage, info, &img);
       delete prevImage;
@@ -86,7 +86,7 @@ namespace timelapse {
       //writeFrame(f, blended);      
       InputImageInfo i = info1;
       i.frame = f;
-      emit input(i, blended);
+      emit inputImg(i, blended);
     }
   }
 

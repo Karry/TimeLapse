@@ -40,7 +40,7 @@ namespace timelapse {
   output(_output), width(_width), height(_height), fps(_fps), bitrate(_bitrate), codec(_codec) {
   }
 
-  void VideoAssembly::onInput1(InputImageInfo info) {
+  void VideoAssembly::onInput(InputImageInfo info) {
     emit input(info);
   }
 

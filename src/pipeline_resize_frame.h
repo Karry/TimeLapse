@@ -35,7 +35,7 @@ namespace timelapse {
   public:
     ResizeFrame(QTextStream *verboseOutput, int w, int h);
   public slots:
-    virtual void onInput2(InputImageInfo info, Magick::Image img) override;
+    virtual void onInputImg(InputImageInfo info, Magick::Image img) override;
 
   private:
     QTextStream *verboseOutput;

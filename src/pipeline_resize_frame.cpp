@@ -33,7 +33,7 @@ namespace timelapse {
     verboseOutput{verboseOutput}, width(w), height(h) {
   }
 
-  void ResizeFrame::onInput2(InputImageInfo info, Magick::Image img) {
+  void ResizeFrame::onInputImg(InputImageInfo info, Magick::Image img) {
     Magick::Image resized = img;
     {
       ScopeLogger resizeLogger(verboseOutput, QString("Resizing image %1 x %2 to %3 x %4")
@@ -51,7 +51,7 @@ namespace timelapse {
         resized.resize(g);
       }
     }
-    emit input(info, resized);
+    emit inputImg(info, resized);
   }
 
 }

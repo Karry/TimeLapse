@@ -35,7 +35,7 @@ namespace timelapse {
   public:
     OneToOneFrameMapping();
   public slots:
-    virtual void onInput1(InputImageInfo info) override;
+    virtual void onInput(InputImageInfo info) override;
   private:
     int frame;
   };
@@ -45,7 +45,7 @@ namespace timelapse {
   public:
     ConstIntervalFrameMapping(QTextStream *verboseOutput, QTextStream *err, float length, float fps);
   public slots:
-    virtual void onInput1(InputImageInfo info) override;
+    virtual void onInput(InputImageInfo info) override;
     virtual void onLast() override;
   protected:
     int frame;

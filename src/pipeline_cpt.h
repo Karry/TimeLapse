@@ -102,7 +102,7 @@ namespace timelapse {
 
   public slots:
     virtual void capture();
-    virtual void onInput2(InputImageInfo info, Magick::Image img) override;
+    virtual void onInputImg(InputImageInfo info, Magick::Image img) override;
     void imageCaptured(QString format, Magick::Blob blob, Magick::Geometry sizeHint);
 
   private:

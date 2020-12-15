@@ -39,16 +39,16 @@ namespace timelapse {
     emit last();
   }
 
-  void ImageLoader::onInput2(InputImageInfo info, [[maybe_unused]] Magick::Image img) {
+  void ImageLoader::onInputImg(InputImageInfo info, [[maybe_unused]] Magick::Image img) {
     // load image again
-    onInput1(info);
+    onInput(info);
   }
 
   ImageLoader::ImageLoader(QTextStream *_verboseOutput, QTextStream *_err) :
   verboseOutput(_verboseOutput), err(_err) {
   }
 
-  void ImageLoader::onInput1(InputImageInfo info) {
+  void ImageLoader::onInput(InputImageInfo info) {
     Magick::Image image;
     bool usableImage = false;
     try {
@@ -70,19 +70,19 @@ namespace timelapse {
         .arg(e.what()));
     }
     if (usableImage) {
-      emit input(info, image);
+      emit inputImg(info, image);
     }
   }
 
-  void ImageTrash::onInput1(InputImageInfo info) {
+  void ImageTrash::onInput(InputImageInfo info) {
     emit input(info);
   }
 
-  void ImageTrash::onInput2(InputImageInfo info, [[maybe_unused]] Magick::Image img) {
+  void ImageTrash::onInputImg(InputImageInfo info, [[maybe_unused]] Magick::Image img) {
     emit input(info);
   }
 
-  void StageSeparator::onInput1(InputImageInfo info) {
+  void StageSeparator::onInput(InputImageInfo info) {
     inputs.append(info);
   }
 
@@ -97,7 +97,7 @@ namespace timelapse {
   verboseOutput(_verboseOutput), err(_err) {
   }
 
-  void ImageMetadataReader::onInput2(InputImageInfo info, Magick::Image image) {
+  void ImageMetadataReader::onInputImg(InputImageInfo info, Magick::Image image) {
     // read dimensions
     info.width = image.baseColumns();
     info.height = image.baseRows();
@@ -114,7 +114,7 @@ namespace timelapse {
     *verboseOutput << info.fileInfo().fileName() << " EXIF:DateTime : " << exifDateTime
       << " (" << info.timestamp.toString(Qt::ISODate) << ")" << endl;
 
-    emit input(info, image);
+    emit inputImg(info, image);
   }
 
 

@@ -66,7 +66,7 @@ namespace timelapse {
       + 0.114 * ((double) sumB / (double) pixelCount);
   }
 
-  void ComputeLuminance::onInput2(InputImageInfo info, Magick::Image img) {
+  void ComputeLuminance::onInputImg(InputImageInfo info, Magick::Image img) {
 
     Magick::Image::ImageStatistics stat;
     img.statistics(&stat);
@@ -78,14 +78,14 @@ namespace timelapse {
       << " luminance: " << info.luminance
       << endl;
 
-    emit input(info, img);
+    emit inputImg(info, img);
   }
 
   ComputeAverageLuminance::ComputeAverageLuminance(QTextStream *_verboseOutput) :
   verboseOutput(_verboseOutput), inputs() {
   }
 
-  void ComputeAverageLuminance::onInput1(InputImageInfo info) {
+  void ComputeAverageLuminance::onInput(InputImageInfo info) {
     inputs.append(info);
   }
 
@@ -110,7 +110,7 @@ namespace timelapse {
       throw std::logic_error("Count for weighted moving average have to be greater than 0.");
   }
 
-  void WMALuminance::onInput1(InputImageInfo info) {
+  void WMALuminance::onInput(InputImageInfo info) {
     inputs.append(info);
   }
 
@@ -140,7 +140,7 @@ namespace timelapse {
   verboseOutput(_verboseOutput), debugView(_debugView) {
   }
 
-  void AdjustLuminance::onInput2(InputImageInfo info, Magick::Image img) {
+  void AdjustLuminance::onInputImg(InputImageInfo info, Magick::Image img) {
     std::vector<std::pair < Magick::Color, size_t>> histogram;
     Magick::colorHistogram(&histogram, img);
     Magick::Image original = img;
@@ -189,7 +189,7 @@ namespace timelapse {
       img.composite(original, 0, 0, Magick::DissolveCompositeOp);
     }
     //img.brightnessContrast(brighnessChange, /* contrast */0.0);
-    emit input(info, img);
+    emit inputImg(info, img);
   }
 
 }

@@ -97,7 +97,7 @@ namespace timelapse {
     return inputs;
   }
 
-  void PipelineFileSource::onInput1([[maybe_unused]] InputImageInfo info) {
+  void PipelineFileSource::onInput([[maybe_unused]] InputImageInfo info) {
     // just ignore, we are the source
   }
 

@@ -92,7 +92,7 @@ namespace timelapse {
 
     if (lastInputHandler != nullptr) {
       ImageLoader *loader = new ImageLoader(verboseOutput, err);
-      connect(lastInputHandler, &InputHandler::input, loader, &ImageLoader::onInput1);
+      connect(lastInputHandler, &InputHandler::input, loader, &ImageLoader::onInput);
       connect(lastInputHandler, &InputHandler::last, loader, &ImageLoader::onLast);
       append(loader);
 
@@ -102,7 +102,7 @@ namespace timelapse {
 
     if (lastImageHandler != nullptr) {
 
-      connect(lastImageHandler, &ImageHandler::input, handler, &ImageHandler::onInput2);
+      connect(lastImageHandler, &ImageHandler::inputImg, handler, &ImageHandler::onInputImg);
       connect(lastImageHandler, &InputHandler::last, handler, &ImageHandler::onLast);
       //*verboseOutput << "Connect " << lastImageHandler->metaObject()->className()
       //  << " to " << handler->metaObject()->className() << endl;
@@ -119,7 +119,7 @@ namespace timelapse {
   void Pipeline::operator<<(InputHandler *handler) {
     if (lastImageHandler != nullptr) {
       ImageTrash *trash = new ImageTrash();
-      connect(lastImageHandler, &ImageHandler::input, trash, &ImageTrash::onInput2);
+      connect(lastImageHandler, &ImageHandler::inputImg, trash, &ImageTrash::onInputImg);
       connect(lastImageHandler, &ImageHandler::last, trash, &ImageTrash::onLast);
       append(trash);
 
@@ -128,7 +128,7 @@ namespace timelapse {
     }
 
     if (lastInputHandler != nullptr) {
-      connect(lastInputHandler, &InputHandler::input, handler, &InputHandler::onInput1);
+      connect(lastInputHandler, &InputHandler::input, handler, &InputHandler::onInput);
       connect(lastInputHandler, &InputHandler::last, handler, &InputHandler::onLast);
 
     } else {

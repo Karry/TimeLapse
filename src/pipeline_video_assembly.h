@@ -37,7 +37,7 @@ namespace timelapse {
                   QFileInfo output, int width, int height, float fps, QString bitrate, QString codec);
 
   public slots:
-    virtual void onInput1(InputImageInfo info) override;
+    virtual void onInput(InputImageInfo info) override;
     virtual void onLast() override;
 
   private:

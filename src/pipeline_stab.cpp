@@ -455,7 +455,7 @@ namespace timelapse {
     emit last();
   }
 
-  void PipelineStabDetect::onInput2(InputImageInfo info, Magick::Image image) {
+  void PipelineStabDetect::onInputImg(InputImageInfo info, Magick::Image image) {
     try {
       if (!initialized) {
         init(image);
@@ -506,9 +506,9 @@ namespace timelapse {
         Magick::Image oimage;
         oimage.read(oblob, g, 8, "RGB");
         delete[] frame.data[0];
-        emit input(info, oimage);
+        emit inputImg(info, oimage);
       } else {
-        emit input(info, image);
+        emit inputImg(info, image);
       }
 
     } catch (exception &e) {
@@ -574,7 +574,7 @@ namespace timelapse {
     emit last();
   }
 
-  void PipelineStabTransform::onInput2(InputImageInfo info, Magick::Image image) {
+  void PipelineStabTransform::onInputImg(InputImageInfo info, Magick::Image image) {
     try {
       if (!initialized) {
         init(image);
@@ -630,7 +630,7 @@ namespace timelapse {
       delete[] data;
 
       info.luminance = -1;
-      emit input(info, oimage);
+      emit inputImg(info, oimage);
 
     } catch (exception &e) {
       emit error(e.what());

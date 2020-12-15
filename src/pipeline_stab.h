@@ -101,7 +101,7 @@ namespace timelapse {
 
   public:
   public slots:
-    void onInput2(InputImageInfo info, Magick::Image img) override;
+    void onInputImg(InputImageInfo info, Magick::Image img) override;
     void onLast();
 
   private:
@@ -129,7 +129,7 @@ namespace timelapse {
 
   public:
   public slots:
-    virtual void onInput2(InputImageInfo info, Magick::Image img) override;
+    virtual void onInputImg(InputImageInfo info, Magick::Image img) override;
     void onLast();
 
   private:

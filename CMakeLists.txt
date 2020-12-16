@@ -4,3 +4,6 @@ project(timelapse)
 add_definitions( -DVERSION_TIMELAPSE="0.2.0" )
 
 add_subdirectory(src)
+
+enable_testing()
+add_subdirectory(test)

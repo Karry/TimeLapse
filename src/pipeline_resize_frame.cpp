@@ -29,8 +29,8 @@ using namespace timelapse;
 
 namespace timelapse {
 
-  ResizeFrame::ResizeFrame(QTextStream *verboseOutput, int w, int h) :
-    verboseOutput{verboseOutput}, width(w), height(h) {
+  ResizeFrame::ResizeFrame(QTextStream *verboseOutput, int w, int h, bool adaptiveResize) :
+    verboseOutput{verboseOutput}, width(w), height(h), adaptiveResize(adaptiveResize) {
   }
 
   void ResizeFrame::onInputImg(InputImageInfo info, Magick::Image img) {
@@ -42,10 +42,7 @@ namespace timelapse {
       Magick::Geometry g(width, height);
       g.aspect(true);
 
-      if (double widthRatio = (double)resized.columns() / (double)width;
-          widthRatio >= 0.5 && widthRatio <= 1.5) {
-
-        // use faster method when ratio is small
+      if (adaptiveResize) {
         resized.adaptiveResize(g);
       } else {
         resized.resize(g);

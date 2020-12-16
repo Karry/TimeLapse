@@ -32,12 +32,15 @@ namespace timelapse {
 
   class FramePrepare : public ImageHandler {
     Q_OBJECT
+
   public:
     explicit FramePrepare(QTextStream *verboseOutput);
     virtual void blend(InputImageInfo info1, const Magick::Image *img1, InputImageInfo info2, const Magick::Image *img2);
+
   public slots:
-    virtual void onInputImg(InputImageInfo info, Magick::Image img) override;
-    virtual void onLast();
+    void onInputImg(InputImageInfo info, Magick::Image img) override;
+    void onLast() override;
+
   protected:
     QTextStream * verboseOutput;
 

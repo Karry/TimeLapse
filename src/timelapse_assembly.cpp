@@ -54,9 +54,9 @@ namespace timelapse {
   _tmpBaseDir(QDir::tempPath()),
   _tempDir(nullptr),
   _output("timelapse.mkv"),
-  _width(1920), _height(1080),
+  _width(1920), _height(1080), _adaptiveResize(true),
   _fps(25), _length(-1), _frameCount(-1), _bitrate("40000k"), _codec("libx264"),
-  _noStrictInterval(false), _blendFrames(false),
+  _noStrictInterval(false), _blendFrames(false), _blendBeforeResize(false),
   pipeline(nullptr) {
 
     setApplicationName("TimeLapse assembly tool");
@@ -98,6 +98,11 @@ namespace timelapse {
       QCoreApplication::translate("main", "height"));
     parser.addOption(heightOption);
 
+    QCommandLineOption interpolateResizeOption(QStringList() << "interpolate-resize",
+      QCoreApplication::translate("main", "Use slow interpolate resize. Adaptive resize is used by default."),
+      QCoreApplication::translate("main", "interpolate-resize"));
+    parser.addOption(interpolateResizeOption);
+
     QCommandLineOption fpsOption(QStringList() << "fps",
       QCoreApplication::translate("main", "Output video fps (frames per second). Default is 25."),
       QCoreApplication::translate("main", "fps"));
@@ -128,6 +133,10 @@ namespace timelapse {
     QCommandLineOption blendFramesOption(QStringList() << "blend-frames",
       QCoreApplication::translate("main", "Blend frame transition."));
     parser.addOption(blendFramesOption);
+
+    QCommandLineOption blendBeforeResizeOption(QStringList() << "blend-before-resize",
+      QCoreApplication::translate("main", "Blend frame before resize (slower)."));
+    parser.addOption(blendBeforeResizeOption);
 
     QCommandLineOption deflickerAvgOption(QStringList() << "deflicker-average",
       QCoreApplication::translate("main", "Deflicker images by average luminance."));
@@ -224,6 +233,9 @@ namespace timelapse {
       if (_height % 2 != 0)
         _err << "Height is not divisible by 2, some video codecs can fails" << endl;
     }
+
+    _adaptiveResize = !parser.isSet(interpolateResizeOption);
+
     if (parser.isSet(fpsOption)) {
       _fps = parser.value(fpsOption).toFloat(&ok);
       if (!ok) die << "Can't parse fps";
@@ -248,6 +260,8 @@ namespace timelapse {
     if (_blendFrames && _length < 0) {
       _err << "Video length is not setup, ignore \"blend-frame\" option." << endl;
     }
+
+    _blendBeforeResize = parser.isSet(blendBeforeResizeOption);
 
     if (parser.isSet(tmpOption))
       _tmpBaseDir = parser.value(tmpOption);
@@ -313,11 +327,17 @@ namespace timelapse {
     }
 
     if (_blendFrames) {
-      *pipeline << new BlendFramePrepare(&_verboseOutput);
+      if (_blendBeforeResize) {
+        *pipeline << new BlendFramePrepare(&_verboseOutput);
+        *pipeline << new ResizeFrame(&_verboseOutput, _width, _height, _adaptiveResize);
+      } else {
+        *pipeline << new ResizeFrame(&_verboseOutput, _width, _height, _adaptiveResize);
+        *pipeline << new BlendFramePrepare(&_verboseOutput);
+      }
     } else {
+      *pipeline << new ResizeFrame(&_verboseOutput, _width, _height, _adaptiveResize);
       *pipeline << new FramePrepare(&_verboseOutput);
     }
-    *pipeline << new ResizeFrame(&_verboseOutput, _width, _height);
     *pipeline << new WriteFrame(QDir(_tempDir->path()), &_verboseOutput, _dryRun);
 
     * pipeline << new VideoAssembly(QDir(_tempDir->path()), &_verboseOutput, &_err, _dryRun,

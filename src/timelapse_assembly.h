@@ -78,6 +78,8 @@ namespace timelapse {
     int _width;
     int _height;
 
+    bool _adaptiveResize;
+
     /* output video fps, default 25 */
     float _fps;
 
@@ -95,6 +97,7 @@ namespace timelapse {
      */
     bool _noStrictInterval;
     bool _blendFrames;
+    bool _blendBeforeResize;
 
     Pipeline *pipeline;
   };

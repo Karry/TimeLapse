@@ -42,8 +42,8 @@ namespace timelapse {
 #define STAB_LOG_VERBOSE 3
 
   // static streams and functions for C libstab
-  QTextStream *verboseOutput;
-  QTextStream *err;
+  extern QTextStream *verboseOutput;
+  extern QTextStream *err;
 
   int stabLog(int type, const char* tag, const char* format, ...);
   void stabInit(QTextStream *verboseOutput, QTextStream *err);

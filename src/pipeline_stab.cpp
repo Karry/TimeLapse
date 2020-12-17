@@ -28,6 +28,8 @@ using namespace timelapse;
 
 
 namespace timelapse {
+  QTextStream *verboseOutput=nullptr;
+  QTextStream *err=nullptr;
 
   int stabLog(int type, const char* tag, const char* format, ...) {
     // format message

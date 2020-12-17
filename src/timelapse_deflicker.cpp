@@ -20,6 +20,7 @@
 #include "timelapse_deflicker.h"
 #include "timelapse_deflicker.moc"
 
+#include "timelapse_version.h"
 #include "timelapse.h"
 
 #include "pipeline_handler.h"

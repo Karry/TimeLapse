@@ -25,10 +25,6 @@
 #include <QtCore/QIODevice>
 #include <QtCore/QTextStream>
 
-#ifndef VERSION_TIMELAPSE
-#define VERSION_TIMELAPSE "0.0.0"
-#endif
-
 using namespace std;
 
 namespace timelapse {

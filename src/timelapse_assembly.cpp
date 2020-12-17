@@ -20,6 +20,7 @@
 #include "timelapse_assembly.h"
 #include "timelapse_assembly.moc"
 
+#include "timelapse_version.h"
 #include "timelapse.h"
 #include "black_hole_device.h"
 

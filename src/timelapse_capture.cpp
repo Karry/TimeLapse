@@ -36,6 +36,7 @@
 #include "timelapse_capture.h"
 #include "timelapse_capture.moc"
 
+#include "timelapse_version.h"
 #include "timelapse.h"
 #include "black_hole_device.h"
 #include "pipeline_cpt.h"

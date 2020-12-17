@@ -20,5 +20,5 @@ add_test(NAME "timelapse_deflicker_test"
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 add_test(NAME "timelapse_assembly_test"
-    COMMAND $<TARGET_FILE:timelapse_assembly> --verbose --length 5 --blend-frames "${TEST_DATA_DIR}/sunrise"
+    COMMAND $<TARGET_FILE:timelapse_assembly> --verbose --force --length 5 --blend-frames "${TEST_DATA_DIR}/sunrise"
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})

@@ -162,8 +162,8 @@ namespace timelapse {
         frmsize.pixel_format = fmt.pixelformat;
         frmsize.index = 0;
         while (v4l2_ioctl(fd, VIDIOC_ENUM_FRAMESIZES, &frmsize) >= 0) {
-          uint32_t w;
-          uint32_t h;
+          uint32_t w = 0;
+          uint32_t h = 0;
           if (frmsize.type == V4L2_FRMSIZE_TYPE_DISCRETE) {
             w = frmsize.discrete.width;
             h = frmsize.discrete.height;
@@ -172,7 +172,10 @@ namespace timelapse {
             h = frmsize.stepwise.max_height;
           }
 
-          if ((w > v4lfmt.fmt.pix.width && h > v4lfmt.fmt.pix.height && fmt.pixelformat == V4L2_PIX_FMT_RGB24)) {
+          if (w > v4lfmt.fmt.pix.width &&
+              h > v4lfmt.fmt.pix.height &&
+              fmt.pixelformat == V4L2_PIX_FMT_RGB24) {
+
             v4lfmt.fmt.pix.width = w;
             v4lfmt.fmt.pix.height = h;
             v4lfmt.fmt.pix.pixelformat = fmt.pixelformat;

@@ -25,6 +25,8 @@ process them and assembly "time-lapse" video from them.
 
 ## Result examples
 
+All captured with Nikon D5100, raw processed by Rawtherapee, then assembled by TimeLapse.
+
 [![Aurora behind clouds](https://img.youtube.com/vi/XsykUYhzCsE/0.jpg)](https://www.youtube.com/watch?v=XsykUYhzCsE)
 [![Night timelapse](https://img.youtube.com/vi/mv7ci8BZZr8/0.jpg)](https://www.youtube.com/watch?v=mv7ci8BZZr8)
 [![Grant Canyon sunset](https://img.youtube.com/vi/ugQ-LHx41fg/0.jpg)](https://www.youtube.com/watch?v=ugQ-LHx41fg)

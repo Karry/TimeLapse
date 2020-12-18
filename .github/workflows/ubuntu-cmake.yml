@@ -26,6 +26,16 @@ jobs:
             cmake cmake-data build-essential libmagick++-dev qtbase5-dev 
             ffmpeg git libv4l-dev libgphoto2-dev"
 
+    - name: Install patched vidstab
+      shell: bash
+      working-directory: /tmp
+      run: "git clone -b improvements https://github.com/Karry/vid.stab.git vidstab &&
+            cd vidstab &&
+            cmake . &&
+            make -j $(nproc) &&
+            sudo make install &&
+            sudo ldconfig"
+
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build
 

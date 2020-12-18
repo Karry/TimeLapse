@@ -15,13 +15,19 @@ process them and assembly "time-lapse" video from them.
 
  - *[Stabilize](https://github.com/Karry/TimeLapse/wiki/Stabilize)* - 
     Tool for stabilize movements in sequence of images.
-    It uses vid.stab library for stabilizing. Results are not perfect, 
-    but it depens on conditions. Just try it :-)
+    It is using [vid.stab](https://github.com/georgmartius/vid.stab) library for stabilizing. 
+    Results are not perfect, but it depends on conditions. Just try it :-)
 
  - *[Assembly](https://github.com/Karry/TimeLapse/wiki/Assembly)* - 
     Tool for build timelapse video from series of images. It support deflickering 
     as part of processing pipeline. Final video assembly is processed by 
     [avconv](https://libav.org/avconv.html) or [ffmpeg](https://www.ffmpeg.org/ffmpeg.html) tool.
+
+## Result examples
+
+[![Aurora behind clouds](https://img.youtube.com/vi/XsykUYhzCsE/0.jpg)](https://www.youtube.com/watch?v=XsykUYhzCsE)
+[![Night timelapse](https://img.youtube.com/vi/mv7ci8BZZr8/0.jpg)](https://www.youtube.com/watch?v=mv7ci8BZZr8)
+[![Grant Canyon sunset](https://img.youtube.com/vi/ugQ-LHx41fg/0.jpg)](https://www.youtube.com/watch?v=ugQ-LHx41fg)
 
 ## Build
 

@@ -20,6 +20,11 @@ execute_process(
 	OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
+if(NOT VERSION_TIMELAPSE)
+	message(WARNING "Cannot evaluate version with git describe")
+	set(VERSION_TIMELAPSE "?")
+endif()
+
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/timelapse_version.h.cmake"
 	"${CMAKE_CURRENT_BINARY_DIR}/timelapse_version.h")
 

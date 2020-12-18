@@ -1,8 +1,3 @@
-cmake_minimum_required(VERSION 2.6)
-
-project(timelapse)
-
-SET(CMAKE_BUILD_TYPE Debug)
 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)

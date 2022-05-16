@@ -20,8 +20,9 @@
 #include "pipeline_deflicker.h"
 #include "pipeline_deflicker.moc"
 
+#include "timelapse.h"
+
 #include <QtCore/QTextStream>
-#include <QtCore/QCoreApplication>
 #include <QtCore/QString>
 
 #include <Magick++.h>

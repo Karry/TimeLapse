@@ -19,6 +19,7 @@
 
 #include <exception>
 
+#include "timelapse.h"
 #include "pipeline.h"
 #include "pipeline.moc"
 #include "pipeline_handler.h"

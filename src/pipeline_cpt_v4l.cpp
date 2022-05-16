@@ -20,6 +20,8 @@
 #include "pipeline_cpt_v4l.h"
 #include "pipeline_cpt_v4l.moc"
 
+#include "timelapse.h"
+
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/ioctl.h>

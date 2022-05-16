@@ -17,15 +17,16 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             
  */
 
+#include "pipeline_frame_prepare.h"
+#include "pipeline_frame_prepare.moc"
+
+#include "timelapse.h"
+
 #include <QtCore/QTextStream>
-#include <QtCore/QCoreApplication>
 
 #include <Magick++.h>
 #include <exception>
 #include <ImageMagick-6/Magick++/Color.h>
-
-#include "pipeline_frame_prepare.h"
-#include "pipeline_frame_prepare.moc"
 
 using namespace std;
 using namespace timelapse;

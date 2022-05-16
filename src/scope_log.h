@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "timelapse.h"
+
 #include <QtCore/QTextStream>
 
 #include <string>

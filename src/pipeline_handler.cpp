@@ -21,6 +21,7 @@
 #include "pipeline_handler.moc"
 
 #include "scope_log.h"
+#include "timelapse.h"
 
 #include <ImageMagick-6/Magick++/Exception.h>
 

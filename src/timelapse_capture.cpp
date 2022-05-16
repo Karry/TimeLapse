@@ -243,7 +243,7 @@ namespace timelapse {
       }
     }
 
-    // print verbose informations
+    // print verbose information
     *verboseOutput << "Some of previous frames was "
       << (changeScore > 0 ? "underexposured" : "overexposured")
       << " (score " << changeScore << "). Changing shutter speed from "

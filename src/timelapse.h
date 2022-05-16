@@ -29,14 +29,12 @@ using namespace std;
 
 namespace timelapse {
 
-  // for compatibility with Qt < 5.14
-  inline QTextStream &endl(QTextStream &s) {
 #if QT_VERSION >= QT_VERSION_CHECK(5,14,0)
+  // for compatibility with Qt < 5.14 we are not using Qt::endl directly
+  inline QTextStream &endl(QTextStream &s) {
     return Qt::endl(s);
-#else
-    return QTextStreamFunctions::endl(s);
-#endif
   }
+#endif
 
   class ErrorMessageHelper {
   public:

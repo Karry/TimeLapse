@@ -36,6 +36,13 @@ namespace timelapse {
   }
 #endif
 
+#if QT_VERSION >= QT_VERSION_CHECK(5,15,0)
+  constexpr auto SkipEmptyParts = Qt::SkipEmptyParts;
+#else
+  constexpr auto SkipEmptyParts = QString::SkipEmptyParts;
+#endif
+
+
   class ErrorMessageHelper {
   public:
 

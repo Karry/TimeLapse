@@ -32,6 +32,8 @@
 #include "pipeline_cpt_gphoto2.h"
 #include "pipeline_cpt_gphoto2.moc"
 
+#include "timelapse.h"
+
 #include <unistd.h>
 
 using namespace std;

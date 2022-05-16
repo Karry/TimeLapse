@@ -20,10 +20,11 @@
 #include "pipeline_video_assembly.h"
 #include "pipeline_video_assembly.moc"
 
+#include "timelapse.h"
+
 #include <QtCore/QFileInfo>
 #include <QtCore/QObject>
 #include <QtCore/QTextStream>
-#include <QtCore/QCoreApplication>
 #include <QtCore/QString>
 #include <QtCore/QDir>
 #include <QtCore/QProcess>

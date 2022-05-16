@@ -20,6 +20,8 @@
 #include "pipeline_cpt.h"
 #include "pipeline_cpt.moc"
 
+#include "timelapse.h"
+
 #include <QTimer>
 
 using namespace std;

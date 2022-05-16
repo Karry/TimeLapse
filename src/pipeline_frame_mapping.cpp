@@ -20,9 +20,10 @@
 #include "pipeline_frame_mapping.h"
 #include "pipeline_frame_mapping.moc"
 
+#include "timelapse.h"
+
 #include <QtCore/QObject>
 #include <QtCore/QTextStream>
-#include <QtCore/QCoreApplication>
 #include <QtCore/QString>
 
 using namespace std;

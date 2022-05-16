@@ -20,9 +20,10 @@
 #include "pipeline_source.h"
 #include "pipeline_source.moc"
 
+#include "timelapse.h"
+
 #include <QtCore/QFileInfo>
 #include <QtCore/QTextStream>
-#include <QtCore/QCoreApplication>
 #include <QtCore/QString>
 #include <QtCore/QDir>
 

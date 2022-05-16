@@ -31,14 +31,14 @@
 namespace timelapse {
 
 #define CLEAR(x) memset(&(x), 0, sizeof(x))
-#define ALLOC_CHECK(ptr) { if (ptr==nullptr) throw std::runtime_error("Allocation failure"); }
+#define ALLOC_CHECK(ptr) { if ((ptr)==nullptr) throw std::runtime_error("Allocation failure"); }
 
   class ShutterSpeedChoice {
   public:
-    ShutterSpeedChoice();
-    ShutterSpeedChoice(const ShutterSpeedChoice &o);
+    ShutterSpeedChoice() = default;
+    ShutterSpeedChoice(const ShutterSpeedChoice &o) = default;
     ShutterSpeedChoice(bool bulb, int divident, int factor);
-    ShutterSpeedChoice(const QString str);
+    explicit ShutterSpeedChoice(const QString str);
     virtual ~ShutterSpeedChoice();
     ShutterSpeedChoice &operator=(const ShutterSpeedChoice &o);
     QString toString();
@@ -51,17 +51,16 @@ namespace timelapse {
     //static int gcd(int a, int b);
     void normalize();
 
-    bool bulb;
-    int divident;
-    int factor;
+    bool bulb=false;
+    int divident=-1;
+    int factor=-1;
   };
 
   class CaptureDevice : public QObject {
     Q_OBJECT
   public:
 
-    virtual ~CaptureDevice() {
-    };
+    ~CaptureDevice() override = default;
 
     virtual void capture(QTextStream *verboseOut, ShutterSpeedChoice shutterSpeed = ShutterSpeedChoice()) = 0;
     virtual QString toString() = 0;
@@ -96,13 +95,13 @@ namespace timelapse {
   public:
     PipelineCaptureSource(QSharedPointer<CaptureDevice> dev, uint64_t intervalMs, int32_t cnt,
             QTextStream *verboseOutput, QTextStream *err);
-    virtual ~PipelineCaptureSource();
+    ~PipelineCaptureSource() override;
 
-    virtual void process();
+    void process() override;
 
   public slots:
     virtual void capture();
-    virtual void onInputImg(InputImageInfo info, Magick::Image img) override;
+    void onInputImg(InputImageInfo info, Magick::Image img) override;
     void imageCaptured(QString format, Magick::Blob blob, Magick::Geometry sizeHint);
 
   private:

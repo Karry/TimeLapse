@@ -26,13 +26,6 @@ using namespace std;
 
 namespace timelapse {
 
-  ShutterSpeedChoice::ShutterSpeedChoice() : bulb(false), divident(-1), factor(-1) {
-  }
-
-  ShutterSpeedChoice::ShutterSpeedChoice(const ShutterSpeedChoice &o) :
-  bulb(o.bulb), divident(o.divident), factor(o.factor) {
-  }
-
   ShutterSpeedChoice::ShutterSpeedChoice(bool bulb, int divident, int factor) :
   bulb(bulb), divident(divident), factor(factor) {
     //normalize();

@@ -46,7 +46,7 @@ namespace timelapse {
 
     if (str.startsWith("BULB", Qt::CaseInsensitive)) {
       bulb = true;
-      QStringList list = str.split(':', QString::SkipEmptyParts);
+      QStringList list = str.split(':', SkipEmptyParts);
       if (list.size() >= 2) {
         divident = list[1].toInt(&ok);
         if (!ok)
@@ -54,7 +54,7 @@ namespace timelapse {
         factor = 1;
       }
     } else {
-      QStringList list = str.split('/', QString::SkipEmptyParts);
+      QStringList list = str.split('/', SkipEmptyParts);
       if (list.size() < 2) {
         divident = str.toInt(&ok);
         if (!ok)

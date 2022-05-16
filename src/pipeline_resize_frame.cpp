@@ -22,8 +22,6 @@
 
 #include "scope_log.h"
 
-#include <QtCore/QCoreApplication>
-
 using namespace std;
 using namespace timelapse;
 

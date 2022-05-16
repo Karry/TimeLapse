@@ -276,7 +276,7 @@ namespace timelapse {
   }
 
   template<typename T> T StabConfig::getOpt(const QCommandLineParser &parser, ErrorMessageHelper &die,
-    const QCommandLineOption &opt, const Option<T> &min, const Option<T> &max, T def,
+    const QCommandLineOption &opt, const std::optional<T> &min, const std::optional<T> &max, T def,
     QString parseErrMsg, QString outOfRangeErrMsg) {
 
     bool ok = false;
@@ -291,7 +291,7 @@ namespace timelapse {
 
       if (!ok) die << parseErrMsg;
 
-      if ((min.isDefined() && i < *min) || (max.isDefined() && i > *max))
+      if ((min.has_value() && i < *min) || (max.has_value() && i > *max))
         die << outOfRangeErrMsg;
 
       return i;
@@ -301,31 +301,31 @@ namespace timelapse {
 
   void StabConfig::processOptions(const QCommandLineParser &parser, ErrorMessageHelper &die, QTextStream *err) {
 
-    mdConf.numThreads = getOpt(parser, die, *threadsOption, SomeInt(0), NoneInt, mdConf.numThreads,
+    mdConf.numThreads = getOpt(parser, die, *threadsOption, std::make_optional<int>(0), std::optional<int>(), mdConf.numThreads,
       QCoreApplication::translate("main", "Cant parse thread count."),
       QCoreApplication::translate("main", "Thread count have to be possitive."));
 
-    mdConf.shakiness = getOpt(parser, die, *shakinessOption, SomeInt(1), SomeInt(10), mdConf.shakiness,
+    mdConf.shakiness = getOpt(parser, die, *shakinessOption, std::make_optional<int>(1), std::make_optional<int>(10), mdConf.shakiness,
       QCoreApplication::translate("main", "Cant parse shakiness."),
       QCoreApplication::translate("main", "Shakiness can be in range 1-10."));
 
-    mdConf.accuracy = getOpt(parser, die, *accuracyOption, SomeInt(1), SomeInt(15), mdConf.accuracy,
+    mdConf.accuracy = getOpt(parser, die, *accuracyOption, std::make_optional<int>(1), std::make_optional<int>(15), mdConf.accuracy,
       QCoreApplication::translate("main", "Cant parse accuracy."),
       QCoreApplication::translate("main", "Acccuracy can be in range 1-15."));
 
-    mdConf.stepSize = getOpt(parser, die, *stepSizeOption, SomeInt(1), SomeInt(1000), mdConf.stepSize,
+    mdConf.stepSize = getOpt(parser, die, *stepSizeOption, std::make_optional<int>(1), std::make_optional<int>(1000), mdConf.stepSize,
       QCoreApplication::translate("main", "Cant parse step size."),
       QCoreApplication::translate("main", "Step size can be in range 1-1000."));
 
-    mdConf.contrastThreshold = getOpt(parser, die, *minContrastOption, SomeDouble(0), SomeDouble(1), mdConf.contrastThreshold,
+    mdConf.contrastThreshold = getOpt(parser, die, *minContrastOption, std::make_optional<double>(0), std::make_optional<double>(1), mdConf.contrastThreshold,
       QCoreApplication::translate("main", "Cant parse contrast threshold."),
       QCoreApplication::translate("main", "Contrast threshold can be in range 0-1."));
 
-    mdConf.show = getOpt(parser, die, *showOption, SomeInt(0), SomeInt(2), mdConf.show,
+    mdConf.show = getOpt(parser, die, *showOption, std::make_optional<int>(0), std::make_optional<int>(2), mdConf.show,
       QCoreApplication::translate("main", "Cant parse show option."),
       QCoreApplication::translate("main", "Show option can be in range 0-2."));
 
-    tsConf.smoothing = getOpt(parser, die, *smoothingOption, SomeInt(0), NoneInt, tsConf.smoothing,
+    tsConf.smoothing = getOpt(parser, die, *smoothingOption, std::make_optional<int>(0), std::optional<int>(), tsConf.smoothing,
       QCoreApplication::translate("main", "Cant parse smoothing option."),
       QCoreApplication::translate("main", "Smoothing have to be possitive."));
 
@@ -341,11 +341,11 @@ namespace timelapse {
       }
     }
 
-    tsConf.maxShift = getOpt(parser, die, *maxShiftOption, SomeInt(-1), NoneInt, tsConf.maxShift,
+    tsConf.maxShift = getOpt(parser, die, *maxShiftOption, std::make_optional<int>(-1), std::optional<int>(), tsConf.maxShift,
       QCoreApplication::translate("main", "Cant parse max shift option."),
       QCoreApplication::translate("main", "Max. shift can't be smaller than -1."));
 
-    tsConf.maxAngle = getOpt(parser, die, *maxAngleOption, SomeDouble(-1), NoneDouble, tsConf.maxAngle,
+    tsConf.maxAngle = getOpt(parser, die, *maxAngleOption, std::make_optional<double>(-1), std::optional<double>(), tsConf.maxAngle,
       QCoreApplication::translate("main", "Cant parse max angle option."),
       QCoreApplication::translate("main", "Max. angle can't be smaller than -1."));
 
@@ -353,15 +353,15 @@ namespace timelapse {
     tsConf.invert = parser.isSet(*invertOption) ? 1 : 0;
     tsConf.relative = parser.isSet(*relativeOption) ? 1 : 0;
 
-    tsConf.zoom = getOpt(parser, die, *zoomOption, NoneDouble, NoneDouble, tsConf.zoom,
+    tsConf.zoom = getOpt(parser, die, *zoomOption, std::optional<double>(), std::optional<double>(), tsConf.zoom,
       QCoreApplication::translate("main", "Cant parse zoom option."),
       "");
 
-    tsConf.optZoom = getOpt(parser, die, *optZoomOption, SomeInt(0), SomeInt(2), tsConf.optZoom,
+    tsConf.optZoom = getOpt(parser, die, *optZoomOption, std::make_optional<int>(0), std::make_optional<int>(2), tsConf.optZoom,
       QCoreApplication::translate("main", "Cant parse opt-zoom option."),
       QCoreApplication::translate("main", "Opt zoom can be 0, 1 or 2."));
 
-    tsConf.zoomSpeed = getOpt(parser, die, *zoomSpeedOption, SomeDouble(0), SomeDouble(5), tsConf.zoomSpeed,
+    tsConf.zoomSpeed = getOpt(parser, die, *zoomSpeedOption, std::make_optional<double>(0), std::make_optional<double>(5), tsConf.zoomSpeed,
       QCoreApplication::translate("main", "Cant parse zoom speed option."),
       QCoreApplication::translate("main", "Zoom speed can be in range 0-5."));
 
@@ -380,7 +380,7 @@ namespace timelapse {
       }
     }
 
-    mdConf.virtualTripod = getOpt(parser, die, *tripodOption, SomeInt(0), NoneInt, mdConf.virtualTripod,
+    mdConf.virtualTripod = getOpt(parser, die, *tripodOption, std::make_optional<int>(0), std::optional<int>(), mdConf.virtualTripod,
       QCoreApplication::translate("main", "Cant parse tripod option."),
       QCoreApplication::translate("main", "Tripod option have to be possitive."));
 

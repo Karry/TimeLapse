@@ -34,6 +34,8 @@
 #include <QtCore/QIODevice>
 #include <QtCore/QCommandLineParser>
 
+#include <optional>
+
 namespace timelapse {
 
 #define STAB_LOG_ERROR   0
@@ -57,7 +59,7 @@ namespace timelapse {
 
     void addOptions(QCommandLineParser &parser);
     template<typename T> T getOpt(const QCommandLineParser &parser, ErrorMessageHelper &die,
-            const QCommandLineOption &opt, const Option<T> &min, const Option<T> &max, T def,
+            const QCommandLineOption &opt, const std::optional<T> &min, const std::optional<T> &max, T def,
             QString parseErrMsg, QString outOfRangeErrMsg);
     void processOptions(const QCommandLineParser &parser, ErrorMessageHelper &die, QTextStream *err);
 

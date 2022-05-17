@@ -39,6 +39,7 @@ public slots:
   void onLockFailed();
   void onLocked();
   void onImageAvailable(int id, const QVideoFrame &frame);
+  void onReadyForCaptureChanged(bool ready);
 
 public:
   explicit QCameraDevice(const QCameraInfo &info);
@@ -65,6 +66,7 @@ private:
   QCameraInfo info;
   std::unique_ptr<QCamera> camera;
   std::unique_ptr<QCameraImageCapture> imageCapture;
+  bool postponedCapture = false;
 };
 
 }

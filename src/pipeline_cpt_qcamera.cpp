@@ -55,6 +55,7 @@ void QCameraDevice::capture([[maybe_unused]] QTextStream *verboseOut, ShutterSpe
   }
 
   camera->start();
+
   if (camera->requestedLocks()==QCamera::LockType::NoLock) {
     onLocked();
   } else {
@@ -83,7 +84,7 @@ bool QCameraDevice::initialize(QTextStream *verboseOut) {
     camera = make_unique<QCamera>(info);
     if (!camera->isCaptureModeSupported(QCamera::CaptureStillImage)) {
       if (verboseOut!=nullptr) {
-        *verboseOut << "Still image capture is not supported by " << toString();
+        *verboseOut << "Still image capture is not supported by " << toString() << endl;
       }
       return false;
     }
@@ -91,10 +92,12 @@ bool QCameraDevice::initialize(QTextStream *verboseOut) {
     connect(camera.get(), &QCamera::lockFailed, this, &QCameraDevice::onLockFailed);
     connect(camera.get(), &QCamera::locked, this, &QCameraDevice::onLocked);
 
+    camera->load(); // load camera, probe resolution and available settings
+
     imageCapture = std::make_unique<QCameraImageCapture>(camera.get());
     if (!imageCapture->isCaptureDestinationSupported(QCameraImageCapture::CaptureToBuffer)) {
       if (verboseOut!=nullptr) {
-        *verboseOut << "Capture to buffer is not supported by " << toString();
+        *verboseOut << "Capture to buffer is not supported by " << toString() << endl;
       }
       return false;
     }
@@ -111,12 +114,13 @@ bool QCameraDevice::initialize(QTextStream *verboseOut) {
     if (maxSize.isValid()){
       encoding.setResolution(maxSize);
       if (verboseOut!=nullptr) {
-        *verboseOut << "using resolution " << maxSize.width() << "x" << maxSize.height();
+        *verboseOut << "using resolution " << maxSize.width() << "x" << maxSize.height() << endl;
       }
     }
     imageCapture->setEncodingSettings(encoding);
 
     connect(imageCapture.get(), &QCameraImageCapture::imageAvailable, this, &QCameraDevice::onImageAvailable);
+    connect(imageCapture.get(), &QCameraImageCapture::readyForCaptureChanged, this, &QCameraDevice::onReadyForCaptureChanged);
   }
   return true;
 }
@@ -129,8 +133,19 @@ void QCameraDevice::onLocked() {
   [[maybe_unused]] bool b = initialize();
   assert(b);
 
-  qDebug() << "locked";
-  imageCapture->capture();
+  if (imageCapture->isReadyForCapture()) {
+    postponedCapture = false;
+    imageCapture->capture();
+  } else {
+    postponedCapture = true;
+  }
+}
+
+void QCameraDevice::onReadyForCaptureChanged(bool ready) {
+  if (ready && postponedCapture) {
+    postponedCapture = false;
+    imageCapture->capture();
+  }
 }
 
 void QCameraDevice::onImageAvailable([[maybe_unused]] int id, const QVideoFrame &constFrame) {

@@ -6,7 +6,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_HOME_DIRECTORY}/CMakeMod")
 list(APPEND CMAKE_MODULE_PATH "../CMakeMod")
 
 # set(CMAKE_AUTOMOC ON)
-FIND_PACKAGE(Qt5 REQUIRED COMPONENTS Core) 
+FIND_PACKAGE(Qt5 REQUIRED COMPONENTS Core Multimedia)
 FIND_PACKAGE(ImageMagick REQUIRED COMPONENTS Magick++ MagickCore)
 FIND_PACKAGE(VidStab REQUIRED) 
 FIND_PACKAGE(V4L REQUIRED) 
@@ -94,6 +94,7 @@ qt5_generate_moc(pipeline_deflicker.h       pipeline_deflicker.moc)
 qt5_generate_moc(pipeline_stab.h            pipeline_stab.moc)
 qt5_generate_moc(pipeline_cpt_v4l.h         pipeline_cpt_v4l.moc)
 qt5_generate_moc(pipeline_cpt_gphoto2.h     pipeline_cpt_gphoto2.moc)
+qt5_generate_moc(pipeline_cpt_qcamera.h     pipeline_cpt_qcamera.moc)
 qt5_generate_moc(pipeline_cpt.h             pipeline_cpt.moc)
 qt5_generate_moc(timelapse_stabilize.h      timelapse_stabilize.moc)
 qt5_generate_moc(timelapse_capture.h        timelapse_capture.moc)
@@ -138,6 +139,9 @@ set(timelapse_SRCS
 
     pipeline_cpt_gphoto2.cpp
     pipeline_cpt_gphoto2.moc
+
+    pipeline_cpt_qcamera.cpp
+    pipeline_cpt_qcamera.moc
 
     pipeline_cpt.cpp
     pipeline_cpt.moc
@@ -193,7 +197,8 @@ set_property(TARGET timelapse_capture PROPERTY CXX_STANDARD 17)
 
 #Link the timelapse_assembly executable to the Qt 5 libraries.
 target_link_libraries(	timelapse
-      Qt5::Core 
+      Qt5::Core
+      Qt5::Multimedia
       ${ImageMagick_LIBRARIES} # Magick++-6.Q16
       ${VIDSTAB_LIBRARIES}
       ${V4L_LIBRARIES}

@@ -47,9 +47,10 @@ namespace timelapse {
     int64_t toMicrosecond();
     bool isBulb();
 
-  private:
-    //static int gcd(int a, int b);
     void normalize();
+
+  private:
+    static int gcd(int a, int b);
 
     bool bulb=false;
     int divident=-1;

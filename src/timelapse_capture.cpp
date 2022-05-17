@@ -43,6 +43,7 @@
 #include "pipeline_cpt_v4l.h"
 #include "pipeline_cpt_gphoto2.h"
 #include "pipeline_write_frame.h"
+#include "pipeline_cpt_qcamera.h"
 
 #include <Magick++.h>
 #include <ImageMagick-6/Magick++/Color.h>
@@ -288,17 +289,22 @@ namespace timelapse {
     QList<QSharedPointer < CaptureDevice>> result;
 
     QList<V4LDevice> v4lDevices = V4LDevice::listDevices(&verboseOutput);
-    for (V4LDevice v4lDev : v4lDevices) {
+    for (const V4LDevice &v4lDev : v4lDevices) {
       result.push_back(QSharedPointer<CaptureDevice>(new V4LDevice(v4lDev)));
     }
 
     try {
       QList<Gphoto2Device> gp2devices = Gphoto2Device::listDevices(&verboseOutput, &err);
-      for (Gphoto2Device gp2Dev : gp2devices) {
+      for (const Gphoto2Device &gp2Dev : gp2devices) {
         result.push_back(QSharedPointer<Gphoto2Device>(new Gphoto2Device(gp2Dev)));
       }
     } catch (std::exception &e) {
       err << "Can't get Gphoto2 devices. " << QString::fromUtf8(e.what()) << endl;
+    }
+
+    QList<QCameraDevice> qCamDevices = QCameraDevice::listDevices(&verboseOutput);
+    for (const QCameraDevice &qCamDev : qCamDevices) {
+      result.push_back(QSharedPointer<QCameraDevice>(new QCameraDevice(qCamDev)));
     }
 
     return result;

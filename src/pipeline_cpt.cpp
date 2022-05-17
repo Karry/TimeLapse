@@ -75,29 +75,27 @@ namespace timelapse {
   ShutterSpeedChoice::~ShutterSpeedChoice() {
   }
 
-    /*
-    int ShutterSpeedChoice::gcd(int a, int b) {
-      int c;
-      while (b != 0) {
-        c = b;
-        b = a % b;
-        a = c;
-      }
-      return a;
+  int ShutterSpeedChoice::gcd(int a, int b) {
+    while (b != 0) {
+      int c = b;
+      b = a % b;
+      a = c;
     }
+    return a;
+  }
 
-    void ShutterSpeedChoice::normalize() {
-      if (toMicrosecond() > 0) {
-        if (factor > 1) {
-          int gcd = ShutterSpeedChoice::gcd(divident, factor);
-          if (gcd > 1) {
-            divident /= gcd;
-            factor /= gcd;
-          }
+  void ShutterSpeedChoice::normalize() {
+    if (toMicrosecond() > 0) {
+      if (factor > 1) {
+        int gcd = ShutterSpeedChoice::gcd(divident, factor);
+        if (gcd > 1) {
+          divident /= gcd;
+          factor /= gcd;
         }
       }
     }
-   */
+  }
+
   QString ShutterSpeedChoice::toString() {
     if (bulb) {
       if (divident > 0) {

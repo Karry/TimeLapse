@@ -53,7 +53,7 @@ namespace timelapse {
     initialize();
 
     uint32_t v = capability.version;
-    return QString("%1 \t\"%2\" @ %3 (%4 %5.%6.%7)")
+    return QString("v4l:%1 \t\"%2\" @ %3 (%4 %5.%6.%7)")
       .arg(dev)
       .arg(QString::fromLatin1((char *) capability.card, sizeof (capability.card)))
       .arg(QString::fromLatin1((char *) capability.bus_info, sizeof (capability.bus_info)))

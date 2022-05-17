@@ -49,9 +49,6 @@ namespace timelapse {
   initialized(o.initialized), dev(o.dev), capability(o.capability), v4lfmt(o.v4lfmt) {
   }
 
-  V4LDevice::~V4LDevice() {
-  }
-
   QString V4LDevice::toString() {
     initialize();
 
@@ -299,8 +296,6 @@ namespace timelapse {
 
           Magick::Geometry g(v4lfmt.fmt.pix.width, v4lfmt.fmt.pix.height);
           emit imageCaptured("RGB", oblob, g);
-
-
         }
 
         V4LDevice::ioctl(fd, VIDIOC_QBUF, &buf);

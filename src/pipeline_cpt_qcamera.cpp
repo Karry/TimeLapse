@@ -36,25 +36,43 @@ QCameraDevice::QCameraDevice(const QCameraInfo &info):
 QCameraDevice::QCameraDevice(const QCameraDevice &other):
   info(other.info)
 {
+  if (other.camera) {
+    [[maybe_unused]] bool b = initialize();
+    assert(b);
+  }
 }
 
 QCameraDevice& QCameraDevice::operator=(const QCameraDevice &other) {
   info = other.info;
   camera.reset();
+
+  if (other.camera) {
+    [[maybe_unused]] bool b = initialize();
+    assert(b);
+  }
   return *this;
 }
 
+void QCameraDevice::start() {
+  assert(camera);
+  camera->start();
+  // TODO: allow viewfinder for UI applications
+}
+
+void QCameraDevice::stop() {
+  assert(camera);
+  camera->stop();
+}
+
+
 void QCameraDevice::capture([[maybe_unused]] QTextStream *verboseOut, ShutterSpeedChoice shutterSpeed) {
-  [[maybe_unused]] bool b = initialize();
-  assert(b);
+  assert(camera);
 
   if (shutterSpeed.toMicrosecond() > 0) {
     if (QCameraExposure *exposure = camera->exposure(); exposure!=nullptr) {
       exposure->setManualShutterSpeed(qreal(shutterSpeed.toMicrosecond()) / 1000000);
     }
   }
-
-  camera->start();
 
   if (camera->requestedLocks()==QCamera::LockType::NoLock) {
     onLocked();
@@ -114,7 +132,7 @@ bool QCameraDevice::initialize(QTextStream *verboseOut) {
     if (maxSize.isValid()){
       encoding.setResolution(maxSize);
       if (verboseOut!=nullptr) {
-        *verboseOut << "using resolution " << maxSize.width() << "x" << maxSize.height() << endl;
+        *verboseOut << "Setup resolution " << maxSize.width() << "x" << maxSize.height() << " for " << toString() << endl;
       }
     }
     imageCapture->setEncodingSettings(encoding);
@@ -130,8 +148,7 @@ void QCameraDevice::onLockFailed() {
 }
 
 void QCameraDevice::onLocked() {
-  [[maybe_unused]] bool b = initialize();
-  assert(b);
+  assert(camera);
 
   if (imageCapture->isReadyForCapture()) {
     postponedCapture = false;
@@ -210,8 +227,7 @@ void QCameraDevice::onImageAvailable([[maybe_unused]] int id, const QVideoFrame 
 }
 
 ShutterSpeedChoice QCameraDevice::currentShutterSpeed() {
-  [[maybe_unused]] bool b = initialize();
-  assert(b);
+  assert(camera);
 
   QCameraExposure *exposure = camera->exposure();
   if (exposure==nullptr) {
@@ -224,8 +240,7 @@ ShutterSpeedChoice QCameraDevice::currentShutterSpeed() {
 }
 
 QList<ShutterSpeedChoice> QCameraDevice::getShutterSpeedChoices() {
-  [[maybe_unused]] bool b = initialize();
-  assert(b);
+  assert(camera);
 
   QCameraExposure *exposure = camera->exposure();
   QList<ShutterSpeedChoice> result;

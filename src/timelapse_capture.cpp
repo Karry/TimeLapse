@@ -576,6 +576,7 @@ namespace timelapse {
 
   void TimeLapseCapture::done() {
     // capturing devices can be asynchronous, we should wait a bit for possible events from devices
+    dev->stop();
     QTimer::singleShot(1000, this, SLOT(cleanup()));
   }
 
@@ -592,6 +593,7 @@ namespace timelapse {
       this, &TimeLapseCapture::imageCaptured);
 
     verboseOutput << "Start timer with interval " << interval << " ms" << endl;
+    dev->start();
     //timer.start(interval);
     capture();
   }

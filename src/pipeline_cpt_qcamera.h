@@ -62,6 +62,9 @@ public:
 
   bool initialize(QTextStream *verboseOut=nullptr);
 
+  void start() override;
+  void stop() override;
+
 private:
   QCameraInfo info;
   std::unique_ptr<QCamera> camera;

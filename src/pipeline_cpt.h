@@ -82,6 +82,9 @@ namespace timelapse {
       return false;
     }
 
+    virtual void start() {}
+    virtual void stop() {}
+
   signals:
     void imageCaptured(QString type, Magick::Blob blob, Magick::Geometry sizeHint);
 

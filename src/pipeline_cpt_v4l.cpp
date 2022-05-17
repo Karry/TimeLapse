@@ -136,7 +136,7 @@ namespace timelapse {
     try {
 
       CLEAR(capability);
-      // get device informations
+      // get device information
       ioctl(fd, VIDIOC_QUERYCAP, &capability);
 
       // determine highest available resolution with RGB24 pixel format

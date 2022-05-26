@@ -44,7 +44,7 @@ It uses avconv or ffmpeg to build final videos.
 Install build tools and libraries:
 
 ```
-sudo apt-get install cmake cmake-data build-essential libmagick++-dev qtbase5-dev \
+sudo apt-get install cmake cmake-data build-essential libmagick++-dev qtbase5-dev qtmultimedia5-dev \
   ffmpeg git libv4l-dev libgphoto2-dev
 ```
 

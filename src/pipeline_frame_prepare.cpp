@@ -25,8 +25,9 @@
 #include <QtCore/QTextStream>
 
 #include <Magick++.h>
+#include <Magick++/Color.h>
+
 #include <exception>
-#include <ImageMagick-6/Magick++/Color.h>
 
 using namespace std;
 using namespace timelapse;

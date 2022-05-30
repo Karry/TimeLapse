@@ -22,7 +22,7 @@
 #include <TimeLapse/scope_log.h>
 #include <TimeLapse/timelapse.h>
 
-#include <ImageMagick-6/Magick++/Exception.h>
+#include <Magick++/Exception.h>
 
 #include <QtCore/QTextStream>
 #include <QtCore/QCoreApplication>

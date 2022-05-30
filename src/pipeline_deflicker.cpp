@@ -25,7 +25,7 @@
 #include <QtCore/QString>
 
 #include <Magick++.h>
-#include <ImageMagick-6/Magick++/Color.h>
+#include <Magick++/Color.h>
 
 #include <exception>
 #include <vector>

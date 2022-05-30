@@ -44,6 +44,7 @@
 #include <TimeLapse/pipeline_cpt_qcamera.h>
 
 #include <Magick++.h>
+#include <Magick++/Color.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QDebug>

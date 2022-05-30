@@ -18,9 +18,10 @@
  */
 
 #include <TimeLapse/capture.h>
+#include <TimeLapse/magick_utils.h>
 
 #include <Magick++.h>
-#include <ImageMagick-6/Magick++/Color.h>
+#include <Magick++/Color.h>
 
 #include <exception>
 #include <vector>
@@ -94,9 +95,9 @@ void MatrixMeteringAlg::update(Magick::Image img) {
 
   // compute grey-scale histogram
   for (std::pair<Magick::Color, size_t> p : histogram) {
-    double r = Magick::Color::scaleQuantumToDouble(p.first.redQuantum());
-    double g = Magick::Color::scaleQuantumToDouble(p.first.greenQuantum());
-    double b = Magick::Color::scaleQuantumToDouble(p.first.blueQuantum());
+    double r = redDouble(p.first);
+    double g = greenDouble(p.first);
+    double b = blueDouble(p.first);
     double grey = 0.299 * r + 0.587 * g + 0.114 * b;
     int i = std::max(
       std::min(GREY_HISTOGRAM_RESOLUTION, (int) (grey * ((double) GREY_HISTOGRAM_RESOLUTION))),

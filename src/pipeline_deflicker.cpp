@@ -20,6 +20,7 @@
 #include <TimeLapse/pipeline_deflicker.h>
 
 #include <TimeLapse/timelapse.h>
+#include <TimeLapse/magick_utils.h>
 
 #include <QtCore/QTextStream>
 #include <QtCore/QString>
@@ -52,12 +53,12 @@ namespace timelapse {
     unsigned long pixelCount = 0;
     for (std::pair<Magick::Color, size_t> p : histogram) {
       pixelCount += p.second;
-      sumR += p.second * Magick::Color::scaleDoubleToQuantum(
-        std::pow(Magick::Color::scaleQuantumToDouble(p.first.redQuantum()), powArg));
-      sumG += p.second * Magick::Color::scaleDoubleToQuantum(
-        std::pow(Magick::Color::scaleQuantumToDouble(p.first.greenQuantum()), powArg));
-      sumB += p.second * Magick::Color::scaleDoubleToQuantum(
-        std::pow(Magick::Color::scaleQuantumToDouble(p.first.blueQuantum()), powArg));
+      sumR += p.second * scaleDoubleToQuantum(
+        std::pow(redDouble(p.first), powArg));
+      sumG += p.second * scaleDoubleToQuantum(
+        std::pow(greenDouble(p.first), powArg));
+      sumB += p.second * scaleDoubleToQuantum(
+        std::pow(blueDouble(p.first), powArg));
     }
 
     // We use the following formula to get the perceived luminance.
@@ -68,11 +69,17 @@ namespace timelapse {
 
   void ComputeLuminance::onInputImg(InputImageInfo info, Magick::Image img) {
 
+    // We use the following formula to get the perceived luminance.
+#if MagickLibVersion < 0x700
     Magick::Image::ImageStatistics stat;
     img.statistics(&stat);
-
-    // We use the following formula to get the perceived luminance.
     info.luminance = 0.299 * stat.red.mean + 0.587 * stat.green.mean + 0.114 * stat.blue.mean;
+#else
+    Magick::ImageStatistics stat=img.statistics();
+    info.luminance = 0.299 * stat.channel(Magick::RedPixelChannel).mean()
+      + 0.587 * stat.channel(Magick::GreenPixelChannel).mean()
+      + 0.114 * stat.channel(Magick::BluePixelChannel).mean();
+#endif
 
     *verboseOutput << info.fileInfo().filePath()
       << " luminance: " << info.luminance
@@ -165,8 +172,8 @@ namespace timelapse {
     for (int iteration = 0; iteration < 10; iteration++) {
 
       gamma *= 1 / (
-        std::log(Magick::Color::scaleQuantumToDouble(targetLuminance)) /
-        std::log(Magick::Color::scaleQuantumToDouble(expectedLuminance)));
+        std::log(scaleQuantumToDouble(targetLuminance)) /
+        std::log(scaleQuantumToDouble(expectedLuminance)));
 
       expectedLuminance = ComputeLuminance::computeLuminance(histogram, gamma);
 
@@ -182,10 +189,15 @@ namespace timelapse {
 
     img.gamma(gamma);
     if (debugView) {
+#if MagickLibVersion < 0x700
       original.transform(
         Magick::Geometry(original.columns(), original.rows()),
         Magick::Geometry(original.columns() / 2, original.rows())
         );
+#else
+      original.crop(Magick::Geometry(original.columns(), original.rows()));
+      original.resize(Magick::Geometry(original.columns() / 2, original.rows()));
+#endif
       img.composite(original, 0, 0, Magick::DissolveCompositeOp);
     }
     //img.brightnessContrast(brighnessChange, /* contrast */0.0);
@@ -193,4 +205,3 @@ namespace timelapse {
   }
 
 }
-

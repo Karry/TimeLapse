@@ -21,6 +21,7 @@
 #include "pipeline_deflicker.moc"
 
 #include "timelapse.h"
+#include "magick_utils.h"
 
 #include <QtCore/QTextStream>
 #include <QtCore/QString>
@@ -53,12 +54,12 @@ namespace timelapse {
     unsigned long pixelCount = 0;
     for (std::pair<Magick::Color, size_t> p : histogram) {
       pixelCount += p.second;
-      sumR += p.second * Magick::Color::scaleDoubleToQuantum(
-        std::pow(Magick::Color::scaleQuantumToDouble(p.first.redQuantum()), powArg));
-      sumG += p.second * Magick::Color::scaleDoubleToQuantum(
-        std::pow(Magick::Color::scaleQuantumToDouble(p.first.greenQuantum()), powArg));
-      sumB += p.second * Magick::Color::scaleDoubleToQuantum(
-        std::pow(Magick::Color::scaleQuantumToDouble(p.first.blueQuantum()), powArg));
+      sumR += p.second * scaleDoubleToQuantum(
+        std::pow(redDouble(p.first), powArg));
+      sumG += p.second * scaleDoubleToQuantum(
+        std::pow(greenDouble(p.first), powArg));
+      sumB += p.second * scaleDoubleToQuantum(
+        std::pow(blueDouble(p.first), powArg));
     }
 
     // We use the following formula to get the perceived luminance.
@@ -69,8 +70,12 @@ namespace timelapse {
 
   void ComputeLuminance::onInputImg(InputImageInfo info, Magick::Image img) {
 
+#if MagickLibVersion < 0x700
     Magick::Image::ImageStatistics stat;
     img.statistics(&stat);
+#else
+    Magick::ImageStatistics stat=img.statistics();
+#endif
 
     // We use the following formula to get the perceived luminance.
     info.luminance = 0.299 * stat.red.mean + 0.587 * stat.green.mean + 0.114 * stat.blue.mean;
@@ -166,8 +171,8 @@ namespace timelapse {
     for (int iteration = 0; iteration < 10; iteration++) {
 
       gamma *= 1 / (
-        std::log(Magick::Color::scaleQuantumToDouble(targetLuminance)) /
-        std::log(Magick::Color::scaleQuantumToDouble(expectedLuminance)));
+        std::log(scaleQuantumToDouble(targetLuminance)) /
+        std::log(scaleQuantumToDouble(expectedLuminance)));
 
       expectedLuminance = ComputeLuminance::computeLuminance(histogram, gamma);
 

@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "timelapse.h"
-#include "input_image_info.h"
+#include <TimeLapse/timelapse.h>
+#include <TimeLapse/input_image_info.h>
 
 #include <Magick++.h>
 

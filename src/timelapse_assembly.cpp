@@ -17,21 +17,22 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             
  */
 
-#include "timelapse_assembly.h"
+#include <timelapse_assembly.h>
 
-#include "timelapse_version.h"
-#include "timelapse.h"
-#include "black_hole_device.h"
-#include "error_message_helper.h"
+#include <TimeLapse/timelapse_version.h>
 
-#include "pipeline.h"
-#include "pipeline_handler.h"
-#include "pipeline_frame_mapping.h"
-#include "pipeline_frame_prepare.h"
-#include "pipeline_video_assembly.h"
-#include "pipeline_write_frame.h"
-#include "pipeline_resize_frame.h"
-#include "pipeline_deflicker.h"
+#include <TimeLapse/timelapse.h>
+#include <TimeLapse/black_hole_device.h>
+#include <TimeLapse/error_message_helper.h>
+
+#include <TimeLapse/pipeline.h>
+#include <TimeLapse/pipeline_handler.h>
+#include <TimeLapse/pipeline_frame_mapping.h>
+#include <TimeLapse/pipeline_frame_prepare.h>
+#include <TimeLapse/pipeline_video_assembly.h>
+#include <TimeLapse/pipeline_write_frame.h>
+#include <TimeLapse/pipeline_resize_frame.h>
+#include <TimeLapse/pipeline_deflicker.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QTimer>

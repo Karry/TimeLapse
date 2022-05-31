@@ -29,9 +29,9 @@
  *    GPL 2, various authors
  */
 
-#include "pipeline_cpt_gphoto2.h"
+#include <TimeLapse/pipeline_cpt_gphoto2.h>
 
-#include "timelapse.h"
+#include <TimeLapse/timelapse.h>
 
 #include <unistd.h>
 

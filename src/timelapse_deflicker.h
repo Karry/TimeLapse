@@ -19,10 +19,10 @@
 
 #pragma once
 
-#include "timelapse.h"
-#include "black_hole_device.h"
-#include "input_image_info.h"
-#include "pipeline.h"
+#include <TimeLapse/timelapse.h>
+#include <TimeLapse/black_hole_device.h>
+#include <TimeLapse/input_image_info.h>
+#include <TimeLapse/pipeline.h>
 
 #include <Magick++.h>
 

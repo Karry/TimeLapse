@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "timelapse.h"
-#include "input_image_info.h"
-#include "pipeline_handler.h"
+#include <TimeLapse/timelapse.h>
+#include <TimeLapse/input_image_info.h>
+#include <TimeLapse/pipeline_handler.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QDebug>
@@ -31,61 +31,40 @@
 
 namespace timelapse {
 
-  class TIME_LAPSE_API ComputeLuminance : public ImageHandler {
+  class TIME_LAPSE_API OneToOneFrameMapping : public InputHandler {
     Q_OBJECT
   public:
-    ComputeLuminance(QTextStream *verboseOutput);
-
-    static double computeLuminance(
-            const std::vector<std::pair<Magick::Color, size_t>> &histogram,
-            double gamma = 1.0);
-
-  public slots:
-    virtual void onInputImg(InputImageInfo info, Magick::Image img) override;
-  private:
-    QTextStream *verboseOutput;
-  };
-
-  /**
-   * Compute target luminance by average from all images
-   */
-  class TIME_LAPSE_API ComputeAverageLuminance : public InputHandler {
-    Q_OBJECT
-  public:
-    ComputeAverageLuminance(QTextStream *verboseOutput);
+    OneToOneFrameMapping();
   public slots:
     virtual void onInput(InputImageInfo info) override;
-    void onLast() override;
   private:
+    int frame;
+  };
+
+  class ConstIntervalFrameMapping : public InputHandler {
+    Q_OBJECT
+  public:
+    ConstIntervalFrameMapping(QTextStream *verboseOutput, QTextStream *err, float length, float fps);
+  public slots:
+    virtual void onInput(InputImageInfo info) override;
+    virtual void onLast() override;
+  protected:
+    int frame;
     QTextStream *verboseOutput;
+    QTextStream *err;
+    float length;
+    float fps;
+    int frameCount;
     QList<InputImageInfo> inputs;
   };
 
-  /**
-   * Compute target luminance by weighted moving average
-   */
-  class TIME_LAPSE_API WMALuminance : public InputHandler {
+  class VariableIntervalFrameMapping : public ConstIntervalFrameMapping {
     Q_OBJECT
   public:
-    WMALuminance(QTextStream *verboseOutput, size_t count);
+    VariableIntervalFrameMapping(QTextStream *verboseOutput, QTextStream *err, float length, float fps);
   public slots:
-    virtual void onInput(InputImageInfo info) override;
-    void onLast() override;
-  private:
-    size_t count;
-    QTextStream *verboseOutput;
-    QList<InputImageInfo> inputs;
+    virtual void onLast();
   };
 
-  class TIME_LAPSE_API AdjustLuminance : public ImageHandler {
-    Q_OBJECT
-  public:
-    AdjustLuminance(QTextStream *verboseOutput, bool debugView);
-  public slots:
-    virtual void onInputImg(InputImageInfo info, Magick::Image img) override;
-  private:
-    QTextStream *verboseOutput;
-    bool debugView;
-  };
 
 }

@@ -17,9 +17,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             
  */
 
-#include "pipeline_resize_frame.h"
+#include <TimeLapse/pipeline_resize_frame.h>
 
-#include "scope_log.h"
+#include <TimeLapse/scope_log.h>
 
 using namespace std;
 using namespace timelapse;

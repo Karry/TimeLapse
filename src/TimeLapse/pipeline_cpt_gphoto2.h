@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "timelapse.h"
-#include "pipeline_cpt.h"
+#include <TimeLapse/timelapse.h>
+#include <TimeLapse/pipeline_cpt.h>
 
 #include <Magick++.h>
 

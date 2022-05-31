@@ -19,14 +19,14 @@
 
 #pragma once
 
-#include "timelapse.h"
-#include "input_image_info.h"
-#include "pipeline_handler.h"
-#include "error_message_helper.h"
+#include <TimeLapse/timelapse.h>
+#include <TimeLapse/input_image_info.h>
+#include <TimeLapse/pipeline_handler.h>
+#include <TimeLapse/error_message_helper.h>
+
+#include <TimeLapse/libvidstab.h>
 
 #include <Magick++.h>
-
-#include "libvidstab.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QDebug>

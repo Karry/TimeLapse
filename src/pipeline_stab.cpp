@@ -17,9 +17,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             
  */
 
-#include "pipeline_stab.h"
+#include <TimeLapse/pipeline_stab.h>
 
-#include "libvidstab.h"
+#include <TimeLapse/libvidstab.h>
 
 #include <QtCore/QCoreApplication>
 

@@ -17,9 +17,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             
  */
 
-#include "pipeline_frame_prepare.h"
+#include <TimeLapse/pipeline_frame_prepare.h>
 
-#include "timelapse.h"
+#include <TimeLapse/timelapse.h>
 
 #include <QtCore/QTextStream>
 

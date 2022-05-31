@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2016 Lukáš Karas <lukas.karas@centrum.cz>
+ *   Copyright (C) 2015 Lukáš Karas <lukas.karas@centrum.cz>
  *                                     
  *   This program is free software; you can redistribute it and/or modify  
  *   it under the terms of the GNU General Public License as published by  
@@ -19,58 +19,30 @@
 
 #pragma once
 
-#include "timelapse.h"
-#include "black_hole_device.h"
-#include "pipeline_cpt.h"
+#include <TimeLapse/timelapse.h>
+#include <TimeLapse/input_image_info.h>
+#include <TimeLapse/pipeline_handler.h>
 
 #include <Magick++.h>
 
-#include <libv4l2.h>
-#include <linux/videodev2.h>
-
 #include <QtCore/QObject>
 #include <QtCore/QDebug>
-#include <QtCore/QTimer>
-#include <QtCore/QTextStream>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QFileInfo>
 #include <QtCore/QTemporaryDir>
 
 namespace timelapse {
 
-  struct buffer {
-    void *start;
-    size_t length;
-  };
-
-  class TIME_LAPSE_API V4LDevice : public CaptureDevice {
+  class TIME_LAPSE_API WriteFrame : public ImageHandler {
     Q_OBJECT
   public:
-    V4LDevice(QString dev = "/dev/video0");
-    V4LDevice(const timelapse::V4LDevice& other);
-    ~V4LDevice() override = default;
-
-    void capture(QTextStream *verboseOut, ShutterSpeedChoice shutterSpeed = ShutterSpeedChoice()) override;
-
-    QString toString() override;
-    QString toShortString() override;
-    V4LDevice operator=(const timelapse::V4LDevice&);
-
-    //virtual PipelineCaptureSource* qObject();
-
-    static void ioctl(int fh, unsigned long int request, void *arg);
-    static QList<V4LDevice> listDevices(QTextStream *verboseOut, QDir devDir = QDir("/dev"));
-
-    void initialize();
-
-  protected:
-    int open();
-
-    bool initialized;
-    QString dev;
-    struct v4l2_capability capability;
-    struct v4l2_format v4lfmt;
-
+    WriteFrame(QDir outputDir, QTextStream *verboseOutput, bool dryRun);
+    QString leadingZeros(int i, int leadingZeros);
+  public slots:
+    virtual void onInputImg(InputImageInfo info, Magick::Image img) override;
+  private:
+    QDir outputDir;
+    QLocale frameNumberLocale;
+    QTextStream *verboseOutput;
+    bool dryRun;
   };
 
 }

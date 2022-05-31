@@ -17,8 +17,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#include "timelapse.h"
-#include "input_image_info.h"
+#include <TimeLapse/timelapse.h>
+#include <TimeLapse/input_image_info.h>
 
 namespace timelapse {
 void registerQtMetaTypes() {

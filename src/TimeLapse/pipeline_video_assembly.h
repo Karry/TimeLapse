@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "timelapse.h"
-#include "input_image_info.h"
-#include "pipeline_handler.h"
+#include <TimeLapse/timelapse.h>
+#include <TimeLapse/input_image_info.h>
+#include <TimeLapse/pipeline_handler.h>
 
 #include <Magick++.h>
 
@@ -31,33 +31,28 @@
 
 namespace timelapse {
 
-  class TIME_LAPSE_API PipelineSource {
-  public:
-
-    virtual ~PipelineSource() {
-    };
-    virtual void process() = 0;
-  };
-
-  class TIME_LAPSE_API PipelineFileSource : public InputHandler, public PipelineSource {
+  class TIME_LAPSE_API VideoAssembly : public InputHandler {
     Q_OBJECT
   public:
-    PipelineFileSource(QStringList inputArguments, bool recursive, QTextStream *verboseOutput, QTextStream *err);
-    virtual void process() override;
-  protected:
-    QList<InputImageInfo> listDirectory(QDir d);
-    QList<InputImageInfo> parseArguments();
+    VideoAssembly(QDir tempDir, QTextStream *verboseOutput, QTextStream *err, bool dryRun,
+                  QFileInfo output, int width, int height, float fps, QString bitrate, QString codec);
+
   public slots:
     virtual void onInput(InputImageInfo info) override;
-  private slots:
-    void takeNext(QList<InputImageInfo> inputs);
-  signals:
-    void processNext(QList<InputImageInfo> inputs);
+    virtual void onLast() override;
 
   private:
-    QStringList inputArguments;
-    bool recursive;
+    QDir tempDir;
     QTextStream *verboseOutput;
     QTextStream *err;
+    bool dryRun;
+
+    QFileInfo output;
+    int width;
+    int height;
+    float fps;
+    QString bitrate;
+    QString codec;
   };
+
 }

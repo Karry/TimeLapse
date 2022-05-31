@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "timelapse.h"
-#include "input_image_info.h"
-#include "pipeline_handler.h"
+#include <TimeLapse/timelapse.h>
+#include <TimeLapse/input_image_info.h>
+#include <TimeLapse/pipeline_handler.h>
 
 #include <Magick++.h>
 
@@ -30,19 +30,19 @@
 #include <QtCore/QTemporaryDir>
 
 namespace timelapse {
-
-  class TIME_LAPSE_API WriteFrame : public ImageHandler {
+  
+  class TIME_LAPSE_API ResizeFrame : public ImageHandler {
     Q_OBJECT
   public:
-    WriteFrame(QDir outputDir, QTextStream *verboseOutput, bool dryRun);
-    QString leadingZeros(int i, int leadingZeros);
+    ResizeFrame(QTextStream *verboseOutput, int w, int h, bool adaptiveResize);
   public slots:
     virtual void onInputImg(InputImageInfo info, Magick::Image img) override;
+
   private:
-    QDir outputDir;
-    QLocale frameNumberLocale;
     QTextStream *verboseOutput;
-    bool dryRun;
+    int width;
+    int height;
+    bool adaptiveResize;
   };
 
 }

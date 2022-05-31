@@ -19,12 +19,12 @@
 
 #pragma once
 
-#include "timelapse.h"
+#include <TimeLapse/timelapse.h>
 
-#include "input_image_info.h"
-#include "pipeline_handler.h"
-#include "pipeline_source.h"
-#include "pipeline_cpt.h"
+#include <TimeLapse/input_image_info.h>
+#include <TimeLapse/pipeline_handler.h>
+#include <TimeLapse/pipeline_source.h>
+#include <TimeLapse/pipeline_cpt.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QDebug>

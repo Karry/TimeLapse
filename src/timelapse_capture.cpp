@@ -33,16 +33,16 @@
  * 
  */
 
-#include "timelapse_capture.h"
+#include <timelapse_capture.h>
 
-#include "timelapse_version.h"
-#include "timelapse.h"
-#include "black_hole_device.h"
-#include "pipeline_cpt.h"
-#include "pipeline_cpt_v4l.h"
-#include "pipeline_cpt_gphoto2.h"
-#include "pipeline_write_frame.h"
-#include "pipeline_cpt_qcamera.h"
+#include <TimeLapse/timelapse_version.h>
+#include <TimeLapse/timelapse.h>
+#include <TimeLapse/black_hole_device.h>
+#include <TimeLapse/pipeline_cpt.h>
+#include <TimeLapse/pipeline_cpt_v4l.h>
+#include <TimeLapse/pipeline_cpt_gphoto2.h>
+#include <TimeLapse/pipeline_write_frame.h>
+#include <TimeLapse/pipeline_cpt_qcamera.h>
 
 #include <Magick++.h>
 #include <ImageMagick-6/Magick++/Color.h>

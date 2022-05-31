@@ -25,7 +25,7 @@ if(NOT VERSION_TIMELAPSE)
 endif()
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/timelapse_version.h.cmake"
-	"${CMAKE_CURRENT_BINARY_DIR}/timelapse_version.h")
+	"${CMAKE_CURRENT_BINARY_DIR}/TimeLapse/timelapse_version.h")
 
 include_directories(
   ${Qt5Core_INCLUDE_DIRS}
@@ -79,24 +79,24 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 set(timelapse_HEADERS
-	black_hole_device.h
-	input_image_info.h
-	error_message_helper.h
+	TimeLapse/black_hole_device.h
+	TimeLapse/input_image_info.h
+	TimeLapse/error_message_helper.h
 
-	pipeline.h
-	pipeline_handler.h
-	pipeline_frame_mapping.h
-	pipeline_frame_prepare.h
-	pipeline_video_assembly.h
-	pipeline_write_frame.h
-	pipeline_resize_frame.h
-	pipeline_source.h
-	pipeline_deflicker.h
-	pipeline_stab.h
-	pipeline_cpt_v4l.h
-	pipeline_cpt_gphoto2.h
-	pipeline_cpt_qcamera.h
-	pipeline_cpt.h)
+	TimeLapse/pipeline.h
+	TimeLapse/pipeline_handler.h
+	TimeLapse/pipeline_frame_mapping.h
+	TimeLapse/pipeline_frame_prepare.h
+	TimeLapse/pipeline_video_assembly.h
+	TimeLapse/pipeline_write_frame.h
+	TimeLapse/pipeline_resize_frame.h
+	TimeLapse/pipeline_source.h
+	TimeLapse/pipeline_deflicker.h
+	TimeLapse/pipeline_stab.h
+	TimeLapse/pipeline_cpt_v4l.h
+	TimeLapse/pipeline_cpt_gphoto2.h
+	TimeLapse/pipeline_cpt_qcamera.h
+	TimeLapse/pipeline_cpt.h)
 
 set(timelapse_SRCS
     black_hole_device.cpp
@@ -194,3 +194,10 @@ install(TARGETS timelapse timelapse_assembly timelapse_deflicker timelapse_stabi
 	LIBRARY DESTINATION lib COMPONENT libraries
 	ARCHIVE DESTINATION lib/static COMPONENT libraries
 	)
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/TimeLapse
+	DESTINATION include
+	FILES_MATCHING PATTERN "*.h")
+
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/TimeLapse/timelapse_version.h"
+	DESTINATION include/TimeLapse)

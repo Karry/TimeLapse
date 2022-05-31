@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "timelapse.h"
+#include <TimeLapse/timelapse.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QDateTime>

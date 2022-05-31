@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015 Lukáš Karas <lukas.karas@centrum.cz>
+ *   Copyright (C) 2016 Lukáš Karas <lukas.karas@centrum.cz>
  *                                     
  *   This program is free software; you can redistribute it and/or modify  
  *   it under the terms of the GNU General Public License as published by  
@@ -19,40 +19,58 @@
 
 #pragma once
 
-#include "timelapse.h"
-#include "input_image_info.h"
-#include "pipeline_handler.h"
+#include <TimeLapse/timelapse.h>
+#include <TimeLapse/black_hole_device.h>
+#include <TimeLapse/pipeline_cpt.h>
 
 #include <Magick++.h>
 
+#include <libv4l2.h>
+#include <linux/videodev2.h>
+
 #include <QtCore/QObject>
 #include <QtCore/QDebug>
+#include <QtCore/QTimer>
+#include <QtCore/QTextStream>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QFileInfo>
 #include <QtCore/QTemporaryDir>
 
 namespace timelapse {
 
-  class TIME_LAPSE_API VideoAssembly : public InputHandler {
+  struct buffer {
+    void *start;
+    size_t length;
+  };
+
+  class TIME_LAPSE_API V4LDevice : public CaptureDevice {
     Q_OBJECT
   public:
-    VideoAssembly(QDir tempDir, QTextStream *verboseOutput, QTextStream *err, bool dryRun,
-                  QFileInfo output, int width, int height, float fps, QString bitrate, QString codec);
+    V4LDevice(QString dev = "/dev/video0");
+    V4LDevice(const timelapse::V4LDevice& other);
+    ~V4LDevice() override = default;
 
-  public slots:
-    virtual void onInput(InputImageInfo info) override;
-    virtual void onLast() override;
+    void capture(QTextStream *verboseOut, ShutterSpeedChoice shutterSpeed = ShutterSpeedChoice()) override;
 
-  private:
-    QDir tempDir;
-    QTextStream *verboseOutput;
-    QTextStream *err;
-    bool dryRun;
+    QString toString() override;
+    QString toShortString() override;
+    V4LDevice operator=(const timelapse::V4LDevice&);
 
-    QFileInfo output;
-    int width;
-    int height;
-    float fps;
-    QString bitrate;
-    QString codec;
+    //virtual PipelineCaptureSource* qObject();
+
+    static void ioctl(int fh, unsigned long int request, void *arg);
+    static QList<V4LDevice> listDevices(QTextStream *verboseOut, QDir devDir = QDir("/dev"));
+
+    void initialize();
+
+  protected:
+    int open();
+
+    bool initialized;
+    QString dev;
+    struct v4l2_capability capability;
+    struct v4l2_format v4lfmt;
+
   };
 
 }

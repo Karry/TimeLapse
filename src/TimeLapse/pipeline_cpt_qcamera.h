@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "pipeline_cpt.h"
+#include <TimeLapse/pipeline_cpt.h>
 
 #include <Magick++.h>
 

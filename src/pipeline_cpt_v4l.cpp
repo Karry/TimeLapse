@@ -17,9 +17,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             
  */
 
-#include "pipeline_cpt_v4l.h"
+#include <TimeLapse/pipeline_cpt_v4l.h>
 
-#include "timelapse.h"
+#include <TimeLapse/timelapse.h>
 
 #include <fcntl.h>
 #include <errno.h>

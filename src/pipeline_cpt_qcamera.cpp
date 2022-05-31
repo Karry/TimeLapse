@@ -26,6 +26,8 @@
 #include <QtMultimedia/QCamera>
 #include <QtMultimedia/QCameraImageCapture>
 
+#include <cassert>
+
 namespace timelapse {
 
 QCameraDevice::QCameraDevice(const QCameraInfo &info):

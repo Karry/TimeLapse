@@ -27,7 +27,7 @@
 #include "pipeline_cpt.h"
 
 #include <Magick++.h>
-#include <ImageMagick-6/Magick++/Color.h>
+#include <Magick++/Color.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QDebug>

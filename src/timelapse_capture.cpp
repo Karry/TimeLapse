@@ -589,7 +589,7 @@ namespace timelapse {
     dev = parseArguments();
 
     connect(&timer, &QTimer::timeout, this, &TimeLapseCapture::capture);
-    connect(dev.get(), &CaptureDevice::imageCaptured,
+    connect(dev.data(), &CaptureDevice::imageCaptured,
       this, &TimeLapseCapture::imageCaptured);
 
     verboseOutput << "Start timer with interval " << interval << " ms" << endl;

@@ -158,7 +158,7 @@ namespace timelapse {
 
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &PipelineCaptureSource::capture);
-    connect(dev.get(), &CaptureDevice::imageCaptured,
+    connect(dev.data(), &CaptureDevice::imageCaptured,
       this, &PipelineCaptureSource::imageCaptured);
   }
 

@@ -17,13 +17,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             
  */
 
-#include <exception>
-
 #include "timelapse.h"
 #include "pipeline.h"
-#include "pipeline.moc"
 #include "pipeline_handler.h"
 #include "pipeline_cpt.h"
+
+#include <exception>
 
 namespace timelapse {
 

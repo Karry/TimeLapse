@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "timelapse.h"
 #include "input_image_info.h"
 #include "pipeline_handler.h"
 
@@ -30,7 +31,7 @@
 
 namespace timelapse {
 
-  class VideoAssembly : public InputHandler {
+  class TIME_LAPSE_API VideoAssembly : public InputHandler {
     Q_OBJECT
   public:
     VideoAssembly(QDir tempDir, QTextStream *verboseOutput, QTextStream *err, bool dryRun,

@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "timelapse.h"
+
 #include <QtCore/QObject>
 #include <QtCore/QIODevice>
 
@@ -28,7 +30,7 @@ namespace timelapse {
    * BlackHoleDevice is write-only device that is equivalent 
    * of Unix device /dev/null
    */
-  class BlackHoleDevice : public QIODevice {
+  class TIME_LAPSE_API BlackHoleDevice : public QIODevice {
     Q_OBJECT
     Q_DISABLE_COPY(BlackHoleDevice)
 

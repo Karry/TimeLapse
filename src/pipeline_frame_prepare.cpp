@@ -18,7 +18,6 @@
  */
 
 #include "pipeline_frame_prepare.h"
-#include "pipeline_frame_prepare.moc"
 
 #include "timelapse.h"
 

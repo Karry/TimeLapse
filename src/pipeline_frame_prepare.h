@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "timelapse.h"
 #include "input_image_info.h"
 #include "pipeline_handler.h"
 
@@ -30,7 +31,7 @@
 
 namespace timelapse {
 
-  class FramePrepare : public ImageHandler {
+  class TIME_LAPSE_API FramePrepare : public ImageHandler {
     Q_OBJECT
 
   public:
@@ -49,7 +50,7 @@ namespace timelapse {
     InputImageInfo prevInfo;
   };
 
-  class BlendFramePrepare : public FramePrepare {
+  class TIME_LAPSE_API BlendFramePrepare : public FramePrepare {
     Q_OBJECT
   public:
     explicit BlendFramePrepare(QTextStream *verboseOutput);

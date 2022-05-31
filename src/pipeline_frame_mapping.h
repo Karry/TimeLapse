@@ -19,18 +19,19 @@
 
 #pragma once
 
+#include "timelapse.h"
+#include "input_image_info.h"
+#include "pipeline_handler.h"
+
 #include <QtCore/QObject>
 #include <QtCore/QDebug>
 #include <QtCore/QTemporaryDir>
 
 #include <Magick++.h>
 
-#include "input_image_info.h"
-#include "pipeline_handler.h"
-
 namespace timelapse {
 
-  class OneToOneFrameMapping : public InputHandler {
+  class TIME_LAPSE_API OneToOneFrameMapping : public InputHandler {
     Q_OBJECT
   public:
     OneToOneFrameMapping();

@@ -18,7 +18,6 @@
  */
 
 #include "input_image_info.h"
-#include "input_image_info.moc"
 
 InputImageInfo::InputImageInfo(const QFileInfo &f) :
 filePath(f.absoluteFilePath().toStdString()), width(-1), height(-1), frame(-1), timestamp(),

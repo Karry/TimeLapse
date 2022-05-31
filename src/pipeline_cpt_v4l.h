@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "timelapse.h"
 #include "black_hole_device.h"
 #include "pipeline_cpt.h"
 
@@ -42,7 +43,7 @@ namespace timelapse {
     size_t length;
   };
 
-  class V4LDevice : public CaptureDevice {
+  class TIME_LAPSE_API V4LDevice : public CaptureDevice {
     Q_OBJECT
   public:
     V4LDevice(QString dev = "/dev/video0");
@@ -71,6 +72,5 @@ namespace timelapse {
     struct v4l2_format v4lfmt;
 
   };
-
 
 }

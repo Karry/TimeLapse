@@ -18,7 +18,6 @@
  */
 
 #include "pipeline_cpt_qcamera.h"
-#include "pipeline_cpt_qcamera.moc"
 
 #include "timelapse.h"
 

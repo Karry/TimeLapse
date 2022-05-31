@@ -18,7 +18,6 @@
  */
 
 #include "black_hole_device.h"
-#include "black_hole_device.moc"
 
 namespace timelapse {
 

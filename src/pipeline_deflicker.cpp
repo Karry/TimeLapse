@@ -18,7 +18,6 @@
  */
 
 #include "pipeline_deflicker.h"
-#include "pipeline_deflicker.moc"
 
 #include "timelapse.h"
 

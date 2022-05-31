@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "timelapse.h"
 #include "pipeline_cpt.h"
 
 #include <Magick++.h>
@@ -50,7 +51,7 @@ namespace timelapse {
 #define ON_VALUE "1"
 #define OFF_VALUE "0"
 
-  class Gphoto2Device : public CaptureDevice {
+  class TIME_LAPSE_API Gphoto2Device : public CaptureDevice {
     Q_OBJECT
   public:
     Gphoto2Device(GPContext *context, Camera *camera, QString port, QString model);

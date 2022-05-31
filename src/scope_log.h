@@ -31,7 +31,7 @@ namespace timelapse {
 /**
  * Simple tool that logs (debug) how long we spend in some scope.
  */
-class ScopeLogger {
+class TIME_LAPSE_API ScopeLogger {
 private:
   QTextStream *output;
   using Clock = std::chrono::steady_clock;

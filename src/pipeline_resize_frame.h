@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "timelapse.h"
 #include "input_image_info.h"
 #include "pipeline_handler.h"
 
@@ -30,7 +31,7 @@
 
 namespace timelapse {
   
-  class ResizeFrame : public ImageHandler {
+  class TIME_LAPSE_API ResizeFrame : public ImageHandler {
     Q_OBJECT
   public:
     ResizeFrame(QTextStream *verboseOutput, int w, int h, bool adaptiveResize);

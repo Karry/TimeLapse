@@ -18,7 +18,6 @@
  */
 
 #include "pipeline_video_assembly.h"
-#include "pipeline_video_assembly.moc"
 
 #include "timelapse.h"
 

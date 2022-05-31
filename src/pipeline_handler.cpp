@@ -18,7 +18,6 @@
  */
 
 #include "pipeline_handler.h"
-#include "pipeline_handler.moc"
 
 #include "scope_log.h"
 #include "timelapse.h"

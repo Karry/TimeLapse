@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "timelapse.h"
 #include "input_image_info.h"
 
 #include <Magick++.h>
@@ -28,9 +29,10 @@
 #include <QtCore/QTemporaryDir>
 
 namespace timelapse {
+
 constexpr int FRAME_FILE_LEADING_ZEROS = 9;
 
-  class PipelineHandler : public QObject {
+  class TIME_LAPSE_API PipelineHandler : public QObject {
     Q_OBJECT
   public:
   public slots:
@@ -40,7 +42,7 @@ constexpr int FRAME_FILE_LEADING_ZEROS = 9;
     void error(QString msg);
   };
 
-  class InputHandler : public PipelineHandler {
+  class TIME_LAPSE_API InputHandler : public PipelineHandler {
     Q_OBJECT
   public:
 
@@ -50,7 +52,7 @@ constexpr int FRAME_FILE_LEADING_ZEROS = 9;
     void input(InputImageInfo info);
   };
 
-  class ImageHandler : public PipelineHandler {
+  class TIME_LAPSE_API ImageHandler : public PipelineHandler {
     Q_OBJECT
   public:
   public slots:
@@ -59,7 +61,7 @@ constexpr int FRAME_FILE_LEADING_ZEROS = 9;
     void inputImg(InputImageInfo info, Magick::Image img);
   };
 
-  class ImageLoader : public ImageHandler {
+  class TIME_LAPSE_API ImageLoader : public ImageHandler {
     Q_OBJECT
   public:
     ImageLoader(QTextStream *verboseOutput, QTextStream *err);
@@ -71,7 +73,7 @@ constexpr int FRAME_FILE_LEADING_ZEROS = 9;
     QTextStream *err;
   };
 
-  class ImageTrash : public InputHandler {
+  class TIME_LAPSE_API ImageTrash : public InputHandler {
     Q_OBJECT
   public:
   public slots:
@@ -79,7 +81,7 @@ constexpr int FRAME_FILE_LEADING_ZEROS = 9;
     virtual void onInputImg(InputImageInfo info, Magick::Image img);
   };
 
-  class StageSeparator : public InputHandler {
+  class TIME_LAPSE_API StageSeparator : public InputHandler {
     Q_OBJECT
   public:
   public slots:
@@ -90,7 +92,7 @@ constexpr int FRAME_FILE_LEADING_ZEROS = 9;
 
   };
 
-  class ImageMetadataReader : public ImageHandler {
+  class TIME_LAPSE_API ImageMetadataReader : public ImageHandler {
     Q_OBJECT
   public:
     ImageMetadataReader(QTextStream *verboseOutput, QTextStream *err);

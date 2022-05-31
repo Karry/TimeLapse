@@ -19,18 +19,19 @@
 
 #pragma once
 
+#include "timelapse.h"
+#include "input_image_info.h"
+#include "pipeline_handler.h"
+
 #include <QtCore/QObject>
 #include <QtCore/QDebug>
 #include <QtCore/QTemporaryDir>
 
 #include <Magick++.h>
 
-#include "input_image_info.h"
-#include "pipeline_handler.h"
-
 namespace timelapse {
 
-  class ComputeLuminance : public ImageHandler {
+  class TIME_LAPSE_API ComputeLuminance : public ImageHandler {
     Q_OBJECT
   public:
     ComputeLuminance(QTextStream *verboseOutput);
@@ -48,7 +49,7 @@ namespace timelapse {
   /**
    * Compute target luminance by average from all images
    */
-  class ComputeAverageLuminance : public InputHandler {
+  class TIME_LAPSE_API ComputeAverageLuminance : public InputHandler {
     Q_OBJECT
   public:
     ComputeAverageLuminance(QTextStream *verboseOutput);
@@ -63,7 +64,7 @@ namespace timelapse {
   /**
    * Compute target luminance by weighted moving average
    */
-  class WMALuminance : public InputHandler {
+  class TIME_LAPSE_API WMALuminance : public InputHandler {
     Q_OBJECT
   public:
     WMALuminance(QTextStream *verboseOutput, size_t count);
@@ -76,7 +77,7 @@ namespace timelapse {
     QList<InputImageInfo> inputs;
   };
 
-  class AdjustLuminance : public ImageHandler {
+  class TIME_LAPSE_API AdjustLuminance : public ImageHandler {
     Q_OBJECT
   public:
     AdjustLuminance(QTextStream *verboseOutput, bool debugView);

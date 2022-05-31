@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "timelapse.h"
 #include "black_hole_device.h"
 #include "input_image_info.h"
 #include "pipeline.h"
@@ -38,7 +39,7 @@ using namespace timelapse;
 
 namespace timelapse {
 
-  class TimeLapseDeflicker : public QCoreApplication {
+  class TIME_LAPSE_API TimeLapseDeflicker : public QCoreApplication {
     Q_OBJECT
 
   public:

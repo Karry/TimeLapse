@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "timelapse.h"
+
 #include "input_image_info.h"
 #include "pipeline_handler.h"
 #include "pipeline_source.h"
@@ -35,7 +37,7 @@ using namespace timelapse;
 
 namespace timelapse {
 
-  class Pipeline : public QObject {
+  class TIME_LAPSE_API Pipeline : public QObject {
     Q_OBJECT
 
   protected:

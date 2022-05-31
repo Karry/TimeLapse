@@ -18,7 +18,6 @@
  */
 
 #include "pipeline_source.h"
-#include "pipeline_source.moc"
 
 #include "timelapse.h"
 

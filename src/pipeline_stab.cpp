@@ -18,7 +18,7 @@
  */
 
 #include "pipeline_stab.h"
-#include "pipeline_stab.moc"
+
 #include "libvidstab.h"
 
 #include <QtCore/QCoreApplication>

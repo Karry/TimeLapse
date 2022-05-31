@@ -18,7 +18,6 @@
  */
 
 #include "timelapse_stabilize.h"
-#include "timelapse_stabilize.moc"
 
 #include "timelapse_version.h"
 #include "timelapse.h"

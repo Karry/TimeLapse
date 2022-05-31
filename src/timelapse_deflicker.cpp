@@ -18,10 +18,10 @@
  */
 
 #include "timelapse_deflicker.h"
-#include "timelapse_deflicker.moc"
 
-#include "timelapse_version.h"
 #include "timelapse.h"
+#include "timelapse_version.h"
+#include "error_message_helper.h"
 
 #include "pipeline_handler.h"
 #include "pipeline_frame_mapping.h"

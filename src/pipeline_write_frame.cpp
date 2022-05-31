@@ -18,7 +18,6 @@
  */
 
 #include "pipeline_write_frame.h"
-#include "pipeline_write_frame.moc"
 
 #include "scope_log.h"
 

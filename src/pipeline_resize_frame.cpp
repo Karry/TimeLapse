@@ -18,7 +18,6 @@
  */
 
 #include "pipeline_resize_frame.h"
-#include "pipeline_resize_frame.moc"
 
 #include "scope_log.h"
 

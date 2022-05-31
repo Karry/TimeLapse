@@ -19,13 +19,18 @@
 
 #pragma once
 
-#include "input_image_info.h"
-
 #include <QtCore/QCommandLineParser>
 #include <QtCore/QIODevice>
 #include <QtCore/QTextStream>
 
 using namespace std;
+
+// Shared library support
+#  if __GNUC__ >= 4
+#    define TIME_LAPSE_API __attribute__ ((visibility ("default")))
+#  else
+#    define TIME_LAPSE_API
+#  endif
 
 namespace timelapse {
 
@@ -42,40 +47,5 @@ namespace timelapse {
   constexpr auto SkipEmptyParts = QString::SkipEmptyParts;
 #endif
 
-
-  class ErrorMessageHelper {
-  public:
-
-    ErrorMessageHelper(QIODevice *errDev, QCommandLineParser *parser) :
-    _coloredTerm(true), _err(errDev), _parser(parser) {
-    }
-
-    explicit ErrorMessageHelper(QIODevice *errDev) :
-    _coloredTerm(true), _err(errDev), _parser(nullptr) {
-    }
-
-    void operator<<(const QString &s) {
-      //bold red text\033[0m\n";
-      if (_coloredTerm)
-        _err << "\033[1;31m";
-      _err << endl << "!!! " << s << " !!!";
-      if (_coloredTerm)
-        _err << "\033[0m";
-      _err << endl << endl;
-      if (_parser != nullptr)
-        _parser->showHelp(-1);
-      else
-        exit(-1);
-    }
-
-  protected:
-    bool _coloredTerm; // TODO: determine if terminal is color capable
-    QTextStream _err;
-    QCommandLineParser *_parser;
-  };
-
-  inline void registerQtMetaTypes() {
-    qRegisterMetaType<QList<InputImageInfo>>("QList<InputImageInfo>");
-  }
-
+  void registerQtMetaTypes();
 }

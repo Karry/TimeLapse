@@ -25,6 +25,7 @@
 #include "input_image_info.h"
 #include "pipeline.h"
 #include "pipeline_cpt.h"
+#include "error_message_helper.h"
 
 #include <Magick++.h>
 #include <ImageMagick-6/Magick++/Color.h>
@@ -45,7 +46,7 @@
 
 namespace timelapse {
 
-  class AdaptiveShutterSpeedAlg {
+  class TIME_LAPSE_API AdaptiveShutterSpeedAlg {
   public:
     AdaptiveShutterSpeedAlg(
             QList<ShutterSpeedChoice> shutterSpeedChoices,

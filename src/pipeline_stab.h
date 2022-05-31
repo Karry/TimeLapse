@@ -22,6 +22,7 @@
 #include "timelapse.h"
 #include "input_image_info.h"
 #include "pipeline_handler.h"
+#include "error_message_helper.h"
 
 #include <Magick++.h>
 
@@ -50,7 +51,7 @@ namespace timelapse {
   int stabLog(int type, const char* tag, const char* format, ...);
   void stabInit(QTextStream *verboseOutput, QTextStream *err);
 
-  class StabConfig : public QObject {
+  class TIME_LAPSE_API StabConfig : public QObject {
     Q_OBJECT
 
   public:
@@ -94,7 +95,7 @@ namespace timelapse {
 
   };
 
-  class PipelineStabDetect : public ImageHandler {
+  class TIME_LAPSE_API PipelineStabDetect : public ImageHandler {
     Q_OBJECT
 
   public:
@@ -122,7 +123,7 @@ namespace timelapse {
     QTextStream *err;
   };
 
-  class PipelineStabTransform : public ImageHandler {
+  class TIME_LAPSE_API PipelineStabTransform : public ImageHandler {
     Q_OBJECT
 
   public:

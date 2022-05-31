@@ -34,7 +34,6 @@
  */
 
 #include "timelapse_capture.h"
-#include "timelapse_capture.moc"
 
 #include "timelapse_version.h"
 #include "timelapse.h"

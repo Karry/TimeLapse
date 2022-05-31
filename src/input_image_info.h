@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "timelapse.h"
+
 #include <QtCore/QObject>
 #include <QtCore/QDateTime>
 #include <QtCore/QFileInfo>
@@ -26,7 +28,7 @@
 #include <Magick++.h>
 #include <vector>
 
-struct InputImageInfo {
+struct TIME_LAPSE_API InputImageInfo {
 public:
   InputImageInfo() = default;
   InputImageInfo(const InputImageInfo &) = default;

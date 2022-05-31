@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "timelapse.h"
 #include "input_image_info.h"
 #include "pipeline_source.h"
 
@@ -33,7 +34,7 @@ namespace timelapse {
 #define CLEAR(x) memset(&(x), 0, sizeof(x))
 #define ALLOC_CHECK(ptr) { if ((ptr)==nullptr) throw std::runtime_error("Allocation failure"); }
 
-  class ShutterSpeedChoice {
+  class TIME_LAPSE_API ShutterSpeedChoice {
   public:
     ShutterSpeedChoice() = default;
     ShutterSpeedChoice(const ShutterSpeedChoice &o) = default;

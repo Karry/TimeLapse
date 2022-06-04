@@ -76,7 +76,7 @@ namespace timelapse {
    */
   void _gp_context_msg_func([[maybe_unused]] GPContext *context, const char *text, void *data) {
 
-    *((QTextStream *) data) << "GPhoto2: " << QString::fromUtf8(text) << endl;
+    *((QTextStream *) data) << "gPhoto2: " << QString::fromUtf8(text) << endl;
   }
 
   /**
@@ -632,7 +632,7 @@ namespace timelapse {
   }
 
   QString Gphoto2Device::backend() {
-    return "Gphoto2";
+    return "gPhoto2";
   }
 
   QString Gphoto2Device::device() {
@@ -644,7 +644,7 @@ namespace timelapse {
   }
 
   QString Gphoto2Device::toString() {
-    return QString("Gphoto2:%1\t\"%2\"").arg(port).arg(model);
+    return QString("gPhoto2:%1\t\"%2\"").arg(port).arg(model);
   }
 
   QString Gphoto2Device::toShortString() {

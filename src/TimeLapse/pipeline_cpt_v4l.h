@@ -48,13 +48,21 @@ namespace timelapse {
   public:
     V4LDevice(QString dev = "/dev/video0");
     V4LDevice(const timelapse::V4LDevice& other);
+    V4LDevice(timelapse::V4LDevice&& other) = delete;
     ~V4LDevice() override = default;
+
+    V4LDevice& operator=(const timelapse::V4LDevice&);
+    V4LDevice& operator=(timelapse::V4LDevice&&) = delete;
 
     void capture(QTextStream *verboseOut, ShutterSpeedChoice shutterSpeed = ShutterSpeedChoice()) override;
 
+    QString backend() override;
+    QString device() override;
+    QString name() override;
     QString toString() override;
     QString toShortString() override;
-    V4LDevice operator=(const timelapse::V4LDevice&);
+
+    QSize resolution() override;
 
     //virtual PipelineCaptureSource* qObject();
 

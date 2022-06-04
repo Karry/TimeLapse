@@ -60,8 +60,11 @@ namespace timelapse {
 
     virtual void capture(QTextStream *verboseOut, ShutterSpeedChoice shutterSpeed = ShutterSpeedChoice());
 
-    virtual QString toString();
-    virtual QString toShortString();
+    QString backend() override;
+    QString device() override;
+    QString name() override;
+    QString toString() override;
+    QString toShortString() override;
 
     Gphoto2Device operator=(const timelapse::Gphoto2Device&);
 

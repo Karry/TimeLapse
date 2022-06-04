@@ -28,6 +28,7 @@
 #include <QtCore/QObject>
 #include <QTimer>
 #include <QtCore/QSharedPointer>
+#include <QtMultimedia/QCamera>
 
 namespace timelapse {
 
@@ -65,10 +66,28 @@ namespace timelapse {
     ~CaptureDevice() override = default;
 
     virtual void capture(QTextStream *verboseOut, ShutterSpeedChoice shutterSpeed = ShutterSpeedChoice()) = 0;
+    /// Qt, V4l, Gphoto2
+    virtual QString backend() = 0;
+    /// hardware device ("usb:001,002", "/dev/video0" ...)
+    virtual QString device() = 0;
+    /// name of the camera ("Integrated_Webcam_HD", "Nikon D5100" ...)
+    virtual QString name() = 0;
+
     virtual QString toString() = 0;
 
     virtual QString toShortString() {
       return toString();
+    }
+
+    virtual QCamera::Position position() {
+      return QCamera::Position::UnspecifiedPosition;
+    }
+
+    /** Camera resolution. When more are supported, "best" should be selected.
+     * May be invalid, when it is not known.
+     */
+    virtual QSize resolution() {
+      return QSize();
     }
 
     virtual ShutterSpeedChoice currentShutterSpeed() {

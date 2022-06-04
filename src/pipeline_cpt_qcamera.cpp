@@ -82,6 +82,28 @@ void QCameraDevice::capture([[maybe_unused]] QTextStream *verboseOut, ShutterSpe
   }
 }
 
+QString QCameraDevice::backend() {
+  return "Qt";
+}
+
+QString QCameraDevice::device() {
+  return info.deviceName();
+}
+
+QString QCameraDevice::name() {
+  return info.description();
+}
+
+QCamera::Position QCameraDevice::position() {
+  return info.position();
+}
+
+QSize QCameraDevice::resolution() {
+  assert(imageCapture);
+  QImageEncoderSettings encoding = imageCapture->encodingSettings();
+  return encoding.resolution();
+}
+
 QString QCameraDevice::toString() {
   QString description = "qt:";
   description += info.deviceName();

@@ -48,6 +48,22 @@ namespace timelapse {
   initialized(o.initialized), dev(o.dev), capability(o.capability), v4lfmt(o.v4lfmt) {
   }
 
+  QString V4LDevice::backend() {
+    return "V4L";
+  }
+
+  QString V4LDevice::device() {
+    return dev;
+  }
+
+  QString V4LDevice::name() {
+    return QString::fromLatin1((char *) capability.card, sizeof (capability.card));
+  }
+
+  QSize V4LDevice::resolution() {
+    return QSize(v4lfmt.fmt.pix.width, v4lfmt.fmt.pix.height);
+  }
+
   QString V4LDevice::toString() {
     initialize();
 
@@ -65,7 +81,7 @@ namespace timelapse {
     return QString("%1").arg(dev);
   }
 
-  V4LDevice V4LDevice::operator=(const timelapse::V4LDevice& o) {
+  V4LDevice& V4LDevice::operator=(const timelapse::V4LDevice& o) {
     initialized = o.initialized;
     dev = o.dev;
     v4lfmt = o.v4lfmt;

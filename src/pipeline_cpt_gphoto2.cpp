@@ -631,8 +631,20 @@ namespace timelapse {
 
   }
 
+  QString Gphoto2Device::backend() {
+    return "Gphoto2";
+  }
+
+  QString Gphoto2Device::device() {
+    return port;
+  }
+
+  QString Gphoto2Device::name() {
+    return model;
+  }
+
   QString Gphoto2Device::toString() {
-    return QString("%1\t\"%2\"").arg(port).arg(model);
+    return QString("Gphoto2:%1\t\"%2\"").arg(port).arg(model);
   }
 
   QString Gphoto2Device::toShortString() {

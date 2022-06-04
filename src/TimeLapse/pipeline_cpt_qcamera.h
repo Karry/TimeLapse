@@ -52,8 +52,14 @@ public:
 
   void capture(QTextStream *verboseOut, ShutterSpeedChoice shutterSpeed = ShutterSpeedChoice()) override;
 
+  QString backend() override;
+  QString device() override;
+  QString name() override;
   QString toString() override;
   QString toShortString() override;
+  QCamera::Position position() override;
+
+  QSize resolution() override;
 
   ShutterSpeedChoice currentShutterSpeed() override;
   QList<ShutterSpeedChoice> getShutterSpeedChoices() override;

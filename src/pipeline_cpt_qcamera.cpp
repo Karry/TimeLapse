@@ -135,6 +135,7 @@ bool QCameraDevice::initialize(QTextStream *verboseOut) {
     camera->setCaptureMode(QCamera::CaptureStillImage);
     connect(camera.get(), &QCamera::lockFailed, this, &QCameraDevice::onLockFailed);
     connect(camera.get(), &QCamera::locked, this, &QCameraDevice::onLocked);
+    connect(camera.get(), &QCamera::statusChanged, this, &QCameraDevice::onStatusChanged);
 
     camera->load(); // load camera, probe resolution and available settings
 
@@ -147,26 +148,34 @@ bool QCameraDevice::initialize(QTextStream *verboseOut) {
     }
     imageCapture->setCaptureDestination(QCameraImageCapture::CaptureToBuffer);
 
-    QSize maxSize;
-    for (QSize size: imageCapture->supportedResolutions()) {
-      if ((!maxSize.isValid()) || (size.width()*size.height() > maxSize.width()*maxSize.height())) {
-        maxSize=size;
-      }
-    }
-    QImageEncoderSettings encoding = imageCapture->encodingSettings();
-    encoding.setQuality(QMultimedia::EncodingQuality::VeryHighQuality);
-    if (maxSize.isValid()){
-      encoding.setResolution(maxSize);
-      if (verboseOut!=nullptr) {
-        *verboseOut << "Setup resolution " << maxSize.width() << "x" << maxSize.height() << " for " << toString() << endl;
-      }
-    }
-    imageCapture->setEncodingSettings(encoding);
+    setupMaxResolution();
 
     connect(imageCapture.get(), &QCameraImageCapture::imageAvailable, this, &QCameraDevice::onImageAvailable);
     connect(imageCapture.get(), &QCameraImageCapture::readyForCaptureChanged, this, &QCameraDevice::onReadyForCaptureChanged);
   }
   return true;
+}
+
+void QCameraDevice::setupMaxResolution() {
+  QSize maxSize;
+  for (QSize size: imageCapture->supportedResolutions()) {
+    if ((!maxSize.isValid()) || (size.width()*size.height() > maxSize.width()*maxSize.height())) {
+      maxSize=size;
+    }
+  }
+  QImageEncoderSettings encoding = imageCapture->encodingSettings();
+  encoding.setQuality(QMultimedia::EncodingQuality::VeryHighQuality);
+  if (maxSize.isValid()){
+    encoding.setResolution(maxSize);
+    qDebug() << "Setup resolution " << maxSize.width() << "x" << maxSize.height() << " for " << name();
+  }
+  imageCapture->setEncodingSettings(encoding);
+}
+
+void QCameraDevice::onStatusChanged(QCamera::Status status) {
+  if (status == QCamera::Status::LoadedStatus) {
+    setupMaxResolution();
+  }
 }
 
 void QCameraDevice::onLockFailed() {

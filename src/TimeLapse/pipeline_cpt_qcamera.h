@@ -40,6 +40,7 @@ public slots:
   void onLocked();
   void onImageAvailable(int id, const QVideoFrame &frame);
   void onReadyForCaptureChanged(bool ready);
+  void onStatusChanged(QCamera::Status status);
 
 public:
   explicit QCameraDevice(const QCameraInfo &info);
@@ -72,6 +73,9 @@ public:
   void stop() override;
 
   virtual QMediaObject* viewfinder() override;
+
+private:
+  void setupMaxResolution();
 
 private:
   QCameraInfo info;

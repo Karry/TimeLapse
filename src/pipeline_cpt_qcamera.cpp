@@ -57,7 +57,6 @@ QCameraDevice& QCameraDevice::operator=(const QCameraDevice &other) {
 void QCameraDevice::start() {
   assert(camera);
   camera->start();
-  // TODO: allow viewfinder for UI applications
 }
 
 void QCameraDevice::stop() {
@@ -65,6 +64,10 @@ void QCameraDevice::stop() {
   camera->stop();
 }
 
+QMediaObject *QCameraDevice::viewfinder() {
+  assert(camera);
+  return camera.get();
+}
 
 void QCameraDevice::capture([[maybe_unused]] QTextStream *verboseOut, ShutterSpeedChoice shutterSpeed) {
   assert(camera);
@@ -122,7 +125,7 @@ QString QCameraDevice::toShortString() {
 
 bool QCameraDevice::initialize(QTextStream *verboseOut) {
   if (!camera) {
-    camera = make_unique<QCamera>(info);
+    camera = make_unique<QCamera>(info, this);
     if (!camera->isCaptureModeSupported(QCamera::CaptureStillImage)) {
       if (verboseOut!=nullptr) {
         *verboseOut << "Still image capture is not supported by " << toString() << endl;

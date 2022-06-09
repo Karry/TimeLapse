@@ -71,6 +71,8 @@ public:
   void start() override;
   void stop() override;
 
+  virtual QMediaObject* viewfinder() override;
+
 private:
   QCameraInfo info;
   std::unique_ptr<QCamera> camera;

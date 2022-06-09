@@ -29,6 +29,7 @@
 #include <QTimer>
 #include <QtCore/QSharedPointer>
 #include <QtMultimedia/QCamera>
+#include <QtMultimedia/QMediaObject>
 
 namespace timelapse {
 
@@ -104,6 +105,14 @@ namespace timelapse {
 
     virtual void start() {}
     virtual void stop() {}
+
+    /** Viewfinder video source, or null when it is not supported.
+     * Returned object is owned by capture device.
+     * @return
+     */
+    virtual QMediaObject* viewfinder() {
+      return nullptr;
+    }
 
   signals:
     void imageCaptured(QString type, Magick::Blob blob, Magick::Geometry sizeHint);

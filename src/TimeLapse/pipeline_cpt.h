@@ -117,8 +117,8 @@ namespace timelapse {
   signals:
     void imageCaptured(QString type, Magick::Blob blob, Magick::Geometry sizeHint);
 
-    // virtual PipelineCaptureSource *qObject() = 0;
-    // signal: emit imageCaptured(QString type, Magick::Blob blob);
+    // camera propertis was update (isBusy, resolution, shutter speed...)
+    void update();
   };
 
 #define INFINITE_CNT -1

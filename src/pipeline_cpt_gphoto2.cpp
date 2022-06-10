@@ -136,6 +136,7 @@ namespace timelapse {
         .toStdString());
     }
     deviceLocked = true;
+    emit update();
     return true;
   }
 
@@ -153,6 +154,7 @@ namespace timelapse {
         .toStdString());
     }
     deviceLocked = false;
+    emit update();
     return true;
   }
 

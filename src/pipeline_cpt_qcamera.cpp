@@ -165,11 +165,12 @@ void QCameraDevice::setupMaxResolution() {
   }
   QImageEncoderSettings encoding = imageCapture->encodingSettings();
   encoding.setQuality(QMultimedia::EncodingQuality::VeryHighQuality);
-  if (maxSize.isValid()){
+  if (maxSize.isValid() && maxSize != encoding.resolution()){
     encoding.setResolution(maxSize);
     qDebug() << "Setup resolution " << maxSize.width() << "x" << maxSize.height() << " for " << name();
+    imageCapture->setEncodingSettings(encoding);
+    emit update();
   }
-  imageCapture->setEncodingSettings(encoding);
 }
 
 void QCameraDevice::onStatusChanged(QCamera::Status status) {

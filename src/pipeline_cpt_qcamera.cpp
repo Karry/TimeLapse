@@ -341,6 +341,76 @@ QStringList QCameraDevice::getIsoChoices() {
   return result;
 }
 
+QString QCameraDevice::focusName(QCameraFocus::FocusMode focus) {
+  QString name;
+  qDebug() << "Checking focus name: " << focus;
+
+  switch (focus) {
+    case QCameraFocus::ManualFocus:
+      name = tr("Manual");
+      break;
+    case QCameraFocus::HyperfocalFocus:
+      name = tr("Hyperfocal");
+      break;
+    case QCameraFocus::InfinityFocus:
+      name = tr("Infinity");
+      break;
+    case QCameraFocus::AutoFocus:
+      name = tr("Auto");
+      break;
+    case QCameraFocus::ContinuousFocus:
+      name = tr("Continuous");
+      break;
+    case QCameraFocus::MacroFocus:
+      name = tr("Macro");
+      break;
+    default:
+      name = tr("Unknown");
+      break;
+  }
+  return name;
+}
+
+QString QCameraDevice::currentFocusMode() {
+  assert(camera);
+
+  QStringList result;
+  QCameraFocus *focus = camera->focus();
+
+  if (focus == nullptr || !focus->isAvailable()) {
+    return "";
+  }
+
+  for (int c = (int)QCameraFocus::ManualFocus; c <= (int)QCameraFocus::MacroFocus; c++) {
+    if (focus->isFocusModeSupported((QCameraFocus::FocusMode)c) &&
+        focus->focusMode().testFlag((QCameraFocus::FocusMode)c) &&
+        focusName((QCameraFocus::FocusMode)c) != tr("Unknown")) {
+      return focusName((QCameraFocus::FocusMode) c);
+    }
+  }
+  return "";
+}
+
+QStringList QCameraDevice::getFocusModeChoices() {
+  assert(camera);
+
+  QStringList result;
+  QCameraFocus *focus = camera->focus();
+
+  if (focus == nullptr || !focus->isAvailable()) {
+    return result;
+  }
+
+  for (int c = (int)QCameraFocus::ManualFocus; c <= (int)QCameraFocus::MacroFocus; c++) {
+    if (focus->isFocusModeSupported((QCameraFocus::FocusMode)c)
+        && focusName((QCameraFocus::FocusMode)c) != tr("Unknown")) {
+      qDebug() << "Found support for" << (QCameraFocus::FocusMode)c;
+      result << focusName((QCameraFocus::FocusMode)c);
+    }
+  }
+  return result;
+}
+
 QList<QCameraDevice> QCameraDevice::listDevices(QTextStream *verboseOut) {
   QList<QCameraDevice> result;
   const QList<QCameraInfo> cameras = QCameraInfo::availableCameras();

@@ -71,6 +71,11 @@ public:
   QString currentIso() override;
   QStringList getIsoChoices() override;
 
+  static QString focusName(QCameraFocus::FocusMode focus);
+
+  QString currentFocusMode() override;
+  QStringList getFocusModeChoices() override;
+
   static QList<QCameraDevice> listDevices(QTextStream *verboseOut);
 
   bool initialize(QTextStream *verboseOut=nullptr);

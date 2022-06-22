@@ -115,6 +115,14 @@ namespace timelapse {
       return QStringList();
     }
 
+    virtual QString currentFocusMode() {
+      return "";
+    }
+
+    virtual QStringList getFocusModeChoices() {
+      return QStringList();
+    }
+
     virtual bool isBusy() {
       return false;
     }

@@ -44,11 +44,11 @@ namespace timelapse {
     explicit ShutterSpeedChoice(const QString str);
     virtual ~ShutterSpeedChoice();
     ShutterSpeedChoice &operator=(const ShutterSpeedChoice &o);
-    QString toString();
-    int64_t toSecond();
-    int64_t toMs();
-    int64_t toMicrosecond();
-    bool isBulb();
+    QString toString() const;
+    int64_t toSecond() const;
+    int64_t toMs() const;
+    int64_t toMicrosecond() const;
+    bool isBulb() const;
 
     void normalize();
 
@@ -98,6 +98,22 @@ namespace timelapse {
     virtual QList<ShutterSpeedChoice> getShutterSpeedChoices() {
       return QList<ShutterSpeedChoice>();
     };
+
+    virtual double currentAperture() {
+      return -1;
+    }
+
+    virtual QList<double> getApertureChoices() {
+      return QList<double>();
+    }
+
+    virtual QString currentIso() {
+      return "";
+    }
+
+    virtual QStringList getIsoChoices() {
+      return QStringList();
+    }
 
     virtual bool isBusy() {
       return false;

@@ -65,6 +65,12 @@ public:
   ShutterSpeedChoice currentShutterSpeed() override;
   QList<ShutterSpeedChoice> getShutterSpeedChoices() override;
 
+  double currentAperture() override;
+  QList<double> getApertureChoices() override;
+
+  QString currentIso() override;
+  QStringList getIsoChoices() override;
+
   static QList<QCameraDevice> listDevices(QTextStream *verboseOut);
 
   bool initialize(QTextStream *verboseOut=nullptr);

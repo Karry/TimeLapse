@@ -95,7 +95,7 @@ namespace timelapse {
     }
   }
 
-  QString ShutterSpeedChoice::toString() {
+  QString ShutterSpeedChoice::toString() const {
     if (bulb) {
       if (divident > 0) {
         return QString("Bulb:%1").arg(divident);
@@ -115,21 +115,21 @@ namespace timelapse {
     }
   }
 
-  int64_t ShutterSpeedChoice::toSecond() {
+  int64_t ShutterSpeedChoice::toSecond() const {
     int64_t us = toMicrosecond();
     if (us < 0)
       return us;
     return us / 1000000;
   }
 
-  int64_t ShutterSpeedChoice::toMs() {
+  int64_t ShutterSpeedChoice::toMs() const {
     int64_t us = toMicrosecond();
     if (us < 0)
       return us;
     return us / 1000;
   }
 
-  int64_t ShutterSpeedChoice::toMicrosecond() {
+  int64_t ShutterSpeedChoice::toMicrosecond() const {
     int64_t us = 1000000;
     if (bulb) {
       if (divident > 0) {
@@ -146,7 +146,7 @@ namespace timelapse {
     }
   }
 
-  bool ShutterSpeedChoice::isBulb() {
+  bool ShutterSpeedChoice::isBulb() const {
     return bulb;
   }
 

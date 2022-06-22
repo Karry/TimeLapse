@@ -291,6 +291,56 @@ QList<ShutterSpeedChoice> QCameraDevice::getShutterSpeedChoices() {
   return result;
 }
 
+double QCameraDevice::currentAperture() {
+  assert(camera);
+
+  QCameraExposure *exposure = camera->exposure();
+  if (exposure==nullptr) {
+    return -1;
+  }
+
+  return exposure->aperture();
+}
+
+QList<double> QCameraDevice::getApertureChoices() {
+  assert(camera);
+
+  QCameraExposure *exposure = camera->exposure();
+  QList<double> result;
+  if (exposure==nullptr) {
+    return result;
+  }
+  for (qreal aperture: exposure->supportedApertures()) {
+    result << aperture;
+  }
+  return result;
+}
+
+QString QCameraDevice::currentIso() {
+  assert(camera);
+
+  QCameraExposure *exposure = camera->exposure();
+  if (exposure==nullptr) {
+    return "";
+  }
+
+  return QString::fromStdString(std::to_string(exposure->isoSensitivity()));
+}
+
+QStringList QCameraDevice::getIsoChoices() {
+  assert(camera);
+
+  QCameraExposure *exposure = camera->exposure();
+  QStringList result;
+  if (exposure==nullptr) {
+    return result;
+  }
+  for (int iso: exposure->supportedIsoSensitivities()) {
+    result << QString::fromStdString(std::to_string(iso));
+  }
+  return result;
+}
+
 QList<QCameraDevice> QCameraDevice::listDevices(QTextStream *verboseOut) {
   QList<QCameraDevice> result;
   const QList<QCameraInfo> cameras = QCameraInfo::availableCameras();

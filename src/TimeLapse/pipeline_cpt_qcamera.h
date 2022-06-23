@@ -63,17 +63,21 @@ public:
   QSize resolution() override;
 
   ShutterSpeedChoice currentShutterSpeed() override;
+  void setShutterSpeed(const ShutterSpeedChoice &) override;
   QList<ShutterSpeedChoice> getShutterSpeedChoices() override;
 
-  double currentAperture() override;
-  QList<double> getApertureChoices() override;
+  QString currentAperture() override;
+  void setAperture(const QString &) override;
+  QStringList getApertureChoices() override;
 
   QString currentIso() override;
+  void setIso(const QString &iso) override;
   QStringList getIsoChoices() override;
 
   static QString focusName(QCameraFocus::FocusMode focus);
 
   QString currentFocusMode() override;
+  void setFocusMode(const QString &) override;
   QStringList getFocusModeChoices() override;
 
   static QList<QCameraDevice> listDevices(QTextStream *verboseOut);

@@ -95,21 +95,27 @@ namespace timelapse {
       return ShutterSpeedChoice();
     }
 
+    virtual void setShutterSpeed(const ShutterSpeedChoice &) {}
+
     virtual QList<ShutterSpeedChoice> getShutterSpeedChoices() {
       return QList<ShutterSpeedChoice>();
     };
 
-    virtual double currentAperture() {
-      return -1;
+    virtual QString currentAperture() {
+      return "";
     }
 
-    virtual QList<double> getApertureChoices() {
-      return QList<double>();
+    virtual void setAperture(const QString &) {}
+
+    virtual QStringList getApertureChoices() {
+      return QStringList();
     }
 
     virtual QString currentIso() {
       return "";
     }
+
+    virtual void setIso(const QString &) {}
 
     virtual QStringList getIsoChoices() {
       return QStringList();
@@ -118,6 +124,8 @@ namespace timelapse {
     virtual QString currentFocusMode() {
       return "";
     }
+
+    virtual void setFocusMode(const QString &) {}
 
     virtual QStringList getFocusModeChoices() {
       return QStringList();

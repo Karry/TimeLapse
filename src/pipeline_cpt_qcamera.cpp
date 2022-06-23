@@ -275,6 +275,10 @@ ShutterSpeedChoice QCameraDevice::currentShutterSpeed() {
   return ch;
 }
 
+void QCameraDevice::setShutterSpeed(const ShutterSpeedChoice &) {
+  // TODO
+}
+
 QList<ShutterSpeedChoice> QCameraDevice::getShutterSpeedChoices() {
   assert(camera);
 
@@ -291,27 +295,40 @@ QList<ShutterSpeedChoice> QCameraDevice::getShutterSpeedChoices() {
   return result;
 }
 
-double QCameraDevice::currentAperture() {
+QString QCameraDevice::currentAperture() {
   assert(camera);
 
   QCameraExposure *exposure = camera->exposure();
   if (exposure==nullptr) {
-    return -1;
+    return "";
   }
 
-  return exposure->aperture();
+  return QString::fromStdString(std::to_string(exposure->aperture()));
 }
 
-QList<double> QCameraDevice::getApertureChoices() {
+void QCameraDevice::setAperture(const QString &aperture) {
+  QCameraExposure *exposure = camera->exposure();
+  if (exposure==nullptr) {
+    return;
+  }
+  if (aperture==tr("Auto Aperture")) {
+    exposure->setAutoAperture();
+  } else {
+    exposure->setManualAperture(aperture.toDouble());
+  }
+}
+
+QStringList QCameraDevice::getApertureChoices() {
   assert(camera);
 
   QCameraExposure *exposure = camera->exposure();
-  QList<double> result;
+  QStringList result;
+  result << tr("Auto Aperture");
   if (exposure==nullptr) {
     return result;
   }
   for (qreal aperture: exposure->supportedApertures()) {
-    result << aperture;
+    result << QString::fromStdString(std::to_string(aperture));
   }
   return result;
 }
@@ -327,11 +344,24 @@ QString QCameraDevice::currentIso() {
   return QString::fromStdString(std::to_string(exposure->isoSensitivity()));
 }
 
+void QCameraDevice::setIso(const QString &iso) {
+  QCameraExposure *exposure = camera->exposure();
+  if (exposure==nullptr) {
+    return;
+  }
+  if (iso==tr("Auto ISO")) {
+    exposure->setAutoIsoSensitivity();
+  } else {
+    exposure->setManualIsoSensitivity(iso.toInt());
+  }
+}
+
 QStringList QCameraDevice::getIsoChoices() {
   assert(camera);
 
   QCameraExposure *exposure = camera->exposure();
   QStringList result;
+  result << tr("Auto ISO");
   if (exposure==nullptr) {
     return result;
   }
@@ -389,6 +419,29 @@ QString QCameraDevice::currentFocusMode() {
     }
   }
   return "";
+}
+
+void QCameraDevice::setFocusMode(const QString &focusModeStr){
+  assert(camera);
+
+  QCameraFocus *focus = camera->focus();
+
+  if (focus == nullptr || !focus->isAvailable()) {
+    return;
+  }
+  if (focusModeStr==tr("Manual")){
+    focus->setFocusMode(QCameraFocus::ManualFocus);
+  } else if (focusModeStr==tr("Hyperfocal")){
+    focus->setFocusMode(QCameraFocus::HyperfocalFocus);
+  } else if (focusModeStr==tr("Infinity")){
+    focus->setFocusMode(QCameraFocus::InfinityFocus);
+  } else if (focusModeStr==tr("Auto")){
+    focus->setFocusMode(QCameraFocus::AutoFocus);
+  } else if (focusModeStr==tr("Continuous")){
+    focus->setFocusMode(QCameraFocus::ContinuousFocus);
+  } else if (focusModeStr==tr("Macro")){
+    focus->setFocusMode(QCameraFocus::MacroFocus);
+  }
 }
 
 QStringList QCameraDevice::getFocusModeChoices() {

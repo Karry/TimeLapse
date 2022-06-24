@@ -98,6 +98,7 @@ public:
 
   void setPersistentFocusLock(bool b) override {
     persistentFocusLockVal = b;
+    emit update();
   }
 
   static QList<QCameraDevice> listDevices(QTextStream *verboseOut);

@@ -136,7 +136,7 @@ namespace timelapse {
         .toStdString());
     }
     deviceLocked = true;
-    emit update();
+    emit busyChanged();
     return true;
   }
 
@@ -154,7 +154,7 @@ namespace timelapse {
         .toStdString());
     }
     deviceLocked = false;
-    emit update();
+    emit busyChanged();
     return true;
   }
 
@@ -658,10 +658,12 @@ namespace timelapse {
   // }
 
   Gphoto2Device Gphoto2Device::operator=(const timelapse::Gphoto2Device& o) {
-    if (deviceLocked)
+    if (deviceLocked) {
       throw std::logic_error("Assing to locked camera is not implemented!");
-    if (o.deviceLocked)
+    }
+    if (o.deviceLocked) {
       throw std::logic_error("Assing of locked camera is not implemented!");
+    }
 
     gp_camera_unref(camera);
     gp_context_unref(context);

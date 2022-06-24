@@ -62,6 +62,16 @@ namespace timelapse {
 
   class CaptureDevice : public QObject {
     Q_OBJECT
+
+    Q_PROPERTY(bool busy READ isBusy NOTIFY busyChanged)
+
+  signals:
+    void imageCaptured(QString type, Magick::Blob blob, Magick::Geometry sizeHint);
+
+    // camera properties was update (resolution, shutter speed...)
+    void update();
+
+    void busyChanged();
   public:
 
     ~CaptureDevice() override = default;
@@ -171,12 +181,6 @@ namespace timelapse {
     virtual QMediaObject* viewfinder() {
       return nullptr;
     }
-
-  signals:
-    void imageCaptured(QString type, Magick::Blob blob, Magick::Geometry sizeHint);
-
-    // camera properties was update (isBusy, resolution, shutter speed...)
-    void update();
   };
 
 #define INFINITE_CNT -1

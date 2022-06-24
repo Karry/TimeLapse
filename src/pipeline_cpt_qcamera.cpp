@@ -291,6 +291,7 @@ void QCameraDevice::setShutterSpeed(const ShutterSpeedChoice &shutterSpeed) {
     return;
   }
   exposure->setManualShutterSpeed(double(shutterSpeed.toMicrosecond()) / 1000000.0);
+  emit update();
 }
 
 QList<ShutterSpeedChoice> QCameraDevice::getShutterSpeedChoices() {
@@ -330,6 +331,7 @@ void QCameraDevice::setAperture(const QString &aperture) {
   } else {
     exposure->setManualAperture(aperture.toDouble());
   }
+  emit update();
 }
 
 QStringList QCameraDevice::getApertureChoices() {
@@ -368,6 +370,7 @@ void QCameraDevice::setIso(const QString &iso) {
   } else {
     exposure->setManualIsoSensitivity(iso.toInt());
   }
+  emit update();
 }
 
 QStringList QCameraDevice::getIsoChoices() {
@@ -484,6 +487,7 @@ void QCameraDevice::setFocusMode(const QString &focusModeStr){
     focus->setFocusMode(QCameraFocus::MacroFocus);
   }
   camera->searchAndLock();
+  emit update();
 }
 
 QStringList QCameraDevice::getFocusModeChoices() {
@@ -539,6 +543,7 @@ void QCameraDevice::setFocusPointMode(const QString &focusModeStr) {
     focus->setFocusPointMode(QCameraFocus::FocusPointCustom);
   }
   camera->searchAndLock();
+  emit update();
 }
 
 QPointF QCameraDevice::customFocusPoint() {
@@ -559,6 +564,7 @@ void QCameraDevice::setCustomFocusPoint(const QPointF &p) {
   camera->unlock(QCamera::LockType::LockFocus);
   focus->setCustomFocusPoint(p);
   camera->searchAndLock();
+  emit update();
 }
 
 QStringList QCameraDevice::getFocusPointModeChoices() {

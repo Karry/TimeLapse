@@ -175,7 +175,7 @@ namespace timelapse {
   signals:
     void imageCaptured(QString type, Magick::Blob blob, Magick::Geometry sizeHint);
 
-    // camera propertis was update (isBusy, resolution, shutter speed...)
+    // camera properties was update (isBusy, resolution, shutter speed...)
     void update();
   };
 

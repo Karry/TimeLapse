@@ -75,10 +75,30 @@ public:
   QStringList getIsoChoices() override;
 
   static QString focusName(QCameraFocus::FocusMode focus);
+  static QString focusPointName(QCameraFocus::FocusPointMode focus);
 
   QString currentFocusMode() override;
   void setFocusMode(const QString &) override;
   QStringList getFocusModeChoices() override;
+
+  QString currentFocusPointMode() override;
+  void setFocusPointMode(const QString &) override;
+  QStringList getFocusPointModeChoices() override;
+
+  QPointF customFocusPoint() override;
+  void setCustomFocusPoint(const QPointF &p) override;
+
+  bool focusLockSupported() override {
+    return true;
+  }
+
+  bool persistentFocusLock() override {
+    return persistentFocusLockVal;
+  }
+
+  void setPersistentFocusLock(bool b) override {
+    persistentFocusLockVal = b;
+  }
 
   static QList<QCameraDevice> listDevices(QTextStream *verboseOut);
 
@@ -97,6 +117,8 @@ private:
   std::unique_ptr<QCamera> camera;
   std::unique_ptr<QCameraImageCapture> imageCapture;
   bool postponedCapture = false;
+  bool captureRequest = false;
+  bool persistentFocusLockVal = true;
 };
 
 }

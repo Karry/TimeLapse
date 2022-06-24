@@ -78,6 +78,7 @@ void QCameraDevice::capture([[maybe_unused]] QTextStream *verboseOut, ShutterSpe
     }
   }
 
+  captureRequest = true;
   if (camera->requestedLocks()==QCamera::LockType::NoLock) {
     onLocked();
   } else {
@@ -186,6 +187,10 @@ void QCameraDevice::onLockFailed() {
 void QCameraDevice::onLocked() {
   assert(camera);
 
+  if (!captureRequest) {
+    return;
+  }
+
   if (imageCapture->isReadyForCapture()) {
     postponedCapture = false;
     imageCapture->capture();
@@ -202,6 +207,7 @@ void QCameraDevice::onReadyForCaptureChanged(bool ready) {
 }
 
 void QCameraDevice::onImageAvailable([[maybe_unused]] int id, const QVideoFrame &constFrame) {
+  captureRequest = false;
   QVideoFrame frame(constFrame); // make a copy to be able map the frame
   if (!frame.isValid()) {
     qWarning() << "Video frame is not valid";
@@ -259,7 +265,9 @@ void QCameraDevice::onImageAvailable([[maybe_unused]] int id, const QVideoFrame 
   emit imageCaptured(format,
                      Magick::Blob(frame.bits(), frame.mappedBytes()),
                      Magick::Geometry(frame.width(), frame.height()));
-  camera->unlock();
+  if (!persistentFocusLockVal) {
+    camera->unlock();
+  }
 }
 
 ShutterSpeedChoice QCameraDevice::currentShutterSpeed() {
@@ -275,8 +283,14 @@ ShutterSpeedChoice QCameraDevice::currentShutterSpeed() {
   return ch;
 }
 
-void QCameraDevice::setShutterSpeed(const ShutterSpeedChoice &) {
-  // TODO
+void QCameraDevice::setShutterSpeed(const ShutterSpeedChoice &shutterSpeed) {
+  assert(camera);
+
+  QCameraExposure *exposure = camera->exposure();
+  if (exposure==nullptr) {
+    return;
+  }
+  exposure->setManualShutterSpeed(double(shutterSpeed.toMicrosecond()) / 1000000.0);
 }
 
 QList<ShutterSpeedChoice> QCameraDevice::getShutterSpeedChoices() {
@@ -311,7 +325,7 @@ void QCameraDevice::setAperture(const QString &aperture) {
   if (exposure==nullptr) {
     return;
   }
-  if (aperture==tr("Auto Aperture")) {
+  if (aperture=="Auto Aperture") {
     exposure->setAutoAperture();
   } else {
     exposure->setManualAperture(aperture.toDouble());
@@ -323,7 +337,7 @@ QStringList QCameraDevice::getApertureChoices() {
 
   QCameraExposure *exposure = camera->exposure();
   QStringList result;
-  result << tr("Auto Aperture");
+  result << "Auto Aperture";
   if (exposure==nullptr) {
     return result;
   }
@@ -349,7 +363,7 @@ void QCameraDevice::setIso(const QString &iso) {
   if (exposure==nullptr) {
     return;
   }
-  if (iso==tr("Auto ISO")) {
+  if (iso=="Auto ISO") {
     exposure->setAutoIsoSensitivity();
   } else {
     exposure->setManualIsoSensitivity(iso.toInt());
@@ -361,7 +375,7 @@ QStringList QCameraDevice::getIsoChoices() {
 
   QCameraExposure *exposure = camera->exposure();
   QStringList result;
-  result << tr("Auto ISO");
+  result << "Auto ISO";
   if (exposure==nullptr) {
     return result;
   }
@@ -377,25 +391,49 @@ QString QCameraDevice::focusName(QCameraFocus::FocusMode focus) {
 
   switch (focus) {
     case QCameraFocus::ManualFocus:
-      name = tr("Manual");
+      name = "Manual";
       break;
     case QCameraFocus::HyperfocalFocus:
-      name = tr("Hyperfocal");
+      name = "Hyperfocal";
       break;
     case QCameraFocus::InfinityFocus:
-      name = tr("Infinity");
+      name = "Infinity";
       break;
     case QCameraFocus::AutoFocus:
-      name = tr("Auto");
+      name = "Auto";
       break;
     case QCameraFocus::ContinuousFocus:
-      name = tr("Continuous");
+      name = "Continuous";
       break;
     case QCameraFocus::MacroFocus:
-      name = tr("Macro");
+      name = "Macro";
       break;
     default:
-      name = tr("Unknown");
+      name = "Unknown";
+      break;
+  }
+  return name;
+}
+
+QString QCameraDevice::focusPointName(QCameraFocus::FocusPointMode focus) {
+  QString name;
+  qDebug() << "Checking focus name: " << focus;
+
+  switch (focus) {
+    case QCameraFocus::FocusPointAuto:
+      name = "Auto";
+      break;
+    case QCameraFocus::FocusPointCenter:
+      name = "Center";
+      break;
+    case QCameraFocus::FocusPointFaceDetection:
+      name = "Face";
+      break;
+    case QCameraFocus::FocusPointCustom:
+      name = "Custom";
+      break;
+    default:
+      name = "Unknown";
       break;
   }
   return name;
@@ -414,7 +452,7 @@ QString QCameraDevice::currentFocusMode() {
   for (int c = (int)QCameraFocus::ManualFocus; c <= (int)QCameraFocus::MacroFocus; c++) {
     if (focus->isFocusModeSupported((QCameraFocus::FocusMode)c) &&
         focus->focusMode().testFlag((QCameraFocus::FocusMode)c) &&
-        focusName((QCameraFocus::FocusMode)c) != tr("Unknown")) {
+        focusName((QCameraFocus::FocusMode)c) != "Unknown") {
       return focusName((QCameraFocus::FocusMode) c);
     }
   }
@@ -429,19 +467,23 @@ void QCameraDevice::setFocusMode(const QString &focusModeStr){
   if (focus == nullptr || !focus->isAvailable()) {
     return;
   }
-  if (focusModeStr==tr("Manual")){
+
+  camera->unlock(QCamera::LockType::LockFocus);
+
+  if (focusModeStr=="Manual") {
     focus->setFocusMode(QCameraFocus::ManualFocus);
-  } else if (focusModeStr==tr("Hyperfocal")){
+  } else if (focusModeStr=="Hyperfocal") {
     focus->setFocusMode(QCameraFocus::HyperfocalFocus);
-  } else if (focusModeStr==tr("Infinity")){
+  } else if (focusModeStr=="Infinity") {
     focus->setFocusMode(QCameraFocus::InfinityFocus);
-  } else if (focusModeStr==tr("Auto")){
+  } else if (focusModeStr=="Auto") {
     focus->setFocusMode(QCameraFocus::AutoFocus);
-  } else if (focusModeStr==tr("Continuous")){
+  } else if (focusModeStr=="Continuous") {
     focus->setFocusMode(QCameraFocus::ContinuousFocus);
-  } else if (focusModeStr==tr("Macro")){
+  } else if (focusModeStr=="Macro") {
     focus->setFocusMode(QCameraFocus::MacroFocus);
   }
+  camera->searchAndLock();
 }
 
 QStringList QCameraDevice::getFocusModeChoices() {
@@ -456,12 +498,88 @@ QStringList QCameraDevice::getFocusModeChoices() {
 
   for (int c = (int)QCameraFocus::ManualFocus; c <= (int)QCameraFocus::MacroFocus; c++) {
     if (focus->isFocusModeSupported((QCameraFocus::FocusMode)c)
-        && focusName((QCameraFocus::FocusMode)c) != tr("Unknown")) {
+        && focusName((QCameraFocus::FocusMode)c) != "Unknown") {
       qDebug() << "Found support for" << (QCameraFocus::FocusMode)c;
       result << focusName((QCameraFocus::FocusMode)c);
     }
   }
   return result;
+}
+
+
+QString QCameraDevice::currentFocusPointMode() {
+  assert(camera);
+
+  QCameraFocus *focus = camera->focus();
+
+  if (focus == nullptr || !focus->isAvailable()) {
+    return focusPointName(QCameraFocus::FocusPointMode::FocusPointAuto);
+  }
+  return focusPointName(focus->focusPointMode());
+}
+
+void QCameraDevice::setFocusPointMode(const QString &focusModeStr) {
+  assert(camera);
+
+  QCameraFocus *focus = camera->focus();
+
+  if (focus == nullptr || !focus->isAvailable()) {
+    return;
+  }
+
+  camera->unlock(QCamera::LockType::LockFocus);
+
+  if (focusModeStr=="Auto"){
+    focus->setFocusPointMode(QCameraFocus::FocusPointAuto);
+  } else if (focusModeStr=="Center"){
+    focus->setFocusPointMode(QCameraFocus::FocusPointCenter);
+  } else if (focusModeStr=="Face"){
+    focus->setFocusPointMode(QCameraFocus::FocusPointFaceDetection);
+  } else if (focusModeStr=="Custom"){
+    focus->setFocusPointMode(QCameraFocus::FocusPointCustom);
+  }
+  camera->searchAndLock();
+}
+
+QPointF QCameraDevice::customFocusPoint() {
+  QCameraFocus *focus = camera->focus();
+  if (focus == nullptr || !focus->isAvailable()) {
+    return QPointF() ;
+  }
+  return focus->customFocusPoint();
+}
+
+void QCameraDevice::setCustomFocusPoint(const QPointF &p) {
+  assert(camera);
+
+  QCameraFocus *focus = camera->focus();
+  if (focus == nullptr || !focus->isAvailable()) {
+    return;
+  }
+  camera->unlock(QCamera::LockType::LockFocus);
+  focus->setCustomFocusPoint(p);
+  camera->searchAndLock();
+}
+
+QStringList QCameraDevice::getFocusPointModeChoices() {
+  assert(camera);
+
+  QCameraFocus *focus = camera->focus();
+
+  QStringList result;
+  if (focus == nullptr || !focus->isAvailable()) {
+    return result;
+  }
+
+  for (int c = (int)QCameraFocus::FocusPointMode::FocusPointAuto; c <= (int)QCameraFocus::FocusPointMode::FocusPointCustom; c++) {
+    if (focus->isFocusPointModeSupported((QCameraFocus::FocusPointMode)c)
+        && focusPointName((QCameraFocus::FocusPointMode)c) != "Unknown") {
+      qDebug() << "Found support for" << (QCameraFocus::FocusPointMode)c;
+      result << focusPointName((QCameraFocus::FocusPointMode)c);
+    }
+  }
+  return result;
+
 }
 
 QList<QCameraDevice> QCameraDevice::listDevices(QTextStream *verboseOut) {

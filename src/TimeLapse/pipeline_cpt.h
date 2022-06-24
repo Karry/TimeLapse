@@ -131,6 +131,32 @@ namespace timelapse {
       return QStringList();
     }
 
+    virtual QString currentFocusPointMode() {
+      return "";
+    }
+
+    virtual void setFocusPointMode(const QString &) {}
+
+    virtual QStringList getFocusPointModeChoices() {
+      return QStringList();
+    }
+
+    virtual QPointF customFocusPoint() {
+      return QPointF();
+    }
+
+    virtual void setCustomFocusPoint(const QPointF &) {}
+
+    virtual bool focusLockSupported() {
+      return false;
+    }
+
+    virtual bool persistentFocusLock() {
+      return false;
+    }
+
+    virtual void setPersistentFocusLock(bool) { }
+
     virtual bool isBusy() {
       return false;
     }

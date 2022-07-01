@@ -494,7 +494,7 @@ namespace timelapse {
       std::exit(0);
     }
 
-    // automatic chutter speed
+    // automatic shutter speed
     // this functionality is experimental!
     if (parser.isSet(adaptiveShutterSpeedOption)) {
       bool ok = false;

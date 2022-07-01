@@ -128,7 +128,7 @@ namespace timelapse {
     int capturedCnt;
     int capturedSubsequence;
 
-    // automatic shutter speed controll
+    // automatic shutter speed control
     AdaptiveShutterSpeedAlg *shutterSpdAlg;
 
     bool storeRawImages;

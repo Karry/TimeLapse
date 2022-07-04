@@ -20,11 +20,13 @@
 #pragma once
 
 #include <TimeLapse/timelapse.h>
+#include <TimeLapse/capture.h>
 #include <TimeLapse/black_hole_device.h>
 #include <TimeLapse/input_image_info.h>
 #include <TimeLapse/pipeline.h>
 #include <TimeLapse/pipeline_cpt.h>
 #include <TimeLapse/error_message_helper.h>
+#include <TimeLapse/capture.h>
 
 #include <Magick++.h>
 #include <ImageMagick-6/Magick++/Color.h>
@@ -45,69 +47,18 @@
 
 namespace timelapse {
 
-  class TIME_LAPSE_API AdaptiveShutterSpeedAlg {
-  public:
-    AdaptiveShutterSpeedAlg(
-            QList<ShutterSpeedChoice> shutterSpeedChoices,
-            ShutterSpeedChoice currentShutterSpeed,
-            ShutterSpeedChoice minShutterSpeed,
-            ShutterSpeedChoice maxShutterSpeed,
-            QTextStream *err,
-            QTextStream *verboseOutput
-            );
-
-    virtual ~AdaptiveShutterSpeedAlg();
-    virtual void update(Magick::Image img) = 0;
-    virtual ShutterSpeedChoice adjustShutterSpeed() = 0;
-  protected:
-    QList<ShutterSpeedChoice> shutterSpeedChoices;
-    ShutterSpeedChoice currentShutterSpeed;
-    ShutterSpeedChoice minShutterSpeed;
-    ShutterSpeedChoice maxShutterSpeed;
-
-    QTextStream *err;
-    QTextStream *verboseOutput;
-  };
-
-  class MatrixMeteringAlg : public AdaptiveShutterSpeedAlg {
-  public:
-    MatrixMeteringAlg(
-            QList<ShutterSpeedChoice> shutterSpeedChoices,
-            ShutterSpeedChoice currentShutterSpeed,
-            ShutterSpeedChoice minShutterSpeed,
-            ShutterSpeedChoice maxShutterSpeed,
-            QTextStream *err,
-            QTextStream *verboseOutput,
-            int changeThreshold = 3, 
-            int step = 1);
-
-    virtual ~MatrixMeteringAlg();
-    virtual void update(Magick::Image img) override;
-    virtual ShutterSpeedChoice adjustShutterSpeed() override;
-
-  protected:
-    void clearHistograms();
-
-    int changeThreshold;
-    QList< uint32_t * > greyHistograms;
-    int step;
-  };
-
-  class TimeLapseCapture : public QCoreApplication {
+  class TimeLapseCaptureCli : public QCoreApplication {
     Q_OBJECT
 
   public:
-    TimeLapseCapture(int &argc, char **argv);
-    virtual ~TimeLapseCapture();
+    TimeLapseCaptureCli(int &argc, char **argv);
+    virtual ~TimeLapseCaptureCli();
 
   public slots:
     void run();
-    void done();
     void cleanup(int exitCode = 0);
+    void onDone();
     void onError(const QString &msg);
-    virtual void capture();
-    void imageCaptured(QString format, Magick::Blob blob, Magick::Geometry sizeHint);
-    QString leadingZeros(int i, int leadingZeros);
 
   protected:
     QList<QSharedPointer<CaptureDevice>> listDevices();
@@ -121,19 +72,6 @@ namespace timelapse {
     QTextStream verboseOutput;
     BlackHoleDevice *blackHole;
 
-    QDir output;
-    QTimer timer;
-    QSharedPointer<CaptureDevice> dev;
-    QLocale frameNumberLocale;
-    int capturedCnt;
-    int capturedSubsequence;
-
-    // automatic shutter speed control
-    AdaptiveShutterSpeedAlg *shutterSpdAlg;
-
-    bool storeRawImages;
-
-    int64_t interval;
-    int32_t cnt;
+    TimeLapseCapture capture;
   };
 }

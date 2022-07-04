@@ -80,6 +80,7 @@ set(CMAKE_AUTORCC ON)
 
 set(timelapse_HEADERS
 	TimeLapse/black_hole_device.h
+	TimeLapse/capture.h
 	TimeLapse/input_image_info.h
 	TimeLapse/error_message_helper.h
 
@@ -100,6 +101,7 @@ set(timelapse_HEADERS
 
 set(timelapse_SRCS
     black_hole_device.cpp
+	capture.cpp
     input_image_info.cpp
     pipeline_handler.cpp
     pipeline_frame_mapping.cpp

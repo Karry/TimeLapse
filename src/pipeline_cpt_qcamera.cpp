@@ -82,7 +82,11 @@ void QCameraDevice::capture([[maybe_unused]] QTextStream *verboseOut, ShutterSpe
   if (camera->requestedLocks()==QCamera::LockType::NoLock) {
     onLocked();
   } else {
-    camera->searchAndLock();
+    if (camera->lockStatus()==QCamera::LockStatus::Locked && persistentFocusLockVal) {
+      onLocked();
+    } else {
+      camera->searchAndLock();
+    }
   }
 }
 

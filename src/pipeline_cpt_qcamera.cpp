@@ -153,6 +153,14 @@ bool QCameraDevice::initialize(QTextStream *verboseOut) {
     }
     imageCapture->setCaptureDestination(QCameraImageCapture::CaptureToBuffer);
 
+    if (verboseOut) {
+      *verboseOut << "supported buffer formats: ";
+      for (const auto &format: imageCapture->supportedBufferFormats()) {
+        *verboseOut << frameFormatString(format) << " ";
+      }
+      *verboseOut << endl;
+    }
+
     setupMaxResolution();
 
     connect(imageCapture.get(), &QCameraImageCapture::imageAvailable, this, &QCameraDevice::onImageAvailable);
@@ -210,6 +218,43 @@ void QCameraDevice::onReadyForCaptureChanged(bool ready) {
   }
 }
 
+QString QCameraDevice::frameFormatString(QVideoFrame::PixelFormat format) {
+  switch (format) {
+    case QVideoFrame::Format_ARGB32: return "ARGB32";
+    case QVideoFrame::Format_RGB32: return "RGB32";
+    case QVideoFrame::Format_RGB24: return "RGB24";
+    case QVideoFrame::Format_RGB565: return "RGB565";
+    case QVideoFrame::Format_RGB555: return "RGB555";
+    case QVideoFrame::Format_BGRA32: return "BGRA32";
+    case QVideoFrame::Format_BGR32: return "BGR32";
+    case QVideoFrame::Format_BGR24: return "BGR24";
+    case QVideoFrame::Format_BGR565: return "BGR565";
+    case QVideoFrame::Format_BGR555: return "BGR555";
+    case QVideoFrame::Format_AYUV444: return "AYUV444";
+    case QVideoFrame::Format_YUV444: return "YUV444";
+    case QVideoFrame::Format_YUV420P: return "YUV420P";
+    case QVideoFrame::Format_YV12: return "YV12";
+    case QVideoFrame::Format_UYVY: return "UYVY";
+    case QVideoFrame::Format_YUYV: return "YUYV";
+    case QVideoFrame::Format_NV12: return "NV12";
+    case QVideoFrame::Format_NV21: return "NV21";
+    case QVideoFrame::Format_IMC1: return "IMC1";
+    case QVideoFrame::Format_IMC2: return "IMC2";
+    case QVideoFrame::Format_IMC3: return "IMC3";
+    case QVideoFrame::Format_IMC4: return "IMC4";
+    case QVideoFrame::Format_Y8: return "Y8";
+    case QVideoFrame::Format_Y16: return "Y16";
+    case QVideoFrame::Format_Jpeg: return "jpeg";
+    case QVideoFrame::Format_CameraRaw: return "CameraRaw";
+    case QVideoFrame::Format_AdobeDng: return "AdobeDng";
+#if QT_VERSION >= QT_VERSION_CHECK(5,13,0)
+    case QVideoFrame::Format_ABGR32: return "ABGR32";
+    case QVideoFrame::Format_YUV422P: return "YUV422P";
+#endif
+    default: return "";
+  }
+}
+
 void QCameraDevice::onImageAvailable([[maybe_unused]] int id, const QVideoFrame &constFrame) {
   captureRequest = false;
   QVideoFrame frame(constFrame); // make a copy to be able map the frame
@@ -226,41 +271,7 @@ void QCameraDevice::onImageAvailable([[maybe_unused]] int id, const QVideoFrame 
     return;
   }
 
-  QString format;
-  switch (frame.pixelFormat()) {
-      case QVideoFrame::Format_ARGB32: format = "ARGB32"; break;
-      case QVideoFrame::Format_RGB32: format = "RGB32"; break;
-      case QVideoFrame::Format_RGB24: format = "RGB24"; break;
-      case QVideoFrame::Format_RGB565: format = "RGB565"; break;
-      case QVideoFrame::Format_RGB555: format = "RGB555"; break;
-      case QVideoFrame::Format_BGRA32: format = "BGRA32"; break;
-      case QVideoFrame::Format_BGR32: format = "BGR32"; break;
-      case QVideoFrame::Format_BGR24: format = "BGR24"; break;
-      case QVideoFrame::Format_BGR565: format = "BGR565"; break;
-      case QVideoFrame::Format_BGR555: format = "BGR555"; break;
-      case QVideoFrame::Format_AYUV444: format = "AYUV444"; break;
-      case QVideoFrame::Format_YUV444: format = "YUV444"; break;
-      case QVideoFrame::Format_YUV420P: format = "YUV420P"; break;
-      case QVideoFrame::Format_YV12: format = "YV12"; break;
-      case QVideoFrame::Format_UYVY: format = "UYVY"; break;
-      case QVideoFrame::Format_YUYV: format = "YUYV"; break;
-      case QVideoFrame::Format_NV12: format = "NV12"; break;
-      case QVideoFrame::Format_NV21: format = "NV21"; break;
-      case QVideoFrame::Format_IMC1: format = "IMC1"; break;
-      case QVideoFrame::Format_IMC2: format = "IMC2"; break;
-      case QVideoFrame::Format_IMC3: format = "IMC3"; break;
-      case QVideoFrame::Format_IMC4: format = "IMC4"; break;
-      case QVideoFrame::Format_Y8: format = "Y8"; break;
-      case QVideoFrame::Format_Y16: format = "Y16"; break;
-      case QVideoFrame::Format_Jpeg: format = "jpeg"; break;
-      case QVideoFrame::Format_CameraRaw: format = "CameraRaw"; break;
-      case QVideoFrame::Format_AdobeDng: format = "AdobeDng"; break;
-#if QT_VERSION >= QT_VERSION_CHECK(5,13,0)
-      case QVideoFrame::Format_ABGR32: format = "ABGR32"; break;
-      case QVideoFrame::Format_YUV422P: format = "YUV422P"; break;
-#endif
-      default: break;
-  }
+  QString format = frameFormatString(frame.pixelFormat());
   if (format.isEmpty()) {
     qWarning() << "Video frame format is not supported:" << frame.pixelFormat();
     return;

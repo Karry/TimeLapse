@@ -112,6 +112,7 @@ public:
 
 private:
   void setupMaxResolution();
+  static QString frameFormatString(QVideoFrame::PixelFormat format);
 
 private:
   QCameraInfo info;

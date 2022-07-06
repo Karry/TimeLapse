@@ -588,7 +588,7 @@ namespace timelapse {
       QString val = getConfigValue(BATTERYLEVEL_CONFIG);
       *verboseOut << "Battery level: " << val << endl;
     } catch (std::exception &e) {
-      *verboseOut << "Can't read bettery level: " << e.what() << endl;
+      *verboseOut << "Can't read battery level: " << e.what() << endl;
     }
 
     // Capture the frame from camera

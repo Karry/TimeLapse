@@ -597,7 +597,7 @@ namespace timelapse {
       /* Bulb mode is special ... we enable it, wait disable it */
       setConfig(BULB_CONFIG, ON_VALUE, false, GP_WIDGET_RADIO); // TODO: is bulb radio?
 
-      bulbWait(shutterSpeed.toMs());
+      bulbWait(shutterSpeed.toMs()); // TODO make bulb asynchronous
 
       setConfig(BULB_CONFIG, OFF_VALUE, false, GP_WIDGET_RADIO); // TODO: is bulb radio?
     } else {

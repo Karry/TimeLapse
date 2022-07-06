@@ -257,7 +257,7 @@ QString QCameraDevice::frameFormatString(QVideoFrame::PixelFormat format) {
 
 void QCameraDevice::onImageAvailable([[maybe_unused]] int id, const QVideoFrame &constFrame) {
   captureRequest = false;
-  QVideoFrame frame(constFrame); // make a copy to be able map the frame
+  QVideoFrame frame(constFrame); // make a copy to be able to map the frame
   if (!frame.isValid()) {
     qWarning() << "Video frame is not valid";
     return;

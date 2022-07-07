@@ -256,6 +256,8 @@ void TimeLapseCapture::start() {
   connect(&timer, &QTimer::timeout, this, &TimeLapseCapture::capture);
   connect(dev.data(), &timelapse::CaptureDevice::imageCaptured,
           this, &TimeLapseCapture::onImageCaptured);
+  connect(dev.data(), &timelapse::CaptureDevice::busyChanged,
+          this, &TimeLapseCapture::onCameraBusyChanged);
 
   dev->start();
   //timer.start(interval);
@@ -285,9 +287,14 @@ void TimeLapseCapture::shutdown() {
   QTimer::singleShot(1000, this, SIGNAL(done()));
 }
 
-constexpr int BUSY_CAPTURE_POSTPONE_MS = 100;
+void TimeLapseCapture::onCameraBusyChanged() {
+  if (postponedCapture && !dev->isBusy()) {
+    capture();
+  }
+}
 
 void TimeLapseCapture::capture() {
+  postponedCapture = false;
   if (_count > 0 && capturedCnt >= _count) {
     timer.stop();
     shutdown();
@@ -295,11 +302,11 @@ void TimeLapseCapture::capture() {
   }
 
   if (dev->isBusy()) {
+    postponedCapture = true;
     if (verboseOutput) {
-      *verboseOutput << "Camera is busy, postpone capturing by " << BUSY_CAPTURE_POSTPONE_MS << " ms" << endl;
+      *verboseOutput << "Camera is busy, postpone capturing" << endl;
     }
     timer.stop();
-    QTimer::singleShot(BUSY_CAPTURE_POSTPONE_MS, this, &TimeLapseCapture::capture);
     return;
   }
   if (!timer.isActive()) {

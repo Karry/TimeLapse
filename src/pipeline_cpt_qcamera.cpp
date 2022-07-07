@@ -205,7 +205,13 @@ void QCameraDevice::onLocked() {
 
   if (imageCapture->isReadyForCapture()) {
     postponedCapture = false;
+#if QT_VERSION < QT_VERSION_CHECK(5,7,0)
+    // gstreamer camera plugin (Qt 5.6) contains bug that image is stored to default location,
+    // when file name is empty - despite CaptureToBuffer is set
+    imageCapture->capture("/tmp/trashme.jpg");
+#else
     imageCapture->capture();
+#endif
   } else {
     postponedCapture = true;
   }

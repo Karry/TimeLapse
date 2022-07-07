@@ -320,13 +320,24 @@ namespace timelapse {
           break;
         }
         ret = gp_widget_set_value(child, &f);
-        if (ret != GP_OK)
+        if (ret != GP_OK) {
           error = QString("Failed to set the value of range widget %1 to %2").arg(option).arg(value);
-        else
+        } else {
           success = true;
+        }
         break;
       }
       case GP_WIDGET_TOGGLE: /* int		*/
+      {
+        int t = value == QString::fromLatin1(ON_VALUE) ? 1 : 0;
+        ret = gp_widget_set_value(child, &t);
+        if (ret != GP_OK) {
+          error = QString("Can't set %1 to %1").arg(option).arg(value);
+        } else {
+          success = true;
+        }
+        break;
+      }
       case GP_WIDGET_DATE: /* int			*/
       {
         // TODO: port code from gphoto2, action.c
@@ -595,11 +606,11 @@ namespace timelapse {
     /* Now handle the different capture methods */
     if (shutterSpeed.isBulb() && shutterSpeed.toMs() > 0) {
       /* Bulb mode is special ... we enable it, wait disable it */
-      setConfig(BULB_CONFIG, ON_VALUE, false, GP_WIDGET_RADIO); // TODO: is bulb radio?
+      setConfig(BULB_CONFIG, ON_VALUE, false, GP_WIDGET_TOGGLE);
 
       bulbWait(shutterSpeed.toMs()); // TODO make bulb asynchronous
 
-      setConfig(BULB_CONFIG, OFF_VALUE, false, GP_WIDGET_RADIO); // TODO: is bulb radio?
+      setConfig(BULB_CONFIG, OFF_VALUE, false, GP_WIDGET_TOGGLE);
     } else {
       if (shutterSpeed.toMs() > 0) {
         setConfig(SHUTTERSPEED_CONFIG, shutterSpeed.toString(), true, GP_WIDGET_RADIO);

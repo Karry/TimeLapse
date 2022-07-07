@@ -79,6 +79,7 @@ void QCameraDevice::capture([[maybe_unused]] QTextStream *verboseOut, ShutterSpe
   }
 
   captureRequest = true;
+  emit busyChanged();
   if (camera->requestedLocks()==QCamera::LockType::NoLock) {
     onLocked();
   } else {
@@ -217,11 +218,15 @@ void QCameraDevice::onLocked() {
   }
 }
 
+bool QCameraDevice::isBusy() {
+  return !imageCapture || !imageCapture->isReadyForCapture() || captureRequest;
+}
+
 void QCameraDevice::onReadyForCaptureChanged(bool ready) {
   if (ready && postponedCapture) {
-    postponedCapture = false;
-    imageCapture->capture();
+    onLocked();
   }
+  emit busyChanged();
 }
 
 QString QCameraDevice::frameFormatString(QVideoFrame::PixelFormat format) {
@@ -263,6 +268,7 @@ QString QCameraDevice::frameFormatString(QVideoFrame::PixelFormat format) {
 
 void QCameraDevice::onImageAvailable([[maybe_unused]] int id, const QVideoFrame &constFrame) {
   captureRequest = false;
+  emit busyChanged();
   QVideoFrame frame(constFrame); // make a copy to be able to map the frame
   if (!frame.isValid()) {
     qWarning() << "Video frame is not valid";

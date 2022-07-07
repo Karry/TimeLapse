@@ -194,7 +194,8 @@ void QCameraDevice::onStatusChanged(QCamera::Status status) {
 }
 
 void QCameraDevice::onLockFailed() {
-  qWarning() << "Lock failed";
+  qWarning() << "Lock failed, capturing anyway";
+  onLocked();
 }
 
 void QCameraDevice::onLocked() {

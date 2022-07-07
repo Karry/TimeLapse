@@ -41,6 +41,14 @@ AdaptiveShutterSpeedAlg::AdaptiveShutterSpeedAlg(
   minShutterSpeed(minShutterSpeed),
   maxShutterSpeed(maxShutterSpeed),
   err(err), verboseOutput(verboseOutput) {
+  if (this->minShutterSpeed.toMicrosecond() > this->maxShutterSpeed.toMicrosecond() && err) {
+    *err << "Shortest shutter speed " << minShutterSpeed.toString() << " is longer than max " << maxShutterSpeed.toString();
+  }
+  if (this->currentShutterSpeed.toMicrosecond() < this->minShutterSpeed.toMicrosecond()) {
+    this->currentShutterSpeed = this->minShutterSpeed;
+  } else if (this->currentShutterSpeed.toMicrosecond() > this->maxShutterSpeed.toMicrosecond()) {
+    this->currentShutterSpeed = this->maxShutterSpeed;
+  }
 }
 
 MatrixMeteringAlg::MatrixMeteringAlg(

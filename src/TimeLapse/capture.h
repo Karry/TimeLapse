@@ -116,6 +116,7 @@ signals:
 public slots :
   virtual void start();
   void onImageCaptured(QString format, Magick::Blob blob, Magick::Geometry sizeHint);
+  void onCameraBusyChanged();
   void capture();
 
 public:
@@ -227,5 +228,6 @@ private:
   qint64 _count=-1;
 
   bool _storeRawImages;
+  bool postponedCapture=false;
 };
 }

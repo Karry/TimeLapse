@@ -108,7 +108,9 @@ public:
   void start() override;
   void stop() override;
 
-  virtual QMediaObject* viewfinder() override;
+  QMediaObject* viewfinder() override;
+
+  bool isBusy() override;
 
 private:
   void setupMaxResolution();
@@ -118,8 +120,8 @@ private:
   QCameraInfo info;
   std::unique_ptr<QCamera> camera;
   std::unique_ptr<QCameraImageCapture> imageCapture;
-  bool postponedCapture = false;
-  bool captureRequest = false;
+  bool postponedCapture = false; // camera is locked, but not ready for capture
+  bool captureRequest = false; // capture is requested, or image is being process
   bool persistentFocusLockVal = true;
 };
 

@@ -171,7 +171,7 @@ namespace timelapse {
     stabInit(&verboseOutput, &err);
 
 
-    pipeline = Pipeline::createWithFileSource(inputArgs, false, &verboseOutput, &err);
+    pipeline = Pipeline::createWithFileSource(inputArgs, QStringList(), false, &verboseOutput, &err);
     *pipeline << new OneToOneFrameMapping();
     *pipeline << new PipelineStabDetect(stabConf, &verboseOutput, &err);
     if (stabConf->mdConf.show > 0) {

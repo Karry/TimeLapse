@@ -32,9 +32,9 @@ using namespace timelapse;
 
 namespace timelapse {
 
-  PipelineFileSource::PipelineFileSource(QStringList _inputArguments, bool _recursive,
+  PipelineFileSource::PipelineFileSource(QStringList _inputArguments, QStringList _fileSuffixes, bool _recursive,
     QTextStream *_verboseOutput, QTextStream *_err) :
-  inputArguments(_inputArguments), recursive(_recursive),
+  inputArguments(_inputArguments), fileSuffixes(_fileSuffixes), recursive(_recursive),
   verboseOutput(_verboseOutput), err(_err) {
 
     connect(this, &PipelineFileSource::processNext, this, &PipelineFileSource::takeNext, Qt::QueuedConnection);
@@ -46,7 +46,8 @@ namespace timelapse {
     QFileInfoList l = d.entryInfoList(QDir::Files, QDir::Name);
     *verboseOutput << "...found " << l.size() << " entries" << endl;
     for (QFileInfo i2 : l) {
-      if (i2.isFile() || i2.isSymLink()) {
+      if ((i2.isFile() || i2.isSymLink()) &&
+          (fileSuffixes.isEmpty() || fileSuffixes.contains(i2.completeSuffix(), Qt::CaseInsensitive))) {
         *verboseOutput << "Input file: " << i2.filePath() << endl;
         inputs.append(InputImageInfo(i2));
       } else if (i2.isDir()) {

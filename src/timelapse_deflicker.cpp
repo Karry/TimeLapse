@@ -172,7 +172,7 @@ namespace timelapse {
     QStringList inputArgs = parseArguments();
 
     // build processing pipeline
-    pipeline = Pipeline::createWithFileSource(inputArgs, false, &verboseOutput, &err);
+    pipeline = Pipeline::createWithFileSource(inputArgs, QStringList(), false, &verboseOutput, &err);
 
     *pipeline << new ComputeLuminance(&verboseOutput);
     *pipeline << new OneToOneFrameMapping();

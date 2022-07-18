@@ -203,7 +203,7 @@ namespace timelapse {
       bool ok = false;
       int i = parser.value(wmaCountOption).toInt(&ok);
       if (!ok) die << "Cant parse wma count.";
-      if (i < 0) die << "Wma count have to be possitive";
+      if (i < 0) die << "Wma count have to be positive";
       wmaCount = (size_t) i;
     }
 

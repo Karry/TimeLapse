@@ -160,7 +160,7 @@ namespace timelapse {
 
   void TimeLapseDeflicker::cleanup2(int exitCode) {
     if (pipeline != nullptr) {
-      delete pipeline;
+      pipeline->deleteLater();
       pipeline = nullptr;
     }
 

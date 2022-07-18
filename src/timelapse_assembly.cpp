@@ -289,7 +289,7 @@ namespace timelapse {
 
   void TimeLapseAssembly::cleanup2(int exitCode) {
     if (pipeline != nullptr) {
-      delete pipeline;
+      pipeline->deleteLater();
       pipeline = nullptr;
     }
     if (_tempDir != nullptr) {

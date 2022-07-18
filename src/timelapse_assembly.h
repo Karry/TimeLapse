@@ -91,7 +91,7 @@ namespace timelapse {
     QString _bitrate;
     QString _codec;
 
-    /* It is usefull when time interval between images is not fixed.
+    /* It is useful when time interval between images is not fixed.
      * Input image to output video frame mapping will be computed from image 
      * timestamp (EXIF metadata will be used).
      */

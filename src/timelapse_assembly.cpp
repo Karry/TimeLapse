@@ -241,12 +241,12 @@ namespace timelapse {
     if (parser.isSet(fpsOption)) {
       _fps = parser.value(fpsOption).toFloat(&ok);
       if (!ok) die << "Can't parse fps";
-      if (_fps <= 0) die << "FPS have to be possitive!";
+      if (_fps <= 0) die << "FPS have to be positive!";
     }
     if (parser.isSet(lengthOption)) {
       _length = parser.value(lengthOption).toFloat(&ok);
       if (!ok) die << "Can't parse length";
-      if (_length <= 0) die << "Length have to be possitive!";
+      if (_length <= 0) die << "Length have to be positive!";
     }
     if (parser.isSet(bitrateOption))
       _bitrate = parser.value(bitrateOption);

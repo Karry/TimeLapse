@@ -343,7 +343,7 @@ namespace timelapse {
     *pipeline << new WriteFrame(QDir(_tempDir->path()), &_verboseOutput, _dryRun);
 
     * pipeline << new VideoAssembly(QDir(_tempDir->path()), &_verboseOutput, &_err, _dryRun,
-      _output, _width, _height, _fps, _bitrate, _codec);
+      _output, _width, _height, _fps, _bitrate, _codec, "");
 
     connect(pipeline, &Pipeline::done, this, &TimeLapseAssembly::cleanup);
     connect(pipeline, &Pipeline::error, this, &TimeLapseAssembly::onError);

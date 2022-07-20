@@ -35,18 +35,20 @@ using namespace timelapse;
 namespace timelapse {
 
   VideoAssembly::VideoAssembly(QDir _tempDir, QTextStream *_verboseOutput, QTextStream *_err, bool _dryRun,
-    QFileInfo _output, int _width, int _height, float _fps, QString _bitrate, QString _codec) :
+    QFileInfo _output, int _width, int _height, float _fps, QString _bitrate, QString _codec, QString _builderBinary) :
   tempDir(_tempDir), verboseOutput(_verboseOutput), err(_err), dryRun(_dryRun),
-  output(_output), width(_width), height(_height), fps(_fps), bitrate(_bitrate), codec(_codec) {
+  output(_output), width(_width), height(_height), fps(_fps), bitrate(_bitrate), codec(_codec),
+  builderBinary(_builderBinary) {
   }
 
   void VideoAssembly::onInput(InputImageInfo info) {
     emit input(info);
   }
 
-  void VideoAssembly::onLast() {
-    *verboseOutput << "Assembling video..." << endl;
-
+  QString VideoAssembly::getOrDetectBuilder() {
+    if (!builderBinary.isEmpty()) {
+      return builderBinary;
+    }
     QString cmd = "avconv";
     QProcess avconv;
     avconv.setProcessChannelMode(QProcess::MergedChannels);
@@ -61,6 +63,14 @@ namespace timelapse {
       }
       cmd = "ffmpeg";
     }
+    builderBinary = cmd;
+    return cmd;
+  }
+
+  void VideoAssembly::onLast() {
+    *verboseOutput << "Assembling video..." << endl;
+
+    QString cmd = getOrDetectBuilder();
 
     // avconv -f image2 -r $fps -s $res -i morphed/%06d.jpg -b:v $bitrate -c:v libx264  video.mkv
     QStringList args = QStringList()

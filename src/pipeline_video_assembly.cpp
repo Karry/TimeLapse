@@ -46,7 +46,6 @@ namespace timelapse {
   VideoAssembly::~VideoAssembly() {
     if (builderProc != nullptr) {
       builderProc->terminate();
-      builderProc->waitForFinished(-1);
       if (!builderProc->waitForFinished(-1 /* no timeout */)) {
         *err << "Builder waiting failed:" << builderProc->errorString() << endl;
         emit error("Builder waiting failed:" + builderProc->errorString());

@@ -46,9 +46,10 @@ namespace timelapse {
   VideoAssembly::~VideoAssembly() {
     if (builderProc != nullptr) {
       builderProc->terminate();
+      QProcess *tmpProc = builderProc; // builderProc may be set to nullptr in onFinished
       if (!builderProc->waitForFinished(-1 /* no timeout */)) {
-        *err << "Builder waiting failed:" << builderProc->errorString() << endl;
-        emit error("Builder waiting failed:" + builderProc->errorString());
+        *err << "Builder waiting failed:" << tmpProc->errorString() << endl;
+        emit error("Builder waiting failed:" + tmpProc->errorString());
       }
     }
   }

@@ -28,6 +28,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QDebug>
 #include <QtCore/QTemporaryDir>
+#include <QProcess>
 
 namespace timelapse {
 
@@ -37,10 +38,17 @@ namespace timelapse {
     VideoAssembly(QDir tempDir, QTextStream *verboseOutput, QTextStream *err, bool dryRun,
                   QFileInfo output, int width, int height, float fps, QString bitrate, QString codec,
                   QString builderBinary);
+    ~VideoAssembly() override;
 
   public slots:
     virtual void onInput(InputImageInfo info) override;
     virtual void onLast() override;
+
+    void onFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void onStdoutReady();
+
+  signals:
+    void started();
 
   private:
     QString getOrDetectBuilder();
@@ -58,6 +66,8 @@ namespace timelapse {
     QString bitrate;
     QString codec;
     QString builderBinary;
+
+    QProcess *builderProc=nullptr;
   };
 
 }

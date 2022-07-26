@@ -28,6 +28,8 @@
 #include <QtCore/QDir>
 #include <QtCore/QProcess>
 
+#include <cassert>
+
 using namespace std;
 using namespace timelapse;
 
@@ -39,6 +41,17 @@ namespace timelapse {
   tempDir(_tempDir), verboseOutput(_verboseOutput), err(_err), dryRun(_dryRun),
   output(_output), width(_width), height(_height), fps(_fps), bitrate(_bitrate), codec(_codec),
   builderBinary(_builderBinary) {
+  }
+
+  VideoAssembly::~VideoAssembly() {
+    if (builderProc != nullptr) {
+      builderProc->terminate();
+      builderProc->waitForFinished(-1);
+      if (!builderProc->waitForFinished(-1 /* no timeout */)) {
+        *err << "Builder waiting failed:" << builderProc->errorString() << endl;
+        emit error("Builder waiting failed:" + builderProc->errorString());
+      }
+    }
   }
 
   void VideoAssembly::onInput(InputImageInfo info) {
@@ -67,7 +80,27 @@ namespace timelapse {
     return cmd;
   }
 
+  void VideoAssembly::onFinished(int exitCode, QProcess::ExitStatus exitStatus) {
+    assert(builderProc != nullptr);
+
+    *verboseOutput << ">> " << builderProc->readAll();
+    if (exitCode != 0) {
+      *err << "Video builder exited with " << builderProc->exitCode() << endl;
+      emit error(QString("Video builder exited with %2").arg(builderProc->exitCode()));
+    }
+
+    builderProc->deleteLater();
+    builderProc = nullptr;
+    emit last();
+  }
+
+  void VideoAssembly::onStdoutReady() {
+    assert(builderProc != nullptr);
+    *verboseOutput << ">> " << builderProc->readAll();
+  }
+
   void VideoAssembly::onLast() {
+    assert(builderProc==nullptr);
     *verboseOutput << "Assembling video..." << endl;
 
     QString cmd = getOrDetectBuilder();
@@ -86,21 +119,18 @@ namespace timelapse {
 
     *verboseOutput << "Executing:" << endl << cmd << " " << args.join(' ') << endl;
     if (!dryRun) {
-      QProcess proc;
-      proc.setProcessChannelMode(QProcess::MergedChannels);
-      proc.start(cmd, args);
-      if (!proc.waitForFinished(-1 /* no timeout */)) {
-        *err << cmd << " failed:" << proc.errorString() << endl;
-        emit error(cmd + " failed:" + proc.errorString());
-      } else {
-        *verboseOutput << cmd << " output:\n" << proc.readAll();
-        if (proc.exitCode() != 0) {
-          *err << cmd << " exited with " << proc.exitCode() << endl;
-          emit error(QString("%1 exited with %2").arg(cmd).arg(proc.exitCode()));
-        }
-      }
+      builderProc = new QProcess();
+      builderProc->setProcessChannelMode(QProcess::MergedChannels);
+
+      connect(builderProc, SIGNAL(finished(int, QProcess::ExitStatus)),
+              this, SLOT(onFinished(int, QProcess::ExitStatus)));
+      connect(builderProc, &QProcess::readyReadStandardOutput, this, &VideoAssembly::onStdoutReady);
+      connect(builderProc, &QProcess::started, this, &VideoAssembly::started);
+
+      builderProc->start(cmd, args);
+    } else {
+      emit last();
     }
-    emit last();
   }
 
 }

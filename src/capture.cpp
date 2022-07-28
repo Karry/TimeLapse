@@ -26,6 +26,8 @@
 #include <vector>
 #include <utility>
 
+#include <exif-data.h>
+
 namespace timelapse {
 
 AdaptiveShutterSpeedAlg::AdaptiveShutterSpeedAlg(
@@ -374,13 +376,41 @@ void TimeLapseCapture::onImageCaptured(QString format, Magick::Blob blob, Magick
         shutterSpdAlg->update(capturedImage);
       }
 
-      QDateTime now = QDateTime::currentDateTime();
-      QString exifDateTime = now.toString("yyyy:MM:dd HH:mm:ss");\
+      if (capturedImage.attribute("EXIF:DateTime").length() == 0) {
+        QDateTime now = QDateTime::currentDateTime();
+        QString exifDateTime = now.toString("yyyy:MM:dd HH:mm:ss");
 
-      // ImageMagick don't support writing of exif data
-      // TODO: setup exif timestamp correctly
-      capturedImage.attribute("EXIF:DateTime", exifDateTime.toStdString());
-      //capturedImage.defineValue("EXIF", "DateTime", exifDateTime.toStdString());
+        Magick::Blob profile = capturedImage.exifProfile();
+        ExifData *data = exif_data_new();
+
+        exif_data_set_option(data, EXIF_DATA_OPTION_FOLLOW_SPECIFICATION);
+        exif_data_set_data_type(data, EXIF_DATA_TYPE_COMPRESSED);
+        exif_data_set_byte_order(data, EXIF_BYTE_ORDER_INTEL);
+
+        exif_data_load_data(data, static_cast<const unsigned char *>(profile.data()), profile.length());
+
+        ExifMem *exifMem = exif_mem_new_default();
+        ExifEntry *pE = exif_entry_new();
+        exif_content_add_entry(data->ifd[EXIF_IFD_0], pE);
+        exif_entry_initialize(pE, EXIF_TAG_DATE_TIME);
+        std::string dateStr = exifDateTime.toStdString();
+        pE->data = static_cast<unsigned char *>(exif_mem_alloc(exifMem, dateStr.length() +1 +8));
+        memcpy(pE->data, dateStr.c_str(), dateStr.length() +1);
+        //memcpy(pE->data, "ASCII\0\0\0", 8);
+        //memcpy(pE->data+8, dateStr.c_str(), dateStr.length() +1);
+
+        unsigned char *d;
+        unsigned int ds;
+
+        exif_data_dump(data);
+        exif_data_save_data(data, &d, &ds);
+        profile = Magick::Blob(d, ds);
+        capturedImage.exifProfile(profile);
+
+        exif_entry_unref(pE);
+        exif_mem_free(exifMem, d);
+        exif_data_free(data);
+      }
 
       capturedImage.compressType(Magick::JPEGCompression);
       capturedImage.magick("JPEG");

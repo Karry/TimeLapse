@@ -63,14 +63,18 @@ constexpr int FRAME_FILE_LEADING_ZEROS = 9;
 
   class TIME_LAPSE_API ImageLoader : public ImageHandler {
     Q_OBJECT
+  signals:
+    void onImageLoaded(int stage, int cnt);
   public:
-    ImageLoader(QTextStream *verboseOutput, QTextStream *err);
+    ImageLoader(QTextStream *verboseOutput, QTextStream *err, int stage);
   public slots:
     virtual void onInputImg(InputImageInfo info, Magick::Image img) override;
     virtual void onInput(InputImageInfo info);
   private:
     QTextStream *verboseOutput;
     QTextStream *err;
+    int stage;
+    int cnt=0;
   };
 
   class TIME_LAPSE_API ImageTrash : public InputHandler {

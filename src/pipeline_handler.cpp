@@ -44,8 +44,8 @@ namespace timelapse {
     onInput(info);
   }
 
-  ImageLoader::ImageLoader(QTextStream *_verboseOutput, QTextStream *_err) :
-  verboseOutput(_verboseOutput), err(_err) {
+  ImageLoader::ImageLoader(QTextStream *_verboseOutput, QTextStream *_err, int _stage) :
+  verboseOutput(_verboseOutput), err(_err), stage(_stage) {
   }
 
   void ImageLoader::onInput(InputImageInfo info) {
@@ -70,6 +70,7 @@ namespace timelapse {
         .arg(e.what()));
     }
     if (usableImage) {
+      emit onImageLoaded(stage, cnt++);
       emit inputImg(info, image);
     }
   }

@@ -34,7 +34,7 @@ namespace timelapse {
   class TIME_LAPSE_API ComputeLuminance : public ImageHandler {
     Q_OBJECT
   public:
-    ComputeLuminance(QTextStream *verboseOutput);
+    explicit ComputeLuminance(QTextStream *verboseOutput);
 
     static double computeLuminance(
             const std::vector<std::pair<Magick::Color, size_t>> &histogram,
@@ -52,7 +52,7 @@ namespace timelapse {
   class TIME_LAPSE_API ComputeAverageLuminance : public InputHandler {
     Q_OBJECT
   public:
-    ComputeAverageLuminance(QTextStream *verboseOutput);
+    explicit ComputeAverageLuminance(QTextStream *verboseOutput);
   public slots:
     virtual void onInput(InputImageInfo info) override;
     void onLast() override;

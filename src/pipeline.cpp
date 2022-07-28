@@ -91,9 +91,10 @@ namespace timelapse {
   void Pipeline::operator<<(ImageHandler *handler) {
 
     if (lastInputHandler != nullptr) {
-      ImageLoader *loader = new ImageLoader(verboseOutput, err);
+      ImageLoader *loader = new ImageLoader(verboseOutput, err, stage++);
       connect(lastInputHandler, &InputHandler::input, loader, &ImageLoader::onInput);
       connect(lastInputHandler, &InputHandler::last, loader, &ImageLoader::onLast);
+      connect(loader, &ImageLoader::onImageLoaded, this, &Pipeline::imageLoaded);
       append(loader);
 
       lastInputHandler = nullptr;

@@ -66,6 +66,7 @@ namespace timelapse {
   signals:
     void error(QString msg);
     void done();
+    void imageLoaded(int stage, int cnt);
 
   private:
     void append(PipelineHandler* handler);
@@ -75,6 +76,7 @@ namespace timelapse {
     QTextStream *err;
     QList<PipelineHandler*> elements;
     PipelineSource *src;
+    int stage=0;
     InputHandler *lastInputHandler;
     ImageHandler *lastImageHandler;
   };

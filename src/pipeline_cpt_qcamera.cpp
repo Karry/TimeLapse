@@ -172,6 +172,7 @@ bool QCameraDevice::initialize(QTextStream *verboseOut) {
 
 void QCameraDevice::setupMaxResolution() {
   QSize maxSize;
+  assert(imageCapture);
   for (QSize size: imageCapture->supportedResolutions()) {
     if ((!maxSize.isValid()) || (size.width()*size.height() > maxSize.width()*maxSize.height())) {
       maxSize=size;

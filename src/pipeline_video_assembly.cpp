@@ -80,7 +80,7 @@ namespace timelapse {
     return cmd;
   }
 
-  void VideoAssembly::onFinished(int exitCode, QProcess::ExitStatus exitStatus) {
+  void VideoAssembly::onFinished(int exitCode, [[maybe_unused]] QProcess::ExitStatus exitStatus) {
     assert(builderProc != nullptr);
 
     *verboseOutput << ">> " << builderProc->readAll();

@@ -33,7 +33,7 @@ namespace timelapse {
     return new Pipeline(src, src, verboseOutput, err);
   }
 
-  Pipeline* Pipeline::createWithFileSource(QStringList inputArguments, QStringList fileSuffixes, bool recursive,
+  Pipeline* Pipeline::createWithFileSource(const QStringList &inputArguments, const QStringList &fileSuffixes, bool recursive,
     QTextStream *verboseOutput, QTextStream *err) {
 
     PipelineFileSource *src = new PipelineFileSource(inputArguments, fileSuffixes, recursive, verboseOutput, err);

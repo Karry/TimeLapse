@@ -54,7 +54,7 @@ namespace timelapse {
 
     static Pipeline* createWithCaptureSource(QSharedPointer<CaptureDevice> dev, int64_t interval, int32_t cnt,
             QTextStream *verboseOutput, QTextStream *err);
-    static Pipeline* createWithFileSource(QStringList inputArguments, QStringList fileSuffixes, bool recursive,
+    static Pipeline* createWithFileSource(const QStringList &inputArguments, const QStringList &fileSuffixes, bool recursive,
             QTextStream *verboseOutput, QTextStream *err);
 
 

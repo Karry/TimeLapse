@@ -550,7 +550,7 @@ namespace timelapse {
     pollingScheduled = false;
     CameraEventType evtype;
     int pollingInterval = 200; // TODO: configurable
-    waitAndHandleEvent(pollingInterval /* ms */, &evtype);
+    waitAndHandleEvent(0 /* ms */, &evtype);
     if (evtype != GP_EVENT_TIMEOUT) {
       timer.start();
       //printf("Got event from camera\n");
@@ -560,7 +560,7 @@ namespace timelapse {
     } else {
       if (timer.elapsed() > 1500) { // TODO: configurable
         //printf("Stop polling %d\n", timer.elapsed());
-        // if we don't get any event for 3000 ms, stop polling and exit camera
+        // if we don't get any event for 1500 ms, stop polling and exit camera
         unlock();
       } else {
         pollingScheduled = true;

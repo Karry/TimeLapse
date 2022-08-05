@@ -42,7 +42,7 @@ namespace timelapse {
   class TIME_LAPSE_API PipelineFileSource : public InputHandler, public PipelineSource {
     Q_OBJECT
   public:
-    PipelineFileSource(QStringList inputArguments, QStringList fileSuffixes, bool recursive, QTextStream *verboseOutput, QTextStream *err);
+    PipelineFileSource(const QStringList &inputArguments, const QStringList &fileSuffixes, bool recursive, QTextStream *verboseOutput, QTextStream *err);
     virtual void process() override;
   protected:
     QList<InputImageInfo> listDirectory(QDir d);

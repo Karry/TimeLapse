@@ -27,6 +27,8 @@
 #include <exception>
 #include <ImageMagick-6/Magick++/Color.h>
 
+#include <cassert>
+
 using namespace std;
 using namespace timelapse;
 

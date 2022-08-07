@@ -339,15 +339,15 @@ namespace timelapse {
 
     if (_blendFrames) {
       if (_blendBeforeResize) {
-        *pipeline << new BlendFramePrepare(&_verboseOutput);
+        *pipeline << new BlendFramePrepare(&_verboseOutput, _length * _fps);
         *pipeline << new ResizeFrame(&_verboseOutput, _width, _height, _adaptiveResize);
       } else {
         *pipeline << new ResizeFrame(&_verboseOutput, _width, _height, _adaptiveResize);
-        *pipeline << new BlendFramePrepare(&_verboseOutput);
+        *pipeline << new BlendFramePrepare(&_verboseOutput, _length * _fps);
       }
     } else {
       *pipeline << new ResizeFrame(&_verboseOutput, _width, _height, _adaptiveResize);
-      *pipeline << new FramePrepare(&_verboseOutput);
+      *pipeline << new FramePrepare(&_verboseOutput, _length * _fps);
     }
     *pipeline << new WriteFrame(QDir(_tempDir->path()), &_verboseOutput, _dryRun);
 

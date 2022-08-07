@@ -35,7 +35,7 @@ namespace timelapse {
     Q_OBJECT
 
   public:
-    explicit FramePrepare(QTextStream *verboseOutput);
+    explicit FramePrepare(QTextStream *verboseOutput, int frameCount);
     virtual void blend(InputImageInfo info1, const Magick::Image *img1, InputImageInfo info2, const Magick::Image *img2);
 
   public slots:
@@ -46,14 +46,15 @@ namespace timelapse {
     QTextStream * verboseOutput;
 
   private:
-    Magick::Image * prevImage;
+    Magick::Image * prevImage=nullptr;
     InputImageInfo prevInfo;
+    int frameCount=0;
   };
 
   class TIME_LAPSE_API BlendFramePrepare : public FramePrepare {
     Q_OBJECT
   public:
-    explicit BlendFramePrepare(QTextStream *verboseOutput);
+    BlendFramePrepare(QTextStream *verboseOutput, int frameCount);
     virtual void blend(InputImageInfo info1, const Magick::Image *img1, InputImageInfo info2, const Magick::Image *img2) override;
   };
 

@@ -74,6 +74,7 @@ namespace timelapse {
   }
 
   void BlendFramePrepare::blend(InputImageInfo info1, const Magick::Image *img1, InputImageInfo info2, const Magick::Image *img2) {
+    assert(img1!=nullptr);
     int f1 = info1.frame;
     int f2 = info2.frame;
     *verboseOutput << "Blending images for frames " << f1 << " ... " << f2 << endl;
@@ -81,7 +82,7 @@ namespace timelapse {
       Magick::Image blended = *img1;
 
       double opacity = 1.0 - ((double) (f - f1) / ((double) (f2 - f1)));
-      if (f - f1 > 0) { // for 100 % transparency, we don't have to composite
+      if (f - f1 > 0 && img2 != nullptr) { // for 100 % transparency, we don't have to composite
         Magick::Image secondLayer = *img2;
         *verboseOutput << "Blend with next image with " << (opacity * 100) << " % transparency" << endl;
         

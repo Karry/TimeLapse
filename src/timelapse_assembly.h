@@ -58,14 +58,14 @@ namespace timelapse {
   protected:
     QTextStream _out;
     QTextStream _err;
+    QStringList _extensions;
     bool _dryRun;
     bool deflickerAvg;
     bool deflickerDebugView;
-        size_t wmaCount;
+    size_t wmaCount;
     QTextStream _verboseOutput;
     BlackHoleDevice *_blackHole;
     bool _forceOverride;
-    //QList<InputImageInfo> _inputs;
     QString _tmpBaseDir;
 
     QTemporaryDir *_tempDir;

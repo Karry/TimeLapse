@@ -90,6 +90,11 @@ namespace timelapse {
       QCoreApplication::translate("main", "output"));
     parser.addOption(outputOption);
 
+    QCommandLineOption extensionOption(QStringList() << "e" << "extension",
+      QCoreApplication::translate("main", "Input extension filter (all images by default)."),
+      QCoreApplication::translate("main", "extension"));
+    parser.addOption(extensionOption);
+
     QCommandLineOption widthOption(QStringList() << "width",
       QCoreApplication::translate("main", "Output video width. Default is 1920."),
       QCoreApplication::translate("main", "width"));
@@ -160,7 +165,7 @@ namespace timelapse {
     parser.addOption(verboseOption);
 
     QCommandLineOption dryRunOption(QStringList() << "d" << "dryrun",
-      QCoreApplication::translate("main", "Just parse arguments, check inputs and prints informations."));
+      QCoreApplication::translate("main", "Just parse arguments, check inputs and prints information."));
     parser.addOption(dryRunOption);
 
     QCommandLineOption forceOption(QStringList() << "f" << "force",
@@ -188,6 +193,10 @@ namespace timelapse {
       // verbose
       _verboseOutput << "Turning on verbose output..." << endl;
       _verboseOutput << applicationName() << " " << applicationVersion() << endl;
+    }
+
+    if (parser.isSet(extensionOption)) {
+      _extensions = parser.values(extensionOption);
     }
 
     _forceOverride = parser.isSet(forceOption);
@@ -305,7 +314,7 @@ namespace timelapse {
     QStringList inputArguments = parseArguments();
 
     // build processing pipeline
-    pipeline = Pipeline::createWithFileSource(inputArguments, QStringList(), false, &_verboseOutput, &_err);
+    pipeline = Pipeline::createWithFileSource(inputArguments, _extensions, false, &_verboseOutput, &_err);
 
     if (deflickerAvg) {
       *pipeline << new ComputeLuminance(&_verboseOutput);

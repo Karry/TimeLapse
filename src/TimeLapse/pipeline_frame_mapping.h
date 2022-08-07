@@ -49,7 +49,7 @@ namespace timelapse {
     virtual void onInput(InputImageInfo info) override;
     virtual void onLast() override;
   protected:
-    int frame;
+    int frame=0;
     QTextStream *verboseOutput;
     QTextStream *err;
     float length;

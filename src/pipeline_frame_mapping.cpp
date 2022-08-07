@@ -43,7 +43,7 @@ namespace timelapse {
 
   ConstIntervalFrameMapping::ConstIntervalFrameMapping(
     QTextStream *_verboseOutput, QTextStream *_err, float _length, float _fps) :
-  frame(0), verboseOutput(_verboseOutput), err(_err), length(_length), fps(_fps), inputs() {
+    verboseOutput(_verboseOutput), err(_err), length(_length), fps(_fps) {
 
     frameCount = length * fps;
     if (frameCount <= 0) {
@@ -85,7 +85,6 @@ namespace timelapse {
       lastFrame = inf.frame;
       currentFrame += frameStep;
     }
-    //inputs = inputList;
     if (emited <= 0) {
       emit error("No images after mapping!"); 
     }

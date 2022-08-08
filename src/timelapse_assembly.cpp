@@ -131,6 +131,11 @@ namespace timelapse {
       QCoreApplication::translate("main", "codec"));
     parser.addOption(codecOption);
 
+    QCommandLineOption pixFmtOption(QStringList() << "pixel-format",
+       QCoreApplication::translate("main", "Video pixel format. Default is automatic selection. Use \"yuv420p\" for best interoperability.").arg(_codec),
+       QCoreApplication::translate("main", "pixel-format"));
+    parser.addOption(pixFmtOption);
+
     QCommandLineOption noStrictIntervalOption(QStringList() << "no-strict-interval",
       QCoreApplication::translate("main", "Don't map input images to output video frames with strict interval. "
       "Input image to output video frame mapping will be computed from image "
@@ -261,6 +266,8 @@ namespace timelapse {
       _bitrate = parser.value(bitrateOption);
     if (parser.isSet(codecOption))
       _codec = parser.value(codecOption);
+    if (parser.isSet(pixFmtOption))
+      _pixelFormat = parser.value(pixFmtOption);
 
     _noStrictInterval = parser.isSet(noStrictIntervalOption);
     if (_noStrictInterval && _length < 0) {
@@ -352,7 +359,7 @@ namespace timelapse {
     *pipeline << new WriteFrame(QDir(_tempDir->path()), &_verboseOutput, _dryRun);
 
     * pipeline << new VideoAssembly(QDir(_tempDir->path()), &_verboseOutput, &_err, _dryRun,
-      _output, _width, _height, _fps, _bitrate, _codec, "");
+      _output, _width, _height, _fps, _bitrate, _codec, "", _pixelFormat);
 
     connect(pipeline, &Pipeline::done, this, &TimeLapseAssembly::cleanup);
     connect(pipeline, &Pipeline::error, this, &TimeLapseAssembly::onError);

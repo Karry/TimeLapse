@@ -37,10 +37,11 @@ using namespace timelapse;
 namespace timelapse {
 
   VideoAssembly::VideoAssembly(QDir _tempDir, QTextStream *_verboseOutput, QTextStream *_err, bool _dryRun,
-    QFileInfo _output, int _width, int _height, float _fps, QString _bitrate, QString _codec, QString _builderBinary) :
+    QFileInfo _output, int _width, int _height, float _fps, QString _bitrate, QString _codec, QString _builderBinary,
+    QString _pixelFormat) :
   tempDir(_tempDir), verboseOutput(_verboseOutput), err(_err), dryRun(_dryRun),
   output(_output), width(_width), height(_height), fps(_fps), bitrate(_bitrate), codec(_codec),
-  builderBinary(_builderBinary) {
+  builderBinary(_builderBinary), pixelFormat(_pixelFormat) {
   }
 
   VideoAssembly::~VideoAssembly() {
@@ -114,8 +115,13 @@ namespace timelapse {
       << "-b:v" << bitrate
       << "-c:v" << codec
       << "-y" // Overwrite output file without asking
-      << "-r" << QString("%1").arg(fps)
-      << output.filePath();
+      << "-r" << QString("%1").arg(fps);
+
+    if (!pixelFormat.isEmpty()) {
+      args << "-pix_fmt" << pixelFormat;
+    }
+
+    args << output.filePath();
 
     *verboseOutput << "Executing:" << endl << cmd << " " << args.join(' ') << endl;
     if (!dryRun) {

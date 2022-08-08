@@ -90,6 +90,7 @@ namespace timelapse {
     int _frameCount;
     QString _bitrate;
     QString _codec;
+    QString _pixelFormat;
 
     /* It is useful when time interval between images is not fixed.
      * Input image to output video frame mapping will be computed from image 

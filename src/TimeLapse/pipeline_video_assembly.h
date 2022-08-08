@@ -37,7 +37,7 @@ namespace timelapse {
   public:
     VideoAssembly(QDir tempDir, QTextStream *verboseOutput, QTextStream *err, bool dryRun,
                   QFileInfo output, int width, int height, float fps, QString bitrate, QString codec,
-                  QString builderBinary);
+                  QString builderBinary, QString pixelFormat="");
     ~VideoAssembly() override;
 
   public slots:
@@ -66,6 +66,7 @@ namespace timelapse {
     QString bitrate;
     QString codec;
     QString builderBinary;
+    QString pixelFormat;
 
     QProcess *builderProc=nullptr;
   };

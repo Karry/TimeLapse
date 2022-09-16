@@ -107,11 +107,14 @@ class TIME_LAPSE_API TimeLapseCapture: public QObject {
 
   Q_PROPERTY(int capturedCount READ getCapturedCount NOTIFY capturedCountChanged)
 
+  Q_PROPERTY(bool active READ isActive NOTIFY activeChanged)
+
 signals:
   void imageCaptured(QString file);
   void capturedCountChanged();
   void done();
   void error(const QString &msg);
+  void activeChanged();
 
 public slots :
   virtual void start();
@@ -201,6 +204,10 @@ public:
 
   int getCapturedCount() {
     return capturedCnt;
+  }
+
+  bool isActive() const {
+    return timer.isActive() || postponedCapture;
   }
 
 private:

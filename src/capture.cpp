@@ -224,6 +224,7 @@ TimeLapseCapture::TimeLapseCapture(QTextStream* err, QTextStream* verboseOutput)
 
 TimeLapseCapture::~TimeLapseCapture() noexcept {
   timer.stop();
+  emit activeChanged();
 
   if (shutterSpdAlg != nullptr) {
     delete shutterSpdAlg;
@@ -284,6 +285,8 @@ void TimeLapseCapture::start() {
 void TimeLapseCapture::shutdown() {
   // capturing devices can be asynchronous, we should wait a bit for possible events from devices
   dev->stop();
+  postponedCapture = false;
+  emit activeChanged();
   QTimer::singleShot(1000, this, SIGNAL(done()));
 }
 
@@ -310,6 +313,7 @@ void TimeLapseCapture::capture() {
     return;
   }
   if (!timer.isActive()) {
+    emit activeChanged();
     timer.start(_interval);
   }
 

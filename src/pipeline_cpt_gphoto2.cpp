@@ -591,7 +591,7 @@ namespace timelapse {
 
     //printf("capture\n");
 
-    // try to setup RAM storage for captured image
+    // try to set up RAM storage for captured image
     // if it fails, we should delete images in camera storage after download
     deleteImageAfterDownload = !tryToSetRamStorage();
 

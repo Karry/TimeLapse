@@ -78,7 +78,7 @@ namespace timelapse {
     virtual ShutterSpeedChoice currentShutterSpeed();
     virtual bool isBusy() ;
 
-    virtual QString getBatteryLevel() const {
+    QString getBatteryLevel() const override {
       return _batteryLevel;
     }
 

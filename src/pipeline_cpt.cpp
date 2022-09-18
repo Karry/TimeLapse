@@ -95,6 +95,10 @@ namespace timelapse {
     }
   }
 
+  bool ShutterSpeedChoice::operator==(const ShutterSpeedChoice &o) const {
+    return bulb == o.bulb && divident == o.divident && factor == o.factor;
+  }
+
   QString ShutterSpeedChoice::toString() const {
     if (bulb) {
       if (divident > 0) {

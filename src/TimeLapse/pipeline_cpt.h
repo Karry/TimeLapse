@@ -52,6 +52,12 @@ namespace timelapse {
 
     void normalize();
 
+    bool operator==(const ShutterSpeedChoice&) const;
+
+    bool operator!=(const ShutterSpeedChoice &o) const {
+      return !(*this == o);
+    }
+
   private:
     static int gcd(int a, int b);
 

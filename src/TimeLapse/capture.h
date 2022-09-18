@@ -100,6 +100,7 @@ class TIME_LAPSE_API TimeLapseCapture: public QObject {
 
   Q_PROPERTY(ShutterSpeedChoice minShutterSpeed READ getMinShutterSpeed WRITE setMinShutterSpeed)
   Q_PROPERTY(ShutterSpeedChoice maxShutterSpeed READ getMaxShutterSpeed WRITE setMaxShutterSpeed)
+  Q_PROPERTY(ShutterSpeedChoice currentShutterSpeed READ getCurrentShutterSpeed NOTIFY currentShutterSpeedChanged)
   Q_PROPERTY(int shutterSpeedChangeThreshold READ getShutterSpeedChangeThreshold WRITE setShutterSpeedChangeThreshold)
   Q_PROPERTY(int shutterSpeedStep READ getShutterSpeedStep WRITE setShutterSpeedStep)
 
@@ -115,6 +116,7 @@ signals:
   void done();
   void error(const QString &msg);
   void activeChanged();
+  void currentShutterSpeedChanged();
 
 public slots :
   virtual void start();
@@ -202,6 +204,10 @@ public:
     _shutterSpeedStep = s;
   }
 
+  ShutterSpeedChoice getCurrentShutterSpeed() {
+    return _currentShutterSpeed;
+  }
+
   int getCapturedCount() {
     return capturedCnt;
   }
@@ -226,6 +232,7 @@ private:
 
   ShutterSpeedChoice _minShutterSpeed;
   ShutterSpeedChoice _maxShutterSpeed;
+  ShutterSpeedChoice _currentShutterSpeed;
   int _shutterSpeedChangeThreshold=0;
   int _shutterSpeedStep=1;
 

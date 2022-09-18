@@ -324,6 +324,10 @@ void TimeLapseCapture::capture() {
     if (shutterSpdAlg != nullptr) {
       shutterSpeed = shutterSpdAlg->adjustShutterSpeed();
     }
+    if (_currentShutterSpeed != shutterSpeed) {
+      _currentShutterSpeed = shutterSpeed;
+      emit currentShutterSpeedChanged();
+    }
     dev->capture(verboseOutput, shutterSpeed);
   } catch (std::exception &e) {
     if (err) {

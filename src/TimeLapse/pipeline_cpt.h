@@ -64,6 +64,7 @@ namespace timelapse {
     Q_OBJECT
 
     Q_PROPERTY(bool busy READ isBusy NOTIFY busyChanged)
+    Q_PROPERTY(QString batteryLevel READ getBatteryLevel NOTIFY batteryLevelChanged)
 
   signals:
     void imageCaptured(QString type, Magick::Blob blob, Magick::Geometry sizeHint);
@@ -72,6 +73,7 @@ namespace timelapse {
     void update();
 
     void busyChanged();
+    void batteryLevelChanged();
   public:
 
     ~CaptureDevice() override = default;
@@ -88,6 +90,10 @@ namespace timelapse {
 
     virtual QString toShortString() {
       return toString();
+    }
+
+    virtual QString getBatteryLevel() const {
+      return "";
     }
 
     virtual QCamera::Position position() {

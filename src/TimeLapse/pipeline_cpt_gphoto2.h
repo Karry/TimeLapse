@@ -78,6 +78,10 @@ namespace timelapse {
     virtual ShutterSpeedChoice currentShutterSpeed();
     virtual bool isBusy() ;
 
+    virtual QString getBatteryLevel() const {
+      return _batteryLevel;
+    }
+
   protected slots:
     void pollingTimeout();
 
@@ -104,5 +108,6 @@ namespace timelapse {
     bool pollingScheduled;
     bool deleteImageAfterDownload;
     bool deviceLocked;
+    QString _batteryLevel;
   };
 }

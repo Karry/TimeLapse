@@ -596,8 +596,9 @@ namespace timelapse {
     deleteImageAfterDownload = !tryToSetRamStorage();
 
     try {
-      QString val = getConfigValue(BATTERYLEVEL_CONFIG);
-      *verboseOut << "Battery level: " << val << endl;
+      QString _batteryLevel = getConfigValue(BATTERYLEVEL_CONFIG);
+      *verboseOut << "Battery level: " << _batteryLevel << endl;
+      emit batteryLevelChanged();
     } catch (std::exception &e) {
       *verboseOut << "Can't read battery level: " << e.what() << endl;
     }

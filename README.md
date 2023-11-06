@@ -34,7 +34,7 @@ All captured with Nikon D5100, raw processed by Rawtherapee, then assembled by T
 ## Build
 
 This project is written in C++ with usage of QT framework and some other libraries 
-(ImageMagic, VidStab, V4L, GPHOTO2). 
+(ImageMagic, VidStab, V4L, GPHOTO2, exif). 
 I invest effort to create tools multiplatform, but I tested it on Ubuntu Linux only. 
 Moreover, V4L is Linux-only api.
 It uses avconv or ffmpeg to build final videos.

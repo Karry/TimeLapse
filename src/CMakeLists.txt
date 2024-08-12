@@ -9,7 +9,8 @@ FIND_PACKAGE(Qt5 REQUIRED COMPONENTS Core Multimedia)
 FIND_PACKAGE(ImageMagick REQUIRED COMPONENTS Magick++ MagickCore)
 FIND_PACKAGE(VidStab REQUIRED) 
 FIND_PACKAGE(V4L REQUIRED) 
-FIND_PACKAGE(GPHOTO2 REQUIRED) 
+FIND_PACKAGE(GPHOTO2 REQUIRED)
+FIND_PACKAGE(Exif REQUIRED)
 
 set(DESCRIBE_CMD "git describe --tags --dirty=+dirty --match 'v[0-9]*' | sed -E 's/^v//' ")
 execute_process(
@@ -33,7 +34,8 @@ include_directories(
   ${VIDSTAB_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR} # timelapse_version.h
   ${V4L_INCLUDE_DIRS}
-  ${GPHOTO2_INCLUDE_DIR})
+  ${GPHOTO2_INCLUDE_DIR}
+  ${Exif_INCLUDE_DIRS})
 
 # enable warnings
 ADD_DEFINITIONS( -Wall -Wextra -pedantic -fPIC)
@@ -75,6 +77,9 @@ message(STATUS "V4L_DEFINITIONS:          ${V4L_DEFINITIONS}")
 message(STATUS "GPHOTO2_FOUND:            ${GPHOTO2_FOUND}")
 message(STATUS "GPHOTO2_INCLUDE_DIR:      ${GPHOTO2_INCLUDE_DIR}")
 message(STATUS "GPHOTO2_LIBRARIES:        ${GPHOTO2_LIBRARIES}")
+message(STATUS "Exif_FOUND:               ${Exif_FOUND}")
+message(STATUS "Exif_INCLUDE_DIR:         ${Exif_INCLUDE_DIR}")
+message(STATUS "Exif_LIBRARIES:           ${Exif_LIBRARIES}")
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -165,7 +170,8 @@ target_link_libraries(timelapse
 	${ImageMagick_LIBRARIES} # Magick++-6.Q16
 	${VIDSTAB_LIBRARIES}
 	${V4L_LIBRARIES}
-	${GPHOTO2_LIBRARIES})
+	${GPHOTO2_LIBRARIES}
+	${Exif_LIBRARIES})
 
 target_link_libraries(timelapse_assembly
 	timelapse

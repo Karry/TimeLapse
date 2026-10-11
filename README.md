@@ -50,7 +50,7 @@ sudo apt-get install cmake cmake-data build-essential libmagick++-dev qtbase5-de
 
 build & install libvidstab*:
 ```
-git clone -b improvements https://github.com/Karry/vid.stab.git vidstab
+git clone https://github.com/georgmartius/vid.stab.git vidstab
 cd vidstab
 cmake .
 make -j `nproc`
@@ -58,8 +58,6 @@ sudo make install
 sudo ldconfig
 cd ..
 ```
-* This fork of vid.stab contains some fixes for processing RGB image that are not merged to 
-to upstream yet ( https://github.com/georgmartius/vid.stab )
 
 build & install TimeLapse tools:
 

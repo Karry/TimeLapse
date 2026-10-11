@@ -1,4 +1,4 @@
-name: Ubuntu 24.04, CMake
+name: Ubuntu 26.04, CMake
 
 on:
   pull_request:

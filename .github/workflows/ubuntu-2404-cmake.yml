@@ -24,7 +24,7 @@ jobs:
       shell: bash
       run: "sudo apt-get update && sudo apt-get -y install
             cmake cmake-data build-essential libmagick++-dev qtbase5-dev qtmultimedia5-dev
-            ffmpeg git libv4l-dev libgphoto2-dev"
+            ffmpeg git libv4l-dev libgphoto2-dev catch2"
 
     - name: Install upstream vidstab
       shell: bash

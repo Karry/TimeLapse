@@ -34,6 +34,9 @@ pkg_check_modules(IM "ImageMagick")
 # ADD_DEFINITIONS(-DMAGICKCORE_HDRI_SUPPORT=0) # colorHistogram fails with SIGSEGV when this option is enabled
 ADD_DEFINITIONS(${IM_CFLAGS})
 
+find_package(Catch2 3 QUIET)
+
+
 add_subdirectory(src)
 
 enable_testing()
@@ -56,3 +59,4 @@ message(STATUS "V4L_DEFINITIONS:          ${V4L_DEFINITIONS}")
 message(STATUS "GPHOTO2_FOUND:            ${GPHOTO2_FOUND}")
 message(STATUS "GPHOTO2_INCLUDE_DIR:      ${GPHOTO2_INCLUDE_DIR}")
 message(STATUS "GPHOTO2_LIBRARIES:        ${GPHOTO2_LIBRARIES}")
+message(STATUS "Catch2_FOUND:             ${Catch2_FOUND}")

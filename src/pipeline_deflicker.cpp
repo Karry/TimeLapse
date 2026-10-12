@@ -195,8 +195,7 @@ namespace timelapse {
         Magick::Geometry(original.columns() / 2, original.rows())
         );
 #else
-      original.crop(Magick::Geometry(original.columns(), original.rows()));
-      original.resize(Magick::Geometry(original.columns() / 2, original.rows()));
+      original.crop(Magick::Geometry(original.columns() / 2, original.rows()));
 #endif
       img.composite(original, 0, 0, Magick::DissolveCompositeOp);
     }

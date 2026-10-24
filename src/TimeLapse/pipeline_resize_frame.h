@@ -30,11 +30,32 @@
 #include <QtCore/QTemporaryDir>
 
 namespace timelapse {
-  
+
+#if MagickLibVersion < 0x700
+using ResizeFilterType = Magick::FilterTypes;
+#else
+using ResizeFilterType = Magick::FilterType;
+#endif
+
+
   class TIME_LAPSE_API ResizeFrame : public ImageHandler {
     Q_OBJECT
   public:
-    ResizeFrame(QTextStream *verboseOutput, int w, int h, bool adaptiveResize);
+    /**
+     *
+     * @param verboseOutput stream to write verbose output to
+     * @param w target width
+     * @param h target height
+     * @param adaptiveResize whether to use adaptive resize - fast interpolative resize using mesh interpolation
+     *        see ImageMagick documentation for details. It works well for small resizes of less than +/- 50% of the original image size.
+     * @param filterType filter type to use for resize. If adaptiveResize is true, this parameter is ignored.
+     *        By default, ImageMagick decides what filter to use based on the original and target image size.
+     */
+    ResizeFrame(QTextStream *verboseOutput,
+                int w, int h,
+                bool adaptiveResize = true,
+                ResizeFilterType filterType = ResizeFilterType::UndefinedFilter);
+
   public slots:
     virtual void onInputImg(InputImageInfo info, Magick::Image img) override;
 
@@ -43,6 +64,7 @@ namespace timelapse {
     int width;
     int height;
     bool adaptiveResize;
+    ResizeFilterType filterType;
   };
 
 }

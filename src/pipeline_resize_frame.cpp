@@ -26,8 +26,11 @@ using namespace timelapse;
 
 namespace timelapse {
 
-  ResizeFrame::ResizeFrame(QTextStream *verboseOutput, int w, int h, bool adaptiveResize) :
-    verboseOutput{verboseOutput}, width(w), height(h), adaptiveResize(adaptiveResize) {
+ResizeFrame::ResizeFrame(QTextStream *verboseOutput,
+                         int w, int h,
+                         bool adaptiveResize,
+                         ResizeFilterType filterType) :
+    verboseOutput{verboseOutput}, width(w), height(h), adaptiveResize(adaptiveResize), filterType(filterType) {
   }
 
   void ResizeFrame::onInputImg(InputImageInfo info, Magick::Image img) {
@@ -42,6 +45,7 @@ namespace timelapse {
       if (adaptiveResize) {
         resized.adaptiveResize(g);
       } else {
+        resized.filterType(filterType);
         resized.resize(g);
       }
     }
